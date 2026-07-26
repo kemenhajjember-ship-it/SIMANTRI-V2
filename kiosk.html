@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SIMANTRI — Kiosk Layanan Haji &amp; Umrah</title>
+
+<!-- ============================================================
+     TAILWIND CDN + KONFIGURASI TOKEN WARNA (Deep Bronze / Gold / Cream)
+     ============================================================ -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bronze: '#3d2817',
+          'bronze-deep': '#2b1b10',
+          'bronze-ink': '#1b1008',
+          gold: '#d4af37',
+          'gold-light': '#e8c547',
+          'gold-deep': '#a8842a',
+          cream: '#f5eee0',
+          'cream-light': '#faf7f2',
+        },
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          serif: ['"Lora"', 'serif'],
+        },
+        /* Nilai opacity tambahan agar modifier warna (mis. bg-cream-light/97)
+           tetap valid di Tailwind CDN */
+        opacity: {
+          8: '0.08', 12: '0.12', 15: '0.15', 22: '0.22', 35: '0.35',
+          45: '0.45', 55: '0.55', 65: '0.65', 85: '0.85', 92: '0.92', 97: '0.97',
+        },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  /* Container query di canvas kiosk, supaya unit cqw pada class Tailwind
+     arbitrary (mis. size-[3.4cqw]) mengacu ke lebar kanvas kiosk, bukan viewport */
+  .kiosk-canvas{ container-type: inline-size; }
+  html, body{ height:100%; margin:0; }
+
+  /* Ikon status koneksi pada footer diisi ulang oleh script (memakai unit cqw).
+     Rule ini menjaga ukurannya tetap proporsional & elegan di layar landscape. */
+  #statusFirebaseFooter svg{ width:1.35rem !important; height:1.35rem !important; }
+
+  /* Garis emas tipis dekoratif */
+  .hairline-gold{
+    background-image: linear-gradient(90deg, transparent, rgba(212,175,55,.85), transparent);
+  }
+
+  /* =========================================================================
+     WATERMARK KIRI & KANAN (kiri.png / kanan.png)
+     Sangat samar (grayscale + multiply) dan memudar via mask-image ke arah
+     tengah, sehingga menyatu dengan warna cream full-screen tanpa menutupi
+     kartu/tombol di tengah layar.
+     ========================================================================= */
+  .watermark-img{
+    position:absolute; inset:0;
+    background-size: cover;
+    /* Efek grayscale dan multiply dibuang agar warna aslinya keluar */
+    opacity: 0.55; /* Dinaikkan agar gambarnya lebih jelas */
+  }
+  .watermark-left{
+    background-position: left center;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 92%);
+            mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 92%);
+  }
+  .watermark-right{
+    background-position: right center;
+    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 92%);
+            mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 92%);
+  }
+
+  /* =========================================================================
+     ==========================  @MEDIA PRINT  ==============================
+     =========================================================================
+     Struk tersembunyi total di layar (lihat #areaStruk, display:none).
+     Saat window.print() dipanggil, seluruh elemen kiosk disembunyikan dan
+     hanya #areaStruk yang dirender, diformat selebar kertas thermal 58mm.
+     ========================================================================= */
+  #areaStruk{ display:none; }
+  @media print{
+    @page{ size:58mm auto; margin:0; }
+    html, body{ width:58mm; margin:0; padding:0; background:#fff !important; }
+    body > *:not(#areaStruk){ display:none !important; }
+    #areaStruk{
+      display:block !important; width:58mm; max-width:58mm; margin:0 auto; padding:3mm 2.5mm;
+      font-family:'Courier New',monospace; color:#000; background:#fff;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    }
+    #areaStruk *{ color:#000 !important; background:transparent !important; box-shadow:none !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .struk-garis{ border-top:1px dashed #000; margin:5px 0; }
+    .struk-kop-instansi{ text-align:center; font-size:11px; font-weight:700; line-height:1.3; text-transform:uppercase; }
+    .struk-kategori{ text-align:center; font-size:12px; font-weight:700; margin-top:5px; }
+    .struk-judul-kecil{ text-align:center; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:6px 0 2px; }
+    .struk-nomor-raksasa{
+      text-align:center; font-size:64px; font-weight:900; letter-spacing:1px;
+      line-height:1; margin:2px 0 6px; -webkit-text-stroke:0.6px #000;
+    }
+    .struk-jumlah{ text-align:center; font-size:12px; font-weight:700; margin-bottom:5px; }
+    .struk-waktu{ text-align:center; font-size:10px; margin-bottom:3px; }
+    .struk-pesan{ text-align:center; font-size:11px; font-weight:700; margin-top:5px; }
+    .struk-footer{ text-align:center; font-size:9px; margin-top:8px; }
+  }
+</style>
+</head>
+<body class="relative flex h-dvh w-full items-center justify-center overflow-hidden bg-bronze-ink font-sans">
+
+  <!-- ==================== BACKGROUND AMBIENT (KIRI & KANAN) ====================
+       Background utama adalah warna cream/gading full-screen (lihat class
+       bg-cream pada <body>). Gambar kiri.png/kanan.png ditempel di sisi
+       paling kiri & kanan sebagai watermark: grayscale + multiply + opacity
+       sangat rendah, lalu memudar (mask-image) ke arah tengah supaya larut
+       ke warna cream tanpa mengganggu keterbacaan teks/tombol di tengah.
+       ========================================================================= -->
+  <div class="absolute inset-0 z-0 flex">
+    <div class="relative h-full w-1/2 overflow-hidden">
+      <div class="watermark-img watermark-left" style="background-image:url('kiri.png')"></div>
+    </div>
+    <div class="relative h-full w-1/2 overflow-hidden">
+      <div class="watermark-img watermark-right" style="background-image:url('kanan.png')"></div>
+    </div>
+  </div>
+
+  <!-- Cahaya emas sangat tipis di belakang kartu (bukan blob dekoratif) -->
+  <div class="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_60%_55%_at_50%_45%,rgba(212,175,55,.14),transparent_70%)]"></div>
+
+  <!-- ==================== KIOSK UI — PREMIUM CREAM PANEL (ATM / LOBI HOTEL VIP) ==================== -->
+  <main class="kiosk-canvas relative z-20 flex h-[min(95dvh,980px)] w-[min(94vw,1500px)] flex-col overflow-hidden rounded-[2.25rem] border border-gold/35 bg-cream-light/97 text-bronze-deep shadow-[0_40px_120px_-20px_rgba(0,0,0,.85),0_0_0_1px_rgba(255,255,255,.35)_inset] ring-1 ring-bronze-deep/10 backdrop-blur-sm">
+
+    <!-- Aksen emas di tepi atas panel -->
+    <div class="h-1.5 w-full shrink-0 bg-[linear-gradient(90deg,#a8842a,#e8c547_35%,#d4af37_50%,#e8c547_65%,#a8842a)]"></div>
+
+    <!-- HEADER -->
+    <header class="flex shrink-0 items-center gap-5 border-b border-bronze-deep/10 bg-gradient-to-b from-cream/90 to-cream-light/0 px-8 py-5 lg:gap-7 lg:px-12 lg:py-6">
+      <!-- Logo: bulat sempurna, cincin emas, ukuran proporsional -->
+      <div class="shrink-0 rounded-full border-2 border-gold/70 bg-white p-1.5 shadow-[0_8px_24px_-8px_rgba(61,40,23,.55)]">
+        <img src="logo.png" alt="Logo Instansi" class="block aspect-square h-[clamp(3.5rem,7.5dvh,5.25rem)] w-[clamp(3.5rem,7.5dvh,5.25rem)] rounded-full object-cover">
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <p class="truncate font-serif text-[clamp(.7rem,1.35dvh,.95rem)] font-bold uppercase tracking-[0.28em] text-gold-deep">
+          Kementerian Haji dan Umrah Kabupaten Jember
+        </p>
+        <p class="mt-0.5 text-[clamp(1.75rem,4.4dvh,2.9rem)] font-extrabold leading-tight tracking-[0.14em] text-bronze-deep">
+          SIMANTRI
+        </p>
+        <p class="text-[clamp(.72rem,1.5dvh,1rem)] font-semibold tracking-[0.2em] text-bronze/70">
+          Sistem Manajemen Antrean
+        </p>
+      </div>
+
+      <!-- Jam besar ala ATM premium (kanan header) -->
+      <div class="flex shrink-0 flex-col items-end border-l border-bronze-deep/10 pl-6 text-right">
+        <span class="text-[clamp(.7rem,1.4dvh,.9rem)] font-semibold uppercase tracking-[0.22em] text-bronze/60">Waktu Setempat</span>
+        <span class="mt-1 flex items-baseline gap-2">
+          <span id="footerJam" class="font-mono text-[clamp(1.5rem,3.6dvh,2.35rem)] font-extrabold leading-none tracking-tight text-bronze-deep">--:--:--</span>
+          <span class="text-[clamp(.7rem,1.4dvh,.9rem)] font-bold text-gold-deep">WIB</span>
+        </span>
+        <span id="footerTanggal" class="mt-1 text-[clamp(.7rem,1.4dvh,.92rem)] font-semibold text-bronze/70">memuat tanggal...</span>
+      </div>
+    </header>
+
+    <!-- KONTEN UTAMA — mengisi ruang sisa secara proporsional -->
+    <section class="flex min-h-0 flex-1 flex-col px-8 py-6 lg:px-12 lg:py-8">
+
+      <!-- ORNAMEN JUDUL -->
+      <div class="flex shrink-0 items-center justify-center gap-5">
+        <span class="hairline-gold h-px w-16 lg:w-28"></span>
+        <h1 class="text-center font-serif text-[clamp(1.15rem,3dvh,1.9rem)] font-bold uppercase tracking-[0.22em] text-bronze-deep">
+          Silakan Pilih Layanan
+        </h1>
+        <span class="hairline-gold h-px w-16 lg:w-28"></span>
+      </div>
+      <p class="mt-2 shrink-0 text-center text-[clamp(.78rem,1.6dvh,1.02rem)] font-medium text-bronze/65">
+        Sentuh salah satu kartu di bawah untuk mengambil nomor antrean
+      </p>
+
+      <!-- PILIHAN LAYANAN — dua kartu sejajar, tinggi mengisi ruang tersisa -->
+      <div class="mt-5 grid min-h-0 flex-1 grid-cols-2 gap-5 lg:gap-9">
+
+        <!-- Tombol A — DEEP BRONZE ELEGAN -->
+        <button type="button" id="btnAmbilVerifikasi"
+          class="group relative flex min-h-0 flex-col items-center justify-center gap-[clamp(.75rem,2dvh,1.5rem)] overflow-hidden rounded-[1.75rem] border border-bronze-deep/40 bg-gradient-to-b from-bronze to-bronze-deep p-6 text-center shadow-[0_22px_50px_-22px_rgba(43,27,16,.9)] transition-all duration-300 hover:-translate-y-1 hover:border-gold/70 hover:shadow-[0_30px_60px_-20px_rgba(43,27,16,.95)] active:translate-y-0 active:scale-[.99] disabled:pointer-events-none disabled:opacity-45">
+          <span class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent"></span>
+          <span class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(232,197,71,.18),transparent_70%)]"></span>
+
+          <span class="flex aspect-square h-[clamp(3rem,13dvh,7rem)] w-[clamp(3rem,13dvh,7rem)] shrink-0 items-center justify-center rounded-full border border-gold/45 bg-gold/10 transition-transform duration-300 group-hover:scale-105">
+            <i data-lucide="circle-check" stroke-width="1.5" class="h-1/2 w-1/2 text-gold-light"></i>
+          </span>
+
+          <span class="relative block">
+            <span class="block text-[clamp(1.4rem,3.6dvh,2.35rem)] font-extrabold tracking-[0.18em] text-cream-light">VERIFIKASI</span>
+            <span class="mt-2 block text-[clamp(.8rem,1.7dvh,1.05rem)] font-medium leading-relaxed text-cream/75">
+              Verifikasi Dokumen &amp; Pendaftaran Jemaah
+            </span>
+          </span>
+
+          <span class="relative mt-1 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-bronze-ink/50 px-4 py-1.5 text-[clamp(.7rem,1.5dvh,.92rem)] font-bold tracking-wider text-gold-light">
+            KODE A <span class="h-1 w-1 rounded-full bg-gold/60"></span> LOKET 1 &amp; 3
+          </span>
+        </button>
+
+        <!-- Tombol B — GOLD PREMIUM -->
+        <button type="button" id="btnAmbilInformasi"
+          class="group relative flex min-h-0 flex-col items-center justify-center gap-[clamp(.75rem,2dvh,1.5rem)] overflow-hidden rounded-[1.75rem] border border-gold-deep/50 bg-[linear-gradient(160deg,#e8c547,#d4af37_45%,#b8912c)] p-6 text-center shadow-[0_22px_50px_-22px_rgba(168,132,42,.85)] transition-all duration-300 hover:-translate-y-1 hover:brightness-[1.04] hover:shadow-[0_30px_60px_-20px_rgba(168,132,42,.95)] active:translate-y-0 active:scale-[.99] disabled:pointer-events-none disabled:opacity-45">
+          <span class="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent"></span>
+
+          <span class="flex aspect-square h-[clamp(3rem,13dvh,7rem)] w-[clamp(3rem,13dvh,7rem)] shrink-0 items-center justify-center rounded-full border border-white/50 bg-cream-light/45 transition-transform duration-300 group-hover:scale-105">
+            <i data-lucide="info" stroke-width="1.5" class="h-1/2 w-1/2 text-bronze-deep"></i>
+          </span>
+
+          <span class="relative block">
+            <span class="block text-[clamp(1.4rem,3.6dvh,2.35rem)] font-extrabold tracking-[0.18em] text-bronze-deep">INFORMASI</span>
+            <span class="mt-2 block text-[clamp(.8rem,1.7dvh,1.05rem)] font-semibold leading-relaxed text-bronze-deep/80">
+              Tanya Jadwal, Status &amp; Layanan Umum
+            </span>
+          </span>
+
+          <span class="relative mt-1 inline-flex items-center gap-2 rounded-full border border-bronze-deep/25 bg-bronze-deep/10 px-4 py-1.5 text-[clamp(.7rem,1.5dvh,.92rem)] font-bold tracking-wider text-bronze-deep">
+            KODE B <span class="h-1 w-1 rounded-full bg-bronze-deep/50"></span> LOKET 2 &amp; 4
+          </span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="flex shrink-0 items-center justify-between gap-4 border-t border-bronze-deep/10 bg-cream/70 px-8 py-4 lg:px-12">
+      <p class="flex items-center gap-3 text-[clamp(.72rem,1.5dvh,.95rem)] font-semibold tracking-wide text-bronze/70">
+        <i data-lucide="shield-check" class="h-[1.15rem] w-[1.15rem] text-gold-deep"></i>
+        Layanan resmi &middot; Mohon simpan struk antrean Anda
+      </p>
+      <span id="statusFirebaseFooter" class="flex items-center gap-2.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-[clamp(.72rem,1.5dvh,.95rem)] font-bold tracking-wide text-gold-deep">
+        <i data-lucide="loader-circle" class="h-[1.15rem] w-[1.15rem] animate-spin text-gold-deep"></i> Menghubungkan...
+      </span>
+    </footer>
+
+    <!-- ==================== MODAL ROMBONGAN ==================== -->
+    <div id="overlayRombongan" class="absolute inset-0 z-30 hidden flex-col items-center justify-center bg-bronze-ink/92 px-8 py-8 text-center backdrop-blur-md">
+      <div class="flex max-h-full w-full max-w-3xl flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-8 py-[clamp(1.25rem,3.5dvh,2.5rem)] shadow-[0_40px_100px_-30px_rgba(0,0,0,.9)]">
+        <p id="modalKategoriBadge" class="rounded-full border border-gold/50 bg-gold/12 px-6 py-2 text-[clamp(.7rem,1.5dvh,.92rem)] font-bold uppercase tracking-[0.2em] text-gold-light">Kategori</p>
+
+        <h2 class="mt-[clamp(.75rem,2.5dvh,1.75rem)] font-serif text-[clamp(1.2rem,3.6dvh,2.25rem)] font-bold leading-snug text-cream-light">
+          Berapa jumlah jemaah<br>dalam rombongan Anda?
+        </h2>
+
+        <div class="mt-[clamp(1rem,3dvh,2.25rem)] flex items-center justify-center gap-[clamp(1.25rem,4dvh,3rem)]">
+          <button type="button" id="btnKurangRombongan" class="flex aspect-square h-[clamp(3.25rem,9dvh,5.25rem)] w-[clamp(3.25rem,9dvh,5.25rem)] items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-[clamp(1.75rem,4.5dvh,2.75rem)] font-bold leading-none text-gold-light transition-all hover:bg-cream/20 active:scale-90 disabled:opacity-25">−</button>
+          <div id="angkaRombongan" class="w-[clamp(5rem,14dvh,8rem)] font-mono text-[clamp(3.5rem,12dvh,7rem)] font-black leading-none text-cream-light">1</div>
+          <button type="button" id="btnTambahRombongan" class="flex aspect-square h-[clamp(3.25rem,9dvh,5.25rem)] w-[clamp(3.25rem,9dvh,5.25rem)] items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-[clamp(1.75rem,4.5dvh,2.75rem)] font-bold leading-none text-gold-light transition-all hover:bg-cream/20 active:scale-90 disabled:opacity-25">+</button>
+        </div>
+
+        <p class="mt-[clamp(.5rem,2dvh,1.25rem)] text-[clamp(.75rem,1.6dvh,1rem)] font-medium tracking-wide text-cream/55">Maksimal 8 orang per rombongan</p>
+
+        <div class="mt-[clamp(1rem,3.5dvh,2.5rem)] flex w-full max-w-xl gap-5">
+          <button type="button" id="btnBatalRombongan" class="flex-1 rounded-2xl border border-cream/25 bg-cream/10 py-[clamp(.75rem,2.2dvh,1.15rem)] text-[clamp(.9rem,2dvh,1.25rem)] font-bold tracking-wide text-cream-light transition-all hover:bg-cream/20 active:scale-95">Batal</button>
+          <button type="button" id="btnKonfirmasiRombongan" class="flex-1 rounded-2xl bg-[linear-gradient(135deg,#e8c547,#d4af37)] py-[clamp(.75rem,2.2dvh,1.15rem)] text-[clamp(.9rem,2dvh,1.25rem)] font-extrabold tracking-wide text-bronze-deep shadow-[0_16px_40px_-14px_rgba(212,175,55,.8)] transition-all hover:brightness-105 active:scale-95">Lanjutkan &amp; Cetak</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL TIKET (STRUK CETAK) ==================== -->
+    <div id="overlayTiket" class="absolute inset-0 z-40 hidden flex-col items-center justify-center bg-bronze-ink/95 px-8 py-8 text-center backdrop-blur-md">
+      <div class="flex max-h-full w-full max-w-4xl flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-8 py-[clamp(1.25rem,3.5dvh,2.5rem)] shadow-[0_40px_100px_-30px_rgba(0,0,0,.9)]">
+        <p id="ticket-title" class="font-serif text-[clamp(.9rem,2.2dvh,1.4rem)] font-bold uppercase tracking-[0.24em] text-gold-light">Nomor antrean Anda</p>
+
+        <p id="tiketKode" class="mt-[clamp(.25rem,1.5dvh,1rem)] text-[clamp(4.5rem,20dvh,11rem)] font-black leading-[.95] tracking-wider text-cream-light drop-shadow-[0_10px_30px_rgba(212,175,55,.25)]">A-001</p>
+
+        <div class="mt-[clamp(.5rem,2dvh,1.5rem)] w-full max-w-lg rounded-2xl border border-cream/20 bg-cream/8 px-8 py-[clamp(.75rem,2.5dvh,1.5rem)]">
+          <p id="tiketLayanan" class="text-[clamp(1.05rem,2.8dvh,1.75rem)] font-bold tracking-wide text-gold-light">Verifikasi Dokumen</p>
+          <p id="tiketLoket" class="mt-1 text-[clamp(.85rem,1.9dvh,1.15rem)] font-semibold text-cream/85">Loket 1 &amp; 3</p>
+          <p id="tiketJumlah" class="mt-[clamp(.5rem,1.6dvh,1rem)] border-t border-cream/15 pt-[clamp(.5rem,1.6dvh,1rem)] text-[clamp(.85rem,1.9dvh,1.15rem)] font-bold text-cream-light">Jumlah Rombongan: 1 orang</p>
+        </div>
+
+        <p class="mt-[clamp(.5rem,2dvh,1.5rem)] flex items-center gap-3 text-[clamp(.8rem,1.8dvh,1.1rem)] font-semibold tracking-wide text-gold-light">
+          <i data-lucide="printer" stroke-width="2" class="h-[1.4rem] w-[1.4rem] animate-pulse"></i>
+          Struk sedang dicetak, silakan ambil di bawah layar
+        </p>
+
+        <button type="button" id="btnTutupTiket" class="mt-[clamp(.75rem,2.5dvh,1.75rem)] rounded-2xl bg-[linear-gradient(135deg,#e8c547,#d4af37)] px-[clamp(3rem,8vw,5.5rem)] py-[clamp(.7rem,2.2dvh,1.15rem)] text-[clamp(1rem,2.4dvh,1.5rem)] font-extrabold tracking-[0.15em] text-bronze-deep shadow-[0_16px_40px_-14px_rgba(212,175,55,.8)] transition-transform active:scale-95">
+          SELESAI
+        </button>
+
+        <p class="mt-[clamp(.5rem,1.8dvh,1rem)] text-[clamp(.75rem,1.6dvh,1rem)] font-medium tracking-wide text-cream/55">
+          Kembali otomatis dalam <span id="hitungMundurTiket" class="font-bold text-gold-light">6</span> detik
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- =========================================================================
+       AREA STRUK CETAK (TIKET FISIK) — tersembunyi di layar, hanya muncul
+       saat window.print() dipanggil (lihat @media print di atas).
+       ========================================================================= -->
+  <div id="areaStruk">
+    <div class="struk-kop-instansi">
+      Kementerian Haji dan Umrah RI<br>
+      Kantor Kemenhaj Kab. Jember<br>
+      Layanan Verifikasi &amp; Informasi
+    </div>
+    <div class="struk-garis"></div>
+    <div class="struk-kategori" id="strukKategori">Kategori: -</div>
+    <div class="struk-judul-kecil">Nomor Antrean Anda</div>
+    <div class="struk-nomor-raksasa" id="strukNomor">---</div>
+    <div class="struk-jumlah" id="strukJumlah">Jumlah Rombongan: 1 Orang</div>
+    <div class="struk-garis"></div>
+    <div class="struk-waktu" id="strukWaktu">--/--/---- --:--:--</div>
+    <div class="struk-pesan">Silakan menunggu panggilan</div>
+    <div class="struk-footer">Terima kasih atas kesabaran Anda</div>
+  </div>
+
+<script type="module">
+/* =========================================================================
+   FIREBASE SETUP (Modular SDK v9+/v10 via CDN)
+   ========================================================================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getDatabase, ref, push, set, runTransaction, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
+  authDomain: "simantri-jember.firebaseapp.com",
+  databaseURL: "https://simantri-jember-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "simantri-jember",
+  storageBucket: "simantri-jember.firebasestorage.app",
+  messagingSenderId: "507271630488",
+  appId: "1:507271630488:web:dcc347a35334c6f3a84aed"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* =========================================================================
+   STRUKTUR DATA FIREBASE (dipakai bersama kiosk.html, admin.html, tv.html)
+   /counter_nomor/{kategori}    -> number, counter per kategori (A / B)
+   /antrean_menunggu/{pushId}   -> { nomor, kategori:"A"|"B", jumlahOrang, timestamp }
+   /panggilan_aktif             -> { nomor, loket, kategori, timestamp } (trigger animasi+TTS di TV)
+   /status_loket/{id_loket}     -> { nomor, kategori, timestamp } (state permanen per loket utk TV grid)
+   ========================================================================= */
+
+const NAMA_KATEGORI = { A: 'Verifikasi', B: 'Informasi' };
+const LOKET_KATEGORI = { A: 'Loket 1 & 3', B: 'Loket 2 & 4' };
+const JUMLAH_MAKS_ROMBONGAN = 8;
+
+lucide.createIcons();
+
+const el = {
+  btnV: document.getElementById('btnAmbilVerifikasi'),
+  btnI: document.getElementById('btnAmbilInformasi'),
+
+  overlayRombongan: document.getElementById('overlayRombongan'),
+  modalKategoriBadge: document.getElementById('modalKategoriBadge'),
+  angkaRombongan: document.getElementById('angkaRombongan'),
+  btnKurangRombongan: document.getElementById('btnKurangRombongan'),
+  btnTambahRombongan: document.getElementById('btnTambahRombongan'),
+  btnBatalRombongan: document.getElementById('btnBatalRombongan'),
+  btnKonfirmasiRombongan: document.getElementById('btnKonfirmasiRombongan'),
+
+  overlayTiket: document.getElementById('overlayTiket'),
+  tiketKode: document.getElementById('tiketKode'),
+  tiketLayanan: document.getElementById('tiketLayanan'),
+  tiketLoket: document.getElementById('tiketLoket'),
+  tiketJumlah: document.getElementById('tiketJumlah'),
+  btnTutupTiket: document.getElementById('btnTutupTiket'),
+  hitungMundurTiket: document.getElementById('hitungMundurTiket'),
+
+  footerTanggal: document.getElementById('footerTanggal'),
+  footerJam: document.getElementById('footerJam'),
+  statusFirebaseFooter: document.getElementById('statusFirebaseFooter'),
+
+  strukKategori: document.getElementById('strukKategori'),
+  strukNomor: document.getElementById('strukNomor'),
+  strukJumlah: document.getElementById('strukJumlah'),
+  strukWaktu: document.getElementById('strukWaktu'),
+};
+
+el.statusFirebaseFooter.innerHTML = '<i data-lucide="circle-check" class="size-[3.4cqw]"></i> Terhubung ke server';
+lucide.createIcons();
+
+function perbaruiJam(){
+  const sekarang = new Date();
+  el.footerJam.textContent = sekarang.toLocaleTimeString('id-ID', { hour12:false });
+  el.footerTanggal.textContent = sekarang.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+perbaruiJam();
+setInterval(perbaruiJam, 1000);
+
+function formatNomor(kategori, angka){ return `${kategori}-${String(angka).padStart(3, '0')}`; }
+
+/* =========================================================================
+   LANGKAH 1 — MODAL JUMLAH ROMBONGAN
+   ========================================================================= */
+let kategoriDipilih = null;
+let jumlahRombongan = 1;
+
+function perbaruiTampilanStepper(){
+  el.angkaRombongan.textContent = jumlahRombongan;
+  el.btnKurangRombongan.disabled = jumlahRombongan <= 1;
+  el.btnTambahRombongan.disabled = jumlahRombongan >= JUMLAH_MAKS_ROMBONGAN;
+}
+
+function bukaModalRombongan(kategori){
+  kategoriDipilih = kategori;
+  jumlahRombongan = 1;
+  perbaruiTampilanStepper();
+  el.modalKategoriBadge.textContent = `Kategori ${NAMA_KATEGORI[kategori]} (Kode ${kategori})`;
+  el.overlayRombongan.classList.remove('hidden');
+  el.overlayRombongan.classList.add('flex');
+}
+
+el.btnV.addEventListener('click', () => bukaModalRombongan('A'));
+el.btnI.addEventListener('click', () => bukaModalRombongan('B'));
+
+el.btnKurangRombongan.addEventListener('click', () => { jumlahRombongan = Math.max(1, jumlahRombongan - 1); perbaruiTampilanStepper(); });
+el.btnTambahRombongan.addEventListener('click', () => { jumlahRombongan = Math.min(JUMLAH_MAKS_ROMBONGAN, jumlahRombongan + 1); perbaruiTampilanStepper(); });
+
+el.btnBatalRombongan.addEventListener('click', () => {
+  el.overlayRombongan.classList.add('hidden');
+  el.overlayRombongan.classList.remove('flex');
+  kategoriDipilih = null;
+});
+
+let timerIdleRombongan = null;
+const DURASI_IDLE_MS = 30000;
+
+function resetKiosk(){
+  if (!el.overlayRombongan.classList.contains('hidden')) {
+    el.overlayRombongan.classList.add('hidden');
+    el.overlayRombongan.classList.remove('flex');
+    kategoriDipilih = null;
+    jumlahRombongan = 1;
+    perbaruiTampilanStepper();
+  }
+}
+
+function mulaiTimerIdle(){
+  clearTimeout(timerIdleRombongan);
+  timerIdleRombongan = setTimeout(resetKiosk, DURASI_IDLE_MS);
+}
+
+document.addEventListener('click', mulaiTimerIdle);
+document.addEventListener('touchstart', mulaiTimerIdle);
+mulaiTimerIdle();
+
+el.btnKonfirmasiRombongan.addEventListener('click', async () => {
+  if (!kategoriDipilih) return;
+
+  const teksAsliTombol = el.btnKonfirmasiRombongan.textContent;
+  el.btnKonfirmasiRombongan.disabled = true;
+  el.btnKonfirmasiRombongan.textContent = 'Memproses...';
+
+  el.overlayRombongan.classList.add('hidden');
+  el.overlayRombongan.classList.remove('flex');
+
+  try {
+    await ambilAntrean(kategoriDipilih, jumlahRombongan);
+  } finally {
+    el.btnKonfirmasiRombongan.disabled = false;
+    el.btnKonfirmasiRombongan.textContent = teksAsliTombol;
+  }
+});
+
+/* =========================================================================
+   LANGKAH 2 — AMBIL NOMOR & SIMPAN KE FIREBASE
+   ========================================================================= */
+async function ambilNomorBaru(kategori){
+  const counterRef = ref(db, `counter_nomor/${kategori}`);
+  const hasil = await runTransaction(counterRef, (nilaiSaatIni) => (nilaiSaatIni || 0) + 1);
+  return hasil.snapshot.val();
+}
+
+async function ambilAntrean(kategori, jumlahOrang){
+  toggleTombol(false);
+  try {
+    const angka = await ambilNomorBaru(kategori);
+    const nomor = formatNomor(kategori, angka);
+
+    const tiketBaruRef = push(ref(db, 'antrean_menunggu'));
+    await set(tiketBaruRef, { nomor, kategori, jumlahOrang, timestamp: serverTimestamp() });
+
+    tampilkanTiket(nomor, kategori, jumlahOrang);
+  } catch (err) {
+    console.error(err);
+    alert('Gagal mengambil antrean. Periksa koneksi & konfigurasi Firebase.');
+  } finally {
+    setTimeout(() => toggleTombol(true), 1800);
+  }
+}
+
+let timerHitungMundur = null;
+
+/**
+ * ====================  KONFIRMASI + CETAK STRUK OTOMATIS  ====================
+ * 1. Tampilkan overlay tiket (mengikuti desain queue-ticket.tsx dari v0),
+ *    dengan hitung mundur auto-close (dipertahankan dari desain asli).
+ * 2. Isi elemen #areaStruk (nomor, kategori, jumlah rombongan, waktu).
+ * 3. Panggil window.print() otomatis.
+ * ================================================================================
+ */
+function tampilkanTiket(nomor, kategori, jumlahOrang){
+  el.tiketKode.textContent = nomor;
+  el.tiketLayanan.textContent = `${NAMA_KATEGORI[kategori]} — Kode ${kategori}`;
+  el.tiketLoket.textContent = LOKET_KATEGORI[kategori];
+  el.tiketJumlah.textContent = `Jumlah Rombongan: ${jumlahOrang} orang`;
+
+  el.overlayTiket.classList.remove('hidden');
+  el.overlayTiket.classList.add('flex');
+
+  let sisaDetik = 6;
+  el.hitungMundurTiket.textContent = sisaDetik;
+  clearInterval(timerHitungMundur);
+  timerHitungMundur = setInterval(() => {
+    sisaDetik -= 1;
+    el.hitungMundurTiket.textContent = Math.max(sisaDetik, 0);
+    if (sisaDetik <= 0) tutupTiket();
+  }, 1000);
+
+  const sekarang = new Date();
+  const tanggalJam = sekarang.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit', year:'numeric' })
+    + '  ' + sekarang.toLocaleTimeString('id-ID', { hour12:false });
+
+  el.strukKategori.textContent = `Kategori: ${NAMA_KATEGORI[kategori] || kategori}`;
+  el.strukNomor.textContent = nomor;
+  el.strukJumlah.textContent = `Jumlah Rombongan: ${jumlahOrang} Orang`;
+  el.strukWaktu.textContent = tanggalJam;
+
+  setTimeout(() => { window.print(); }, 150);
+}
+
+function tutupTiket(){
+  clearInterval(timerHitungMundur);
+  el.overlayTiket.classList.add('hidden');
+  el.overlayTiket.classList.remove('flex');
+}
+el.btnTutupTiket.addEventListener('click', tutupTiket);
+
+function toggleTombol(aktif){
+  el.btnV.disabled = !aktif;
+  el.btnI.disabled = !aktif;
+}
+
+/* =========================================================================
+   PANDUAN SINGKAT: MODE "KIOSK PRINTING" DI GOOGLE CHROME
+   =========================================================================
+   1. Tutup semua jendela Chrome di komputer kiosk.
+   2. Jalankan Chrome via shortcut dengan flag:
+        Windows: "C:\Program Files\Google\Chrome\Application\chrome.exe"
+                 --kiosk-printing --kiosk --app=file:///C:/path/ke/kiosk.html
+        macOS/Linux: google-chrome --kiosk-printing --kiosk --app=file:///path/ke/kiosk.html
+      --kiosk-printing -> melewati dialog preview print, langsung mencetak.
+      --kiosk           -> Chrome full-screen tanpa address bar/tab.
+   3. Set printer thermal sebagai "Printer Default" di sistem operasi.
+   4. Ukuran kertas diatur lewat CSS @page pada blok @media print di atas.
+   ========================================================================= */
+</script>
+</body>
+</html>

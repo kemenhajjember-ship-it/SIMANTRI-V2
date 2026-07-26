@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMANTRI — Layar Ruang Tunggu</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bronze: '#2b1b10',
+          'bronze-raised': '#3d2817',
+          gold: '#e8c547',
+          'gold-deep': '#d4af37',
+          cream: '#f5eee0',
+          border: '#6b4e2a',
+        },
+        fontFamily: {
+          sans: ['Manrope', 'sans-serif'],
+          mono: ['"Courier New"', 'monospace'],
+        },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  html,body{ height:100%; margin:0; }
+  body{ font-variant-numeric: tabular-nums; }
+
+  /* =========================================================================
+     ANIMASI FLASH/GLOW — dipicu HANYA pada kartu loket yang baru saja
+     dipanggil (class .card-active ditambahkan sesaat lalu dihapus).
+     ========================================================================= */
+  @keyframes card-pulse{
+    0%,100%{ border-color:#e8c547; box-shadow:0 0 0 1px #d4af37, 0 0 34px -8px rgba(232,197,71,0.45); }
+    50%{ border-color:#f5eee0; box-shadow:0 0 0 2px #e8c547, 0 0 56px -6px rgba(232,197,71,0.65); }
+  }
+  .card-active{ animation: card-pulse 2.4s ease-in-out infinite; }
+
+  @keyframes ticker-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .ticker-track{ display:flex; width:max-content; white-space:nowrap; animation: ticker-scroll 32s linear infinite; }
+</style>
+</head>
+<body class="flex h-screen w-full flex-col overflow-hidden bg-bronze font-sans text-cream">
+
+  <!-- Overlay wajib diklik sekali (kebijakan autoplay audio browser) -->
+  <div id="overlayAktifkan" class="fixed inset-0 z-20 flex flex-col items-center justify-center gap-6 bg-bronze/98">
+    <p class="font-sans text-2xl font-extrabold uppercase tracking-[0.1em] text-gold">SIMANTRI — Layar Ruang Tunggu</p>
+    <button id="btnAktifkan" type="button" class="rounded-full bg-gold px-10 py-5 text-lg font-extrabold text-bronze shadow-lg active:scale-95">
+      🔊 Aktifkan Layar &amp; Suara
+    </button>
+  </div>
+
+  <!-- ==================== HEADER (display-header.tsx) ==================== -->
+  <header class="flex items-center justify-between gap-[2vw] border-b border-border/70 px-[2vw] py-[1.4vh]">
+    <div class="flex items-center gap-[1.2vw]">
+      <img src="logo.png" alt="Logo Instansi" class="h-[6.4vh] w-[6.4vh] rounded-full object-cover border border-gold shadow-md">
+      <div class="text-left">
+        <h1 class="font-sans text-[1.9vw] font-extrabold uppercase leading-none tracking-[0.1em] text-gold">
+          SIMANTRI <span class="text-cream/60">&mdash;</span> Ruang Tunggu
+        </h1>
+        <p class="mt-[0.5vh] font-sans text-[0.95vw] font-medium uppercase tracking-[0.28em] text-cream/65">
+          Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kabupaten Jember
+        </p>
+      </div>
+    </div>
+    <div class="text-right">
+      <p id="tvJam" class="font-mono text-[2.4vw] font-bold leading-none text-gold">00:00:00</p>
+      <p id="tvTanggal" class="mt-[0.5vh] font-sans text-[0.95vw] font-medium uppercase tracking-[0.2em] text-cream/65"></p>
+    </div>
+  </header>
+
+  <!-- ==================== GRID LOKET (counter-card.tsx x5) ==================== -->
+  <section aria-label="Nomor antrean per loket" class="grid flex-1 grid-cols-5 gap-[1.1vw] px-[2vw] py-[2.2vh]">
+    <!-- Kartu di-generate oleh JavaScript dari KONFIGURASI_LOKET di bawah,
+         supaya jumlah loket mudah diubah tanpa menyentuh markup ini. -->
+  </section>
+  <template id="templateKartuLoket">
+    <article class="flex h-full flex-col items-center justify-between rounded-2xl border border-border/70 bg-bronze-raised px-[1vw] py-[1.6vh] text-center transition-colors">
+      <header class="w-full border-b border-border/60 pb-[1.1vh]">
+        <h2 class="nama-loket font-sans text-[1.35vw] font-semibold uppercase leading-tight tracking-[0.16em] text-cream"></h2>
+      </header>
+      <div class="flex flex-1 flex-col items-center justify-center gap-[1.4vh]">
+        <p class="label-seri font-sans text-[1.5vw] font-bold uppercase leading-none tracking-[0.34em] text-gold-deep">Seri &ndash;</p>
+        <p class="nomor-tampil font-mono text-[8.4vw] font-bold leading-none tracking-[-0.03em] text-gold-deep">&ndash;&ndash;&ndash;</p>
+      </div>
+      <footer class="w-full border-t border-border/60 pt-[1.1vh]">
+        <p class="label-status font-sans text-[1.1vw] font-medium uppercase tracking-[0.22em] text-cream/45">Kosong</p>
+      </footer>
+    </article>
+  </template>
+
+  <!-- ==================== TICKER (queue-ticker.tsx) ==================== -->
+  <footer class="flex items-center gap-[1.6vw] border-t border-border/70 px-[2vw] py-[1.3vh]">
+    <p class="shrink-0 font-sans text-[1.05vw] font-bold uppercase tracking-[0.24em] text-bronze">
+      <span class="rounded-md bg-gold px-[0.9vw] py-[0.5vh]">Pengumuman</span>
+    </p>
+    <div class="relative flex-1 overflow-hidden">
+      <div class="ticker-track" id="tickerTrack">
+        <span class="shrink-0 pr-[6vw] font-mono text-[1.5vw] font-semibold tracking-[0.08em] text-gold-deep" id="tickerTeks1">Memuat antrean…</span>
+        <span class="shrink-0 pr-[6vw] font-mono text-[1.5vw] font-semibold tracking-[0.08em] text-gold-deep" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
+      </div>
+    </div>
+  </footer>
+
+  <div id="statusFirebase" class="fixed bottom-2 right-3 text-[10px] text-cream/40">Menghubungkan ke server...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
+  authDomain: "simantri-jember.firebaseapp.com",
+  databaseURL: "https://simantri-jember-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "simantri-jember",
+  storageBucket: "simantri-jember.firebasestorage.app",
+  messagingSenderId: "507271630488",
+  appId: "1:507271630488:web:dcc347a35334c6f3a84aed"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* =========================================================================
+   KONFIGURASI KARTU LOKET — ubah di sini jika jumlah/urutan loket berubah.
+   "seri" hanya label visual (Seri A/B); untuk Ruang Biometrik nomor asli
+   tetap ditampilkan apa adanya (mis. "A-007") karena rombongan biometrik
+   TIDAK mendapat nomor baru, melainkan menumpang nomor verifikasi asal.
+   ========================================================================= */
+const KONFIGURASI_LOKET = [
+  { id: 'loket1',    nama: 'Loket 1',         seri: 'A' },
+  { id: 'loket2',    nama: 'Loket 2',         seri: 'B' },
+  { id: 'loket3',    nama: 'Loket 3',         seri: 'A' },
+  { id: 'loket4',    nama: 'Loket 4',         seri: 'B' },
+  { id: 'biometrik', nama: 'Ruang Biometrik', seri: null },
+];
+
+const el = {
+  grid: document.querySelector('section[aria-label="Nomor antrean per loket"]'),
+  template: document.getElementById('templateKartuLoket'),
+  overlay: document.getElementById('overlayAktifkan'),
+  btnAktifkan: document.getElementById('btnAktifkan'),
+  tvJam: document.getElementById('tvJam'),
+  tvTanggal: document.getElementById('tvTanggal'),
+  tickerTeks1: document.getElementById('tickerTeks1'),
+  tickerTeks2: document.getElementById('tickerTeks2'),
+  statusFirebase: document.getElementById('statusFirebase'),
+};
+
+// bangun 5 kartu loket dari template, simpan referensi elemen per loket
+const kartuLoket = {};
+KONFIGURASI_LOKET.forEach(loket => {
+  const node = el.template.content.cloneNode(true);
+  const artikel = node.querySelector('article');
+  artikel.dataset.loketId = loket.id;
+  node.querySelector('.nama-loket').textContent = loket.nama;
+  el.grid.appendChild(node);
+  const artikelReal = el.grid.querySelector(`[data-loket-id="${loket.id}"]`);
+  kartuLoket[loket.id] = {
+    artikel: artikelReal,
+    labelSeri: artikelReal.querySelector('.label-seri'),
+    nomorTampil: artikelReal.querySelector('.nomor-tampil'),
+    labelStatus: artikelReal.querySelector('.label-status'),
+    seri: loket.seri,
+    tutup: false, // ditandai true saat loket dinonaktifkan via Pengaturan admin.html
+  };
+});
+
+function perbaruiJam(){
+  const sekarang = new Date();
+  el.tvJam.textContent = sekarang.toLocaleTimeString('id-ID', { hour12:false });
+  el.tvTanggal.textContent = sekarang.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+perbaruiJam();
+setInterval(perbaruiJam, 1000);
+
+let suaraDiizinkan = false;
+el.btnAktifkan.addEventListener('click', () => {
+  suaraDiizinkan = true;
+  el.overlay.style.display = 'none';
+  ambilKonteksAudio();
+});
+
+/* =========================================================================
+   LANGKAH 1 — BACA /status_loket/ UNTUK MENGISI GRID (STATE PERSISTEN)
+   =========================================================================
+   Setiap loket punya listener sendiri. Karena admin.html menulis ke
+   /status_loket/{id_loket}/ setiap kali "Panggil Selanjutnya" berhasil
+   (dan TIDAK menghapusnya saat selesai), angka di kartu ini akan tetap
+   tampil sampai loket tsb memanggil nomor berikutnya — persis seperti
+   layar antrean di Mal Pelayanan Publik.
+   ========================================================================= */
+KONFIGURASI_LOKET.forEach(loket => {
+  onValue(ref(db, `status_loket/${loket.id}`), (snap) => {
+    const kartu = kartuLoket[loket.id];
+    if (kartu.tutup) return; // loket sedang OFFLINE — biarkan tampilan "TUTUP" dari terapkanStatusTutupLoket()
+    if (!snap.exists()) {
+      kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Seri –';
+      kartu.nomorTampil.textContent = '—';
+      kartu.nomorTampil.classList.add('text-cream/20');
+      kartu.labelStatus.textContent = 'Kosong';
+      kartu.labelStatus.className = 'label-status font-sans text-[1.1vw] font-medium uppercase tracking-[0.22em] text-cream/45';
+      return;
+    }
+    const data = snap.val();
+    kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
+    kartu.nomorTampil.textContent = data.nomor;
+    kartu.nomorTampil.classList.remove('text-cream/20');
+    kartu.labelStatus.textContent = 'Sedang Dilayani';
+    kartu.labelStatus.className = 'label-status font-sans text-[1.1vw] font-medium uppercase tracking-[0.22em] text-cream/80';
+  });
+});
+
+/* =========================================================================
+   LANGKAH 2 — /panggilan_aktif/ MEMICU ANIMASI FLASH PADA KARTU YANG
+   BERSANGKUTAN SAJA + SUARA TTS (bukan seluruh grid)
+   ========================================================================= */
+const PETA_NAMA_KE_ID = {
+  'Loket 1': 'loket1', 'Loket 2': 'loket2', 'Loket 3': 'loket3', 'Loket 4': 'loket4',
+  'Ruang Biometrik': 'biometrik',
+};
+
+let iniPembacaanPertama = true;
+let idPanggilanTerakhir = null;
+
+onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
+  el.statusFirebase.textContent = 'Terhubung ke SIMANTRI Server ✓';
+  if (!snapshot.exists()) return;
+  const data = snapshot.val();
+
+  const idPanggilan = `${data.nomor}-${data.timestamp}`;
+  if (idPanggilan === idPanggilanTerakhir) return;
+  idPanggilanTerakhir = idPanggilan;
+
+  const loketId = PETA_NAMA_KE_ID[data.loket];
+  if (loketId && kartuLoket[loketId] && !kartuLoket[loketId].tutup) {
+    const artikel = kartuLoket[loketId].artikel;
+    artikel.classList.remove('card-active');
+    void artikel.offsetWidth; // reflow paksa agar animasi bisa diulang
+    artikel.classList.add('card-active');
+    // lepas animasi setelah beberapa detik supaya kartu tidak berkedip selamanya
+    setTimeout(() => artikel.classList.remove('card-active'), 8000);
+  }
+
+  if (iniPembacaanPertama) { iniPembacaanPertama = false; return; }
+  if (suaraDiizinkan) mainkanPanggilan(data.nomor, data.loket);
+});
+
+/* =========================================================================
+   TICKER "PENGUMUMAN" — dibaca real-time dari Pengaturan (admin.html),
+   /pengaturan/ticker/teks_berjalan. Tidak lagi menampilkan daftar antrean
+   menunggu.
+   ========================================================================= */
+function perbaruiTicker(snap){
+  const teks = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean.';
+  el.tickerTeks1.textContent = teks;
+  el.tickerTeks2.textContent = teks;
+}
+onValue(ref(db, 'pengaturan/ticker/teks_berjalan'), perbaruiTicker);
+
+/* =========================================================================
+   STATUS LOKET TUTUP/OFFLINE — dibaca real-time dari Pengaturan (admin.html),
+   /pengaturan/loket_aktif/{id_loket}. Ruang Biometrik tidak memiliki toggle
+   di halaman Pengaturan sehingga selalu dianggap aktif.
+   ========================================================================= */
+function terapkanStatusTutupLoket(loketId, aktif){
+  const kartu = kartuLoket[loketId];
+  if (!kartu) return;
+  kartu.tutup = !aktif;
+
+  if (aktif) {
+    kartu.artikel.classList.remove('opacity-40');
+    kartu.nomorTampil.classList.remove('text-cream/15');
+    // Biarkan listener status_loket (LANGKAH 1) yang mengisi ulang teks nomor terbaru.
+    return;
+  }
+
+  // Loket dimatikan dari Pengaturan: hentikan animasi kelap-kelip yang mungkin
+  // sedang berjalan, lalu pudarkan kartu dan tandai TUTUP/OFFLINE.
+  kartu.artikel.classList.remove('card-active');
+  kartu.artikel.classList.add('opacity-40');
+  kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : '—';
+  kartu.nomorTampil.textContent = '—';
+  kartu.nomorTampil.classList.add('text-cream/15');
+  kartu.labelStatus.textContent = 'TUTUP / OFFLINE';
+  kartu.labelStatus.className = 'label-status font-sans text-[1.1vw] font-bold uppercase tracking-[0.22em] text-red-400';
+}
+
+onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
+  const status = snap.exists() ? snap.val() : {};
+  KONFIGURASI_LOKET.forEach(loket => {
+    if (loket.id === 'biometrik') return; // tidak ada toggle untuk Ruang Biometrik
+    const aktif = status[loket.id] !== undefined ? !!status[loket.id] : true;
+    terapkanStatusTutupLoket(loket.id, aktif);
+  });
+});
+
+/* =========================================================================
+   AUDIO: BEL (Web Audio API)
+   ========================================================================= */
+let konteksAudio = null;
+function ambilKonteksAudio(){
+  if (!konteksAudio) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    konteksAudio = new AC();
+  }
+  if (konteksAudio.state === 'suspended') konteksAudio.resume();
+  return konteksAudio;
+}
+function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
+  const osc = konteks.createOscillator();
+  const gain = konteks.createGain();
+  osc.type = 'sine'; osc.frequency.value = frekuensi;
+  osc.connect(gain); gain.connect(konteks.destination);
+  gain.gain.setValueAtTime(0, waktuMulai);
+  gain.gain.linearRampToValueAtTime(0.35, waktuMulai + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001, waktuMulai + durasi);
+  osc.start(waktuMulai); osc.stop(waktuMulai + durasi);
+}
+function mainkanBel(){
+  try {
+    const konteks = ambilKonteksAudio();
+    const sekarang = konteks.currentTime;
+    mainkanNada(880, sekarang, 0.35, konteks);
+    mainkanNada(659, sekarang + 0.32, 0.45, konteks);
+  } catch (e) { console.warn('Audio bel tidak dapat dimainkan:', e); }
+}
+
+/* =========================================================================
+   PELAFALAN PER DIGIT (TTS) — "A-001" -> "A, kosong, kosong, satu"
+   ========================================================================= */
+const PETA_ANGKA = { '0':'kosong','1':'satu','2':'dua','3':'tiga','4':'empat','5':'lima','6':'enam','7':'tujuh','8':'delapan','9':'sembilan' };
+function ejaNomorAntrean(nomor){
+  const bagian = String(nomor).split('-');
+  const prefixHuruf = bagian[0] || '';
+  const digitStr = bagian[1] || '';
+  const digitDieja = digitStr.split('').map(d => PETA_ANGKA[d] || d).join(', ');
+  return `${prefixHuruf}, ${digitDieja}`;
+}
+function mainkanPanggilan(nomor, namaLoket){
+  mainkanBel();
+  const teks = `Nomor Antrean, ${ejaNomorAntrean(nomor)}, Silakan menuju, ${namaLoket}`;
+  setTimeout(() => ucapkanTeks(teks), 750);
+}
+
+/* =========================================================================
+   SELEKSI SUARA PEREMPUAN (MICROSOFT GADIS / GOOGLE)
+   ========================================================================= */
+let daftarSuara = [];
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    daftarSuara = window.speechSynthesis.getVoices();
+  };
+}
+
+function ucapkanTeks(teks){
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  
+  const ucapan = new SpeechSynthesisUtterance(teks);
+  ucapan.lang = 'id-ID';
+
+  if (daftarSuara.length === 0) {
+    daftarSuara = window.speechSynthesis.getVoices();
+  }
+
+  // 1. Cari suara AI Natural dari Edge
+  const suaraNatural = daftarSuara.find(v => v.name.includes('Gadis') && v.name.includes('Natural'));
+  // 2. Cari suara Gadis biasa (Offline)
+  const suaraGadis = daftarSuara.find(v => v.name.includes('Gadis'));
+  // 3. Cadangan suara Indo lainnya
+  const suaraCadangan = daftarSuara.find(v => v.lang === 'id-ID' || v.lang === 'id_ID');
+
+  if (suaraNatural) {
+    ucapan.voice = suaraNatural;
+    ucapan.rate = 0.95; // Sedikit saja diperlambat agar AI tidak rusak
+    ucapan.pitch = 1;   // HARUS 1 agar suara AI tidak sumbang
+  } else if (suaraGadis || suaraCadangan) {
+    ucapan.voice = suaraGadis || suaraCadangan;
+    ucapan.rate = 0.85; // Boleh diperlambat karena ini suara robot
+    ucapan.pitch = 1.1; // Boleh dinaikkan
+  }
+
+  window.speechSynthesis.speak(ucapan);
+}
+</script>
+</body>
+</html>
