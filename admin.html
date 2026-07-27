@@ -169,14 +169,20 @@
                     </div>
                   </div>
                   <div id="baristAksiLoket" class="grid gap-3 px-7 py-6 md:grid-cols-3">
-                    <button type="button" id="btnPanggilSelanjutnya" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-gold text-base font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
-                      <i data-lucide="phone-call" class="h-5 w-5"></i> Panggil Selanjutnya
+                    <button type="button" id="btnPanggilSelanjutnya"
+                      class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-gold px-2 text-sm font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
+                      <i data-lucide="phone-call" class="h-5 w-5 shrink-0"></i> 
+                      <span class="text-left leading-tight">Panggil<br>Selanjutnya</span>
                     </button>
-                    <button type="button" id="btnSelesaiTanpaBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl border-2 border-bronze bg-white text-base font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream active:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
-                      <i data-lucide="check" class="h-5 w-5"></i> Selesai
+                    <button type="button" id="btnSelesaiTanpaBiometrik" disabled
+                      class="flex h-16 items-center justify-center gap-2.5 rounded-xl border-2 border-bronze bg-white px-2 text-sm font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream active:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
+                      <i data-lucide="check" class="h-5 w-5 shrink-0"></i> 
+                      <span>Selesai</span>
                     </button>
-                    <button type="button" id="btnTeruskanBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-bronze text-base font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark active:bg-bronze-dark disabled:cursor-not-allowed disabled:opacity-40">
-                      <i data-lucide="fingerprint" class="h-5 w-5"></i> Teruskan ke Biometrik
+                    <button type="button" id="btnTeruskanBiometrik" disabled
+                      class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-bronze px-2 text-sm font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark active:bg-bronze-dark disabled:cursor-not-allowed disabled:opacity-40">
+                      <i data-lucide="fingerprint" class="h-5 w-5 shrink-0"></i> 
+                      <span class="text-left leading-tight">Teruskan Ke<br>Biometrik</span>
                     </button>
                   </div>
                   <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
@@ -948,8 +954,19 @@ el.btnKurangKeluar.addEventListener('click', () => { angkaModalKeluar = Math.max
 el.btnTambahKeluar.addEventListener('click', () => { angkaModalKeluar = Math.min(KAPASITAS_MAKS_BIOMETRIK, angkaModalKeluar + 1); el.angkaKeluar.textContent = angkaModalKeluar; });
 el.btnBatalKeluar.addEventListener('click', () => { el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex'); });
 el.btnOkKeluar.addEventListener('click', async () => {
-  await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - angkaModalKeluar));
-  el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex');
+  // Simpan nilai transaksi ke dalam variabel 'result'
+  const result = await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - angkaModalKeluar));
+  
+  // Jika kapasitas ruangan sekarang sudah kosong (0), bersihkan layar TV & panel Admin
+  if (result.snapshot.val() === 0) {
+    await set(ref(db, 'status_loket/biometrik/sedangDilayani'), false);
+    nomorBiometrikAktif = null;
+    el.biometrikNomorTampil.textContent = '—';
+    el.btnPanggilUlangBiometrik.disabled = true;
+  }
+  
+  el.overlayKeluarBiometrik.classList.add('hidden'); 
+  el.overlayKeluarBiometrik.classList.remove('flex');
 });
 
 el.inputKonfirmasiReset.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.btnKonfirmasiResetAntrean.click(); });
@@ -1015,10 +1032,28 @@ function loketDariCatatan(catatan){ const cocok = String(catatan || '').match(/(
 function awalHari(selisihHari){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - selisihHari); return d.getTime(); }
 function cocokPeriode(item, periode){
   if (periode === 'semua') return true;
+  
+  // Ambil waktu dari Firebase, jika belum sinkron anggap hari ini
   const ts = typeof item.timestamp === 'number' ? item.timestamp : null;
   if (ts === null) return periode === 'hari-ini';
-  if (periode === 'hari-ini') return ts >= awalHari(0);
-  if (periode === 'kemarin') return ts >= awalHari(1) && ts < awalHari(0);
+
+  const dateItem = new Date(ts);
+  const dateNow = new Date();
+
+  if (periode === 'hari-ini') {
+    return dateItem.getDate() === dateNow.getDate() &&
+           dateItem.getMonth() === dateNow.getMonth() &&
+           dateItem.getFullYear() === dateNow.getFullYear();
+  }
+  
+  if (periode === 'kemarin') {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return dateItem.getDate() === yesterday.getDate() &&
+           dateItem.getMonth() === yesterday.getMonth() &&
+           dateItem.getFullYear() === yesterday.getFullYear();
+  }
+  
   return true;
 }
 
