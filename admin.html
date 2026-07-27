@@ -6,6 +6,7 @@
 <title>SIMANTRI — Konsol Petugas</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -35,10 +36,10 @@
 </head>
 <body class="flex h-dvh flex-col overflow-hidden bg-background font-sans text-bronze-dark">
 
-  <!-- ==================== HEADER (console-header.tsx) ==================== -->
+  <!-- ==================== HEADER ==================== -->
   <header class="flex h-16 shrink-0 items-center gap-6 bg-bronze-dark px-6 text-cream">
     <div class="flex items-center gap-3">
-      <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full object-cover border border-gold/40">
+      <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold/40 object-cover">
       <div class="leading-tight">
         <p class="text-sm font-semibold tracking-[0.18em] text-gold">SIMANTRI</p>
         <p class="text-[11px] text-cream/60">Kementerian Haji dan Umrah Kabupaten Jember</p>
@@ -50,10 +51,7 @@
         <i data-lucide="clock" class="h-4 w-4 text-gold"></i>
         <span id="jamAdmin" class="font-mono text-sm">--:--:--</span>
       </div>
-
       <div class="h-8 w-px bg-cream/15"></div>
-
-      <!-- Role selector (Login Dummy) menggantikan nama petugas statis di desain v0 -->
       <div class="flex items-center gap-3">
         <select id="pilihPeran" class="rounded-lg border border-gold/40 bg-bronze px-3 py-2 text-sm font-semibold text-cream focus:outline-none">
           <option value="">— Pilih Peran —</option>
@@ -71,7 +69,7 @@
   </header>
 
   <div class="flex min-h-0 flex-1">
-    <!-- ==================== SIDEBAR (console-sidebar.tsx) ==================== -->
+    <!-- ==================== SIDEBAR ==================== -->
     <nav aria-label="Navigasi utama" class="flex w-20 shrink-0 flex-col items-center gap-2 bg-bronze-dark py-5">
       <button type="button" data-view="dashboard" title="Dashboard" class="group relative flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl bg-gold text-bronze-dark">
         <span class="absolute -left-3 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold"></span>
@@ -79,23 +77,22 @@
         <span class="text-[9px] font-medium leading-none">Dashboard</span>
       </button>
       <button type="button" data-view="riwayat" title="Riwayat Antrean" class="flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl text-cream/55 transition-colors hover:bg-bronze hover:text-cream">
-        <span class="absolute -left-3 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold hidden"></span>
+        <span class="absolute -left-3 top-1/2 hidden h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold"></span>
         <i data-lucide="history" class="h-5 w-5"></i>
         <span class="text-[9px] font-medium leading-none">Riwayat</span>
       </button>
       <button type="button" data-view="laporan" title="Laporan" class="flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl text-cream/55 transition-colors hover:bg-bronze hover:text-cream">
-        <span class="absolute -left-3 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold hidden"></span>
+        <span class="absolute -left-3 top-1/2 hidden h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold"></span>
         <i data-lucide="file-bar-chart" class="h-5 w-5"></i>
         <span class="text-[9px] font-medium leading-none">Laporan</span>
       </button>
       <button type="button" data-view="atur" title="Pengaturan" class="flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl text-cream/55 transition-colors hover:bg-bronze hover:text-cream">
-        <span class="absolute -left-3 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold hidden"></span>
+        <span class="absolute -left-3 top-1/2 hidden h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold"></span>
         <i data-lucide="settings" class="h-5 w-5"></i>
         <span class="text-[9px] font-medium leading-none">Atur</span>
       </button>
-      <!-- FITUR BARU: Reset Antrean Hari Ini -->
-      <button type="button" id="btnResetAntrean" title="Reset Antrean Hari Ini"
-        class="mt-auto flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl border border-red-900/40 bg-red-900/20 text-red-400 transition-colors hover:bg-red-700 hover:text-white">
+      
+      <button type="button" id="btnResetAntrean" title="Reset Antrean Hari Ini" class="mt-auto flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl border border-red-900/40 bg-red-900/20 text-red-400 transition-colors hover:bg-red-700 hover:text-white">
         <i data-lucide="refresh-ccw" class="h-5 w-5"></i>
         <span class="text-[9px] font-semibold leading-none">Reset</span>
       </button>
@@ -107,160 +104,145 @@
     </nav>
 
     <main class="min-w-0 flex-1 overflow-y-auto px-6 py-5">
-      <div class="mx-auto flex max-w-[1220px] flex-col gap-5">
+      <!-- PERBAIKAN LEBAR PANEL ADMIN: max-w-[1600px] -->
+      <div class="mx-auto flex w-full max-w-[1600px] flex-col gap-5 xl:max-w-[95%]">
 
         <!-- ==================== VIEW: DASHBOARD ==================== -->
         <div id="viewDashboard" class="flex flex-col gap-5">
-
-        <!-- Kondisi belum pilih peran -->
-        <div id="panelKosong" class="rounded-2xl border border-border bg-white px-6 py-16 text-center text-muted-foreground">
-          👋 Silakan pilih peran di pojok kanan atas untuk mulai bertugas.
-        </div>
-
-        <div id="kontenPeran" class="hidden flex-col gap-5">
-          <div>
-            <h1 id="judulKonsol" class="text-lg font-semibold text-bronze-dark">Konsol Petugas Loket</h1>
-            <p class="text-sm text-muted-foreground">Kelola pemanggilan antrean layanan Haji dan Umrah</p>
+          <div id="panelKosong" class="rounded-2xl border border-border bg-white px-6 py-16 text-center text-muted-foreground">
+            👋 Silakan pilih peran di pojok kanan atas untuk mulai bertugas.
           </div>
 
-          <!-- ==================== STATS STRIP ==================== -->
-          <section aria-label="Ringkasan sesi" class="grid grid-cols-2 gap-3 xl:grid-cols-3">
-            <div class="rounded-xl border border-border bg-white px-4 py-3 shadow-[0_1px_2px_rgba(61,40,23,0.06)]">
-              <p class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Menunggu di Antrean</p>
-              <div class="mt-1 flex items-baseline gap-2">
-                <span id="statMenunggu" class="text-xl font-semibold text-bronze-dark">0</span>
-                <span class="text-[11px] text-muted-foreground">kategori ini</span>
-              </div>
+          <div id="kontenPeran" class="hidden flex-col gap-5">
+            <div>
+              <h1 id="judulKonsol" class="text-lg font-semibold text-bronze-dark">Konsol Petugas Loket</h1>
+              <p class="text-sm text-muted-foreground">Kelola pemanggilan antrean layanan Haji dan Umrah</p>
             </div>
-            <div class="rounded-xl border border-border bg-white px-4 py-3 shadow-[0_1px_2px_rgba(61,40,23,0.06)]">
-              <p class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Selesai Sesi Ini</p>
-              <div class="mt-1 flex items-baseline gap-2">
-                <span id="statSelesai" class="text-xl font-semibold text-bronze-dark">0</span>
-                <span class="text-[11px] text-muted-foreground">nomor</span>
-              </div>
-            </div>
-            <div class="rounded-xl border border-border bg-white px-4 py-3 shadow-[0_1px_2px_rgba(61,40,23,0.06)]">
-              <p class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Diteruskan Biometrik</p>
-              <div class="mt-1 flex items-baseline gap-2">
-                <span id="statBiometrik" class="text-xl font-semibold text-bronze-dark">0</span>
-                <span class="text-[11px] text-muted-foreground">sesi ini</span>
-              </div>
-            </div>
-          </section>
 
-          <div class="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <div class="flex flex-col gap-5">
+            <section aria-label="Ringkasan sesi" class="grid grid-cols-2 gap-3 xl:grid-cols-3">
+              <div class="rounded-xl border border-border bg-white px-4 py-3 shadow-[0_1px_2px_rgba(61,40,23,0.06)]">
+                <p class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Menunggu di Antrean</p>
+                <div class="mt-1 flex items-baseline gap-2">
+                  <span id="statMenunggu" class="text-xl font-semibold text-bronze-dark">0</span>
+                  <span class="text-[11px] text-muted-foreground">kategori ini</span>
+                </div>
+              </div>
+              <div class="rounded-xl border border-border bg-white px-4 py-3 shadow-[0_1px_2px_rgba(61,40,23,0.06)]">
+                <p class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Selesai Sesi Ini</p>
+                <div class="mt-1 flex items-baseline gap-2">
+                  <span id="statSelesai" class="text-xl font-semibold text-bronze-dark">0</span>
+                  <span class="text-[11px] text-muted-foreground">nomor</span>
+                </div>
+              </div>
+              <div class="rounded-xl border border-border bg-white px-4 py-3 shadow-[0_1px_2px_rgba(61,40,23,0.06)]">
+                <p class="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Diteruskan Biometrik</p>
+                <div class="mt-1 flex items-baseline gap-2">
+                  <span id="statBiometrik" class="text-xl font-semibold text-bronze-dark">0</span>
+                  <span class="text-[11px] text-muted-foreground">sesi ini</span>
+                </div>
+              </div>
+            </section>
 
-              <!-- ==================== SERVING PANEL (loket) ==================== -->
-              <section id="panelLoket" class="hidden overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_8px_rgba(61,40,23,0.08)]">
-                <div class="relative bg-bronze-dark px-7 py-6">
-                  <div class="flex flex-wrap items-start justify-between gap-6">
-                    <div>
-                      <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cream/55">Nomor Sedang Dilayani</p>
-                      <p id="nomorSedangDilayani" class="mt-2 font-mono text-7xl font-bold leading-none tracking-tight text-gold">—</p>
-                      <div class="mt-4 flex flex-wrap items-center gap-2.5">
-                        <span id="badgeKategoriLoket" class="inline-flex items-center rounded-md border border-gold/45 bg-gold/15 px-2.5 py-1 text-xs font-semibold text-gold">—</span>
-                        <span id="infoWaktuPanggil" class="text-xs text-cream/65"></span>
+            <div class="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+              <div class="flex flex-col gap-5">
+                <section id="panelLoket" class="hidden overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_8px_rgba(61,40,23,0.08)]">
+                  <div class="relative bg-bronze-dark px-7 py-6">
+                    <div class="flex flex-wrap items-start justify-between gap-6">
+                      <div>
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cream/55">Nomor Sedang Dilayani</p>
+                        <p id="nomorSedangDilayani" class="mt-2 font-mono text-7xl font-bold leading-none tracking-tight text-gold">—</p>
+                        <div class="mt-4 flex flex-wrap items-center gap-2.5">
+                          <span id="badgeKategoriLoket" class="inline-flex items-center rounded-md border border-gold/45 bg-gold/15 px-2.5 py-1 text-xs font-semibold text-gold">—</span>
+                          <span id="infoWaktuPanggil" class="text-xs text-cream/65"></span>
+                        </div>
+                      </div>
+                      <div class="flex flex-col items-end gap-3">
+                        <span id="statusKunciBadge" class="inline-flex items-center gap-2.5 rounded-full border-2 border-cream/30 bg-cream/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-cream">
+                          <span id="iconKunci" class="inline-flex h-4 w-4 items-center justify-center"><i data-lucide="unlock" class="h-4 w-4"></i></span>
+                          <span id="statusKunciTeks">Status Aktif</span>
+                        </span>
+                        <p id="statusKunciKeterangan" class="max-w-[16rem] text-right text-[11px] leading-relaxed text-cream/55">Loket aktif dan siap menerima nomor antrean berikutnya.</p>
+                        <button type="button" id="btnUlangiPengumuman" class="inline-flex items-center gap-1.5 rounded-lg border border-cream/20 px-3 py-1.5 text-[11px] font-medium text-cream/80 transition-colors hover:bg-cream/10">
+                          <i data-lucide="volume-2" class="h-3.5 w-3.5"></i> Ulangi Pengumuman
+                        </button>
                       </div>
                     </div>
-                    <div class="flex flex-col items-end gap-3">
-                      <span id="statusKunciBadge" class="inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider border-cream/30 bg-cream/10 text-cream">
-                        <span id="iconKunci" class="inline-flex h-4 w-4 items-center justify-center"><i data-lucide="unlock" class="h-4 w-4"></i></span>
-                        <span id="statusKunciTeks">Status Aktif</span>
-                      </span>
-                      <p id="statusKunciKeterangan" class="max-w-[16rem] text-right text-[11px] leading-relaxed text-cream/55">
-                        Loket aktif dan siap menerima nomor antrean berikutnya.
-                      </p>
-                      <button type="button" id="btnUlangiPengumuman" class="inline-flex items-center gap-1.5 rounded-lg border border-cream/20 px-3 py-1.5 text-[11px] font-medium text-cream/80 transition-colors hover:bg-cream/10">
-                        <i data-lucide="volume-2" class="h-3.5 w-3.5"></i> Ulangi Pengumuman
-                      </button>
+                  </div>
+                  <div id="baristAksiLoket" class="grid gap-3 px-7 py-6 md:grid-cols-3">
+                    <button type="button" id="btnPanggilSelanjutnya" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-gold text-base font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
+                      <i data-lucide="phone-call" class="h-5 w-5"></i> Panggil Selanjutnya
+                    </button>
+                    <button type="button" id="btnSelesaiTanpaBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl border-2 border-bronze bg-white text-base font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream active:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
+                      <i data-lucide="check" class="h-5 w-5"></i> Selesai
+                    </button>
+                    <button type="button" id="btnTeruskanBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-bronze text-base font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark active:bg-bronze-dark disabled:cursor-not-allowed disabled:opacity-40">
+                      <i data-lucide="fingerprint" class="h-5 w-5"></i> Teruskan ke Biometrik
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
+                    <i data-lucide="shield-check" class="h-3.5 w-3.5 text-gold-dark"></i>
+                    <span id="pesanLoket">Setiap tindakan tercatat pada log aktivitas.</span>
+                  </div>
+                </section>
+
+                <section id="panelBiometrik" class="hidden overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_8px_rgba(61,40,23,0.08)]">
+                  <div class="bg-bronze-dark px-7 py-6">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cream/55">Kapasitas Ruangan Biometrik</p>
+                    <div class="mt-2 flex items-center gap-4">
+                      <span class="font-mono text-4xl font-bold text-gold"><span id="kapasitasSaatIni">0</span> / <span id="kapasitasMaks">8</span></span>
+                      <div class="h-3 flex-1 overflow-hidden rounded-full bg-cream/15">
+                        <div id="kapasitasBar" class="h-full rounded-full bg-gold transition-all" style="width:0%"></div>
+                      </div>
+                    </div>
+                    <p class="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-cream/55">Rombongan Sedang Dipanggil</p>
+                    <p id="biometrikNomorTampil" class="mt-1 font-mono text-4xl font-bold text-cream">—</p>
+                  </div>
+                  <div class="grid gap-3 px-7 py-6 md:grid-cols-3">
+                    <button type="button" id="btnPanggilBiometrik" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-gold text-base font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:opacity-45">
+                      <i data-lucide="phone-call" class="h-5 w-5"></i> Panggil Selanjutnya
+                    </button>
+                    <button type="button" id="btnPanggilUlangBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl border-2 border-bronze bg-white text-base font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
+                      <i data-lucide="volume-2" class="h-5 w-5"></i> Panggil Ulang
+                    </button>
+                    <button type="button" id="btnSelesaiBiometrik" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-bronze text-base font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark">
+                      <i data-lucide="log-out" class="h-5 w-5"></i> Selesai (Keluarkan)
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
+                    <span id="pesanBiometrik"></span>
+                  </div>
+                </section>
+
+                <section class="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_1px_3px_rgba(61,40,23,0.07)]">
+                  <div class="flex items-center justify-between border-b border-border px-5 py-3.5">
+                    <div>
+                      <h2 id="judulTabelAntrean" class="text-sm font-semibold text-bronze-dark">Antrean Menunggu</h2>
+                      <p id="subJudulTabelAntrean" class="text-xs text-muted-foreground">0 nomor dalam daftar tunggu</p>
                     </div>
                   </div>
-                </div>
+                  <table class="w-full text-left text-sm">
+                    <thead>
+                      <tr class="text-[11px] uppercase tracking-wider text-muted-foreground">
+                        <th scope="col" class="px-5 py-2.5 font-medium">Nomor</th>
+                        <th scope="col" class="px-5 py-2.5 font-medium">Rombongan</th>
+                        <th scope="col" class="px-5 py-2.5 text-right font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="isiTabelAntrean"></tbody>
+                  </table>
+                </section>
+              </div>
 
-                <div id="baristAksiLoket" class="grid gap-3 px-7 py-6 md:grid-cols-3">
-                  <button type="button" id="btnPanggilSelanjutnya"
-                    class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-gold text-base font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
-                    <i data-lucide="phone-call" class="h-5 w-5"></i> Panggil Selanjutnya
-                  </button>
-                  <button type="button" id="btnSelesaiTanpaBiometrik" disabled
-                    class="inline-flex h-16 items-center justify-center gap-3 rounded-xl border-2 border-bronze bg-white text-base font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream active:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
-                    <i data-lucide="check" class="h-5 w-5"></i> Selesai
-                  </button>
-                  <button type="button" id="btnTeruskanBiometrik" disabled
-                    class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-bronze text-base font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark active:bg-bronze-dark disabled:cursor-not-allowed disabled:opacity-40">
-                    <i data-lucide="fingerprint" class="h-5 w-5"></i> Teruskan ke Biometrik
-                  </button>
+              <section class="flex flex-col rounded-2xl border border-border bg-white shadow-[0_1px_3px_rgba(61,40,23,0.07)]">
+                <div class="border-b border-border px-5 py-3.5">
+                  <h2 class="text-sm font-semibold text-bronze-dark">Aktivitas Terakhir</h2>
+                  <p class="text-xs text-muted-foreground">Riwayat panggilan pada sesi ini</p>
                 </div>
-
-                <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
-                  <i data-lucide="shield-check" class="h-3.5 w-3.5 text-gold-dark"></i>
-                  <span id="pesanLoket">Setiap tindakan tercatat pada log aktivitas.</span>
-                </div>
-              </section>
-
-              <!-- ==================== PANEL RUANG BIOMETRIK ==================== -->
-              <section id="panelBiometrik" class="hidden overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_8px_rgba(61,40,23,0.08)]">
-                <div class="bg-bronze-dark px-7 py-6">
-                  <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-cream/55">Kapasitas Ruangan Biometrik</p>
-                  <div class="mt-2 flex items-center gap-4">
-                    <span class="font-mono text-4xl font-bold text-gold"><span id="kapasitasSaatIni">0</span> / <span id="kapasitasMaks">8</span></span>
-                    <div class="h-3 flex-1 overflow-hidden rounded-full bg-cream/15">
-                      <div id="kapasitasBar" class="h-full rounded-full bg-gold transition-all" style="width:0%"></div>
-                    </div>
-                  </div>
-                  <p class="mt-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-cream/55">Rombongan Sedang Dipanggil</p>
-                  <p id="biometrikNomorTampil" class="mt-1 font-mono text-4xl font-bold text-cream">—</p>
-                </div>
-                <div class="grid gap-3 px-7 py-6 md:grid-cols-3">
-                  <button type="button" id="btnPanggilBiometrik" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-gold text-base font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:opacity-45">
-                    <i data-lucide="phone-call" class="h-5 w-5"></i> Panggil Selanjutnya
-                  </button>
-                  <button type="button" id="btnPanggilUlangBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl border-2 border-bronze bg-white text-base font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
-                    <i data-lucide="volume-2" class="h-5 w-5"></i> Panggil Ulang
-                  </button>
-                  <button type="button" id="btnSelesaiBiometrik" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-bronze text-base font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark">
-                    <i data-lucide="log-out" class="h-5 w-5"></i> Selesai (Keluarkan)
-                  </button>
-                </div>
-                <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
-                  <span id="pesanBiometrik"></span>
-                </div>
-              </section>
-
-              <!-- ==================== QUEUE TABLE ==================== -->
-              <section class="overflow-hidden rounded-2xl border border-border bg-white shadow-[0_1px_3px_rgba(61,40,23,0.07)]">
-                <div class="flex items-center justify-between border-b border-border px-5 py-3.5">
-                  <div>
-                    <h2 id="judulTabelAntrean" class="text-sm font-semibold text-bronze-dark">Antrean Menunggu</h2>
-                    <p id="subJudulTabelAntrean" class="text-xs text-muted-foreground">0 nomor dalam daftar tunggu</p>
-                  </div>
-                </div>
-                <table class="w-full text-left text-sm">
-                  <thead>
-                    <tr class="text-[11px] uppercase tracking-wider text-muted-foreground">
-                      <th scope="col" class="px-5 py-2.5 font-medium">Nomor</th>
-                      <th scope="col" class="px-5 py-2.5 font-medium">Rombongan</th>
-                      <th scope="col" class="px-5 py-2.5 text-right font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="isiTabelAntrean"></tbody>
-                </table>
+                <ul id="daftarAktivitas" class="divide-y divide-border"></ul>
               </section>
             </div>
-
-            <!-- ==================== RECENT ACTIVITY ==================== -->
-            <section class="flex flex-col rounded-2xl border border-border bg-white shadow-[0_1px_3px_rgba(61,40,23,0.07)]">
-              <div class="border-b border-border px-5 py-3.5">
-                <h2 class="text-sm font-semibold text-bronze-dark">Aktivitas Terakhir</h2>
-                <p class="text-xs text-muted-foreground">Riwayat panggilan pada sesi ini</p>
-              </div>
-              <ul id="daftarAktivitas" class="divide-y divide-border"></ul>
-            </section>
           </div>
         </div>
-        </div>
-        <!-- ==================== /VIEW: DASHBOARD ==================== -->
 
         <!-- ==================== VIEW: RIWAYAT ANTREAN ==================== -->
         <div id="viewRiwayat" class="hidden flex-col gap-5">
@@ -269,21 +251,18 @@
               <h1 class="text-lg font-semibold text-bronze-dark">Riwayat Antrean</h1>
               <p class="text-sm text-muted-foreground">Catatan lengkap pemanggilan nomor antrean layanan Haji dan Umrah</p>
             </div>
-            <button type="button" id="btnUnduhRiwayat"
-              class="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-xs font-semibold text-bronze transition-colors hover:bg-cream">
+            <button type="button" id="btnUnduhRiwayat" class="inline-flex items-center gap-2 rounded-xl border border-border bg-white px-4 py-2.5 text-xs font-semibold text-bronze transition-colors hover:bg-cream">
               <i data-lucide="download" class="h-4 w-4 text-gold-dark"></i> Unduh CSV
             </button>
           </div>
 
-          <!-- FILTER BAR -->
           <section aria-label="Filter riwayat" class="rounded-2xl bg-white px-5 py-4 shadow-[0_2px_10px_rgba(61,40,23,0.06)]">
             <div class="flex flex-wrap items-end gap-4">
               <div class="flex flex-col gap-1.5">
                 <label for="filterPeriode" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Periode</label>
                 <div class="relative">
                   <i data-lucide="calendar-days" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-dark"></i>
-                  <select id="filterPeriode"
-                    class="h-11 appearance-none rounded-xl bg-cream/70 pl-10 pr-10 text-sm font-semibold text-bronze-dark focus:outline-none focus:ring-2 focus:ring-gold/50">
+                  <select id="filterPeriode" class="h-11 appearance-none rounded-xl bg-cream/70 pl-10 pr-10 text-sm font-semibold text-bronze-dark focus:outline-none focus:ring-2 focus:ring-gold/50">
                     <option value="hari-ini">Hari Ini</option>
                     <option value="kemarin">Kemarin</option>
                     <option value="semua">Semua Waktu</option>
@@ -291,13 +270,11 @@
                   <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bronze-soft"></i>
                 </div>
               </div>
-
               <div class="flex flex-col gap-1.5">
                 <label for="filterStatus" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Status</label>
                 <div class="relative">
                   <i data-lucide="filter" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-dark"></i>
-                  <select id="filterStatus"
-                    class="h-11 appearance-none rounded-xl bg-cream/70 pl-10 pr-10 text-sm font-semibold text-bronze-dark focus:outline-none focus:ring-2 focus:ring-gold/50">
+                  <select id="filterStatus" class="h-11 appearance-none rounded-xl bg-cream/70 pl-10 pr-10 text-sm font-semibold text-bronze-dark focus:outline-none focus:ring-2 focus:ring-gold/50">
                     <option value="semua">Semua Status</option>
                     <option value="Selesai">Selesai</option>
                     <option value="Diteruskan">Diteruskan</option>
@@ -306,24 +283,17 @@
                   <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bronze-soft"></i>
                 </div>
               </div>
-
               <div class="flex min-w-[240px] flex-1 flex-col gap-1.5">
                 <label for="cariNomorRiwayat" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Cari Nomor Antrean</label>
                 <div class="relative">
                   <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bronze-soft"></i>
-                  <input type="search" id="cariNomorRiwayat" placeholder="Contoh: A012 atau B007" autocomplete="off"
-                    class="h-11 w-full rounded-xl bg-cream/70 pl-10 pr-4 font-mono text-sm font-semibold text-bronze-dark placeholder:font-sans placeholder:font-medium placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
+                  <input type="search" id="cariNomorRiwayat" placeholder="Contoh: A012 atau B007" autocomplete="off" class="h-11 w-full rounded-xl bg-cream/70 pl-10 pr-4 font-mono text-sm font-semibold text-bronze-dark placeholder:font-sans placeholder:font-medium placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
                 </div>
               </div>
-
-              <button type="button" id="btnResetFilterRiwayat"
-                class="h-11 rounded-xl px-4 text-xs font-semibold uppercase tracking-wider text-bronze-soft transition-colors hover:bg-cream hover:text-bronze-dark">
-                Bersihkan
-              </button>
+              <button type="button" id="btnResetFilterRiwayat" class="h-11 rounded-xl px-4 text-xs font-semibold uppercase tracking-wider text-bronze-soft transition-colors hover:bg-cream hover:text-bronze-dark">Bersihkan</button>
             </div>
           </section>
 
-          <!-- TABEL RIWAYAT -->
           <section class="overflow-hidden rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
             <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
               <div>
@@ -334,7 +304,6 @@
                 <span class="h-1.5 w-1.5 rounded-full bg-gold"></span> Sinkron Realtime
               </span>
             </div>
-
             <div class="overflow-x-auto">
               <table class="w-full min-w-[820px] text-left text-sm">
                 <thead>
@@ -349,16 +318,14 @@
                 <tbody id="isiTabelRiwayat" class="divide-y divide-border/60"></tbody>
               </table>
             </div>
-
             <div class="flex items-center gap-2 bg-cream/40 px-6 py-3 text-[11px] text-muted-foreground">
               <i data-lucide="shield-check" class="h-3.5 w-3.5 text-gold-dark"></i>
-              <span>Data riwayat bersumber dari log aktivitas dan tidak dapat diubah oleh petugas loket.</span>
+              <span>Data riwayat bersumber dari log aktivitas dan tidak dapat diubah.</span>
             </div>
           </section>
         </div>
-        <!-- ==================== /VIEW: RIWAYAT ==================== -->
 
-        <!-- ==================== VIEW: LAPORAN (ANALITIK) ==================== -->
+        <!-- ==================== VIEW: LAPORAN ==================== -->
         <div id="viewLaporan" class="hidden flex-col gap-5">
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -367,8 +334,7 @@
             </div>
             <div class="relative">
               <i data-lucide="calendar-range" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gold-dark"></i>
-              <select id="filterPeriodeLaporan"
-                class="h-11 appearance-none rounded-xl bg-white pl-10 pr-10 text-sm font-semibold text-bronze-dark shadow-[0_2px_10px_rgba(61,40,23,0.06)] focus:outline-none focus:ring-2 focus:ring-gold/50">
+              <select id="filterPeriodeLaporan" class="h-11 appearance-none rounded-xl bg-white pl-10 pr-10 text-sm font-semibold text-bronze-dark shadow-[0_2px_10px_rgba(61,40,23,0.06)] focus:outline-none focus:ring-2 focus:ring-gold/50">
                 <option value="hari-ini">Hari Ini</option>
                 <option value="kemarin">Kemarin</option>
                 <option value="semua">Semua Waktu</option>
@@ -376,76 +342,53 @@
               <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bronze-soft"></i>
             </div>
           </div>
-
-          <!-- KARTU STATISTIK -->
           <section aria-label="Ringkasan statistik" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <div class="rounded-2xl bg-white px-6 py-5 shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex items-start justify-between gap-3">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Total Pengunjung</p>
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-cream text-gold-dark">
-                  <i data-lucide="users-round" class="h-4 w-4"></i>
-                </span>
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="users-round" class="h-4 w-4"></i></span>
               </div>
               <p id="lapTotalPengunjung" class="mt-4 font-mono text-4xl font-bold leading-none text-bronze-dark">0</p>
               <p class="mt-2 text-[11px] text-muted-foreground">nomor antrean dipanggil</p>
             </div>
-
             <div class="rounded-2xl bg-white px-6 py-5 shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex items-start justify-between gap-3">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Rata-rata Waktu Tunggu</p>
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-cream text-gold-dark">
-                  <i data-lucide="hourglass" class="h-4 w-4"></i>
-                </span>
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="hourglass" class="h-4 w-4"></i></span>
               </div>
-              <p class="mt-4 flex items-baseline gap-1.5 font-mono text-4xl font-bold leading-none text-bronze-dark">
-                <span id="lapRataTunggu">0</span><span class="text-base font-semibold text-muted-foreground">menit</span>
-              </p>
+              <p class="mt-4 flex items-baseline gap-1.5 font-mono text-4xl font-bold leading-none text-bronze-dark"><span id="lapRataTunggu">0</span><span class="text-base font-semibold text-muted-foreground">menit</span></p>
               <p class="mt-2 text-[11px] text-muted-foreground">jarak antar pemanggilan</p>
             </div>
-
             <div class="rounded-2xl bg-white px-6 py-5 shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex items-start justify-between gap-3">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Loket Tersibuk</p>
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-cream text-gold-dark">
-                  <i data-lucide="trending-up" class="h-4 w-4"></i>
-                </span>
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="trending-up" class="h-4 w-4"></i></span>
               </div>
               <p id="lapLoketTersibuk" class="mt-4 text-2xl font-bold leading-tight text-bronze-dark">—</p>
               <p id="lapLoketTersibukSub" class="mt-2 text-[11px] text-muted-foreground">belum ada data</p>
             </div>
-
             <div class="rounded-2xl bg-bronze-dark px-6 py-5 shadow-[0_2px_14px_rgba(61,40,23,0.14)]">
               <div class="flex items-start justify-between gap-3">
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-cream/60">Diteruskan Biometrik</p>
-                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-bronze text-gold">
-                  <i data-lucide="fingerprint" class="h-4 w-4"></i>
-                </span>
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-bronze text-gold"><i data-lucide="fingerprint" class="h-4 w-4"></i></span>
               </div>
               <p id="lapTotalBiometrik" class="mt-4 font-mono text-4xl font-bold leading-none text-gold">0</p>
               <p class="mt-2 text-[11px] text-cream/60">rombongan ke ruang biometrik</p>
             </div>
           </section>
-
           <div class="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <!-- PLACEHOLDER GRAFIK -->
             <section class="overflow-hidden rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
                 <div>
                   <h2 class="text-sm font-semibold text-bronze-dark">Grafik Kunjungan</h2>
                   <p class="text-xs text-muted-foreground">Distribusi jumlah pemanggilan per jam layanan</p>
                 </div>
-                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark">
-                  <i data-lucide="bar-chart-3" class="h-3.5 w-3.5"></i> Chart.js
-                </span>
+                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark"><i data-lucide="bar-chart-3" class="h-3.5 w-3.5"></i> Chart.js</span>
               </div>
               <div class="px-6 pb-6">
-                <div class="h-[320px]">
-                  <canvas id="chartKunjungan"></canvas>
-                </div>
+                <div class="h-[320px]"><canvas id="chartKunjungan"></canvas></div>
               </div>
             </section>
-
-            <!-- KOMPOSISI LAYANAN -->
             <section class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="px-6 py-4">
                 <h2 class="text-sm font-semibold text-bronze-dark">Komposisi Layanan</h2>
@@ -453,23 +396,13 @@
               </div>
               <div class="flex flex-col gap-5 px-6 pb-6">
                 <div>
-                  <div class="flex items-baseline justify-between">
-                    <p class="text-xs font-semibold text-bronze-dark">Verifikasi · Kode A</p>
-                    <p class="font-mono text-xs font-bold text-bronze-dark"><span id="lapPersenA">0</span>%</p>
-                  </div>
-                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream">
-                    <div id="lapBarA" class="h-full rounded-full bg-gold transition-all" style="width:0%"></div>
-                  </div>
+                  <div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">Verifikasi · Kode A</p><p class="font-mono text-xs font-bold text-bronze-dark"><span id="lapPersenA">0</span>%</p></div>
+                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div id="lapBarA" class="h-full rounded-full bg-gold transition-all" style="width:0%"></div></div>
                   <p id="lapJumlahA" class="mt-1.5 text-[11px] text-muted-foreground">0 nomor</p>
                 </div>
                 <div>
-                  <div class="flex items-baseline justify-between">
-                    <p class="text-xs font-semibold text-bronze-dark">Informasi · Kode B</p>
-                    <p class="font-mono text-xs font-bold text-bronze-dark"><span id="lapPersenB">0</span>%</p>
-                  </div>
-                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream">
-                    <div id="lapBarB" class="h-full rounded-full bg-bronze-soft transition-all" style="width:0%"></div>
-                  </div>
+                  <div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">Informasi · Kode B</p><p class="font-mono text-xs font-bold text-bronze-dark"><span id="lapPersenB">0</span>%</p></div>
+                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div id="lapBarB" class="h-full rounded-full bg-bronze-soft transition-all" style="width:0%"></div></div>
                   <p id="lapJumlahB" class="mt-1.5 text-[11px] text-muted-foreground">0 nomor</p>
                 </div>
                 <div class="rounded-xl bg-cream/50 px-4 py-3.5">
@@ -480,194 +413,113 @@
             </section>
           </div>
         </div>
-        <!-- ==================== /VIEW: LAPORAN ==================== -->
-        <!-- ==================== VIEW: ATUR (PENGATURAN) ==================== -->
-<section id="viewAtur" class="hidden flex-col gap-5" aria-label="Pengaturan sistem antrean">
-  <div class="flex flex-wrap items-end justify-between gap-4">
-    <div>
-      <h1 class="text-lg font-semibold text-bronze-dark">Pengaturan Sistem</h1>
-      <p class="text-sm text-muted-foreground">Konfigurasi suara, tampilan TV ruang tunggu, dan ketersediaan loket</p>
-    </div>
-    <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark shadow-[0_2px_10px_rgba(61,40,23,0.06)]">
-      <i data-lucide="save" class="h-3.5 w-3.5"></i> Tersimpan Otomatis
-    </span>
-  </div>
 
-  <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-
-    <!-- ---------- KARTU: PREFERENSI AUDIO ---------- -->
-    <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
-      <div class="flex items-start gap-3 px-6 py-5">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark">
-          <i data-lucide="volume-2" class="h-5 w-5"></i>
-        </span>
-        <div>
-          <h2 class="text-sm font-semibold text-bronze-dark">Preferensi Audio</h2>
-          <p class="text-xs text-muted-foreground">Atur volume dan kecepatan suara pemanggilan antrean</p>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-6 border-t border-border/60 px-6 py-5">
-        <!-- Volume -->
-        <div class="flex flex-col gap-3">
-          <div class="flex items-baseline justify-between">
-            <label for="aturVolume" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Volume Pengeras Suara</label>
-            <span class="font-mono text-sm font-bold text-bronze-dark"><span id="nilaiVolume">80</span>%</span>
+        <!-- ==================== VIEW: ATUR ==================== -->
+        <section id="viewAtur" class="hidden flex-col gap-5" aria-label="Pengaturan sistem antrean">
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 class="text-lg font-semibold text-bronze-dark">Pengaturan Sistem</h1>
+              <p class="text-sm text-muted-foreground">Konfigurasi suara, tampilan TV ruang tunggu, dan ketersediaan loket</p>
+            </div>
+            <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark shadow-[0_2px_10px_rgba(61,40,23,0.06)]">
+              <i data-lucide="save" class="h-3.5 w-3.5"></i> Tersimpan Otomatis
+            </span>
           </div>
-          <div class="flex items-center gap-3">
-            <i data-lucide="volume-1" class="h-4 w-4 shrink-0 text-bronze-soft"></i>
-            <input type="range" id="aturVolume" min="0" max="100" step="5" value="80"
-              class="h-2 w-full cursor-pointer appearance-none rounded-full bg-cream accent-gold [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-gold [&::-webkit-slider-thumb]:shadow-[0_2px_6px_rgba(61,40,23,0.25)]">
-            <i data-lucide="volume-2" class="h-4 w-4 shrink-0 text-gold-dark"></i>
+
+          <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
+              <div class="flex items-start gap-3 px-6 py-5">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="volume-2" class="h-5 w-5"></i></span>
+                <div>
+                  <h2 class="text-sm font-semibold text-bronze-dark">Preferensi Audio</h2>
+                  <p class="text-xs text-muted-foreground">Atur volume dan kecepatan suara pemanggilan antrean</p>
+                </div>
+              </div>
+              <div class="flex flex-col gap-6 border-t border-border/60 px-6 py-5">
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-baseline justify-between">
+                    <label for="aturVolume" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Volume Pengeras Suara</label>
+                    <span class="font-mono text-sm font-bold text-bronze-dark"><span id="nilaiVolume">80</span>%</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="volume-1" class="h-4 w-4 shrink-0 text-bronze-soft"></i>
+                    <input type="range" id="aturVolume" min="0" max="100" step="5" value="80" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-cream accent-gold [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-gold [&::-webkit-slider-thumb]:shadow-[0_2px_6px_rgba(61,40,23,0.25)]">
+                    <i data-lucide="volume-2" class="h-4 w-4 shrink-0 text-gold-dark"></i>
+                  </div>
+                </div>
+                <div class="flex flex-col gap-3">
+                  <div class="flex items-baseline justify-between">
+                    <label for="aturKecepatanTTS" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Kecepatan Bicara (TTS)</label>
+                    <span class="font-mono text-sm font-bold text-bronze-dark"><span id="nilaiKecepatanTTS">1.0</span>x</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <i data-lucide="rabbit" class="h-4 w-4 shrink-0 text-bronze-soft"></i>
+                    <input type="range" id="aturKecepatanTTS" min="0.5" max="2" step="0.1" value="1" class="h-2 w-full cursor-pointer appearance-none rounded-full bg-cream accent-gold [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-gold [&::-webkit-slider-thumb]:shadow-[0_2px_6px_rgba(61,40,23,0.25)]">
+                    <i data-lucide="turtle" class="h-4 w-4 shrink-0 text-gold-dark"></i>
+                  </div>
+                </div>
+                <button type="button" id="btnTesSuara" class="inline-flex items-center justify-center gap-2 rounded-xl bg-bronze-dark px-5 py-3 text-xs font-semibold uppercase tracking-wider text-cream transition-colors hover:bg-bronze">
+                  <i data-lucide="play-circle" class="h-4 w-4 text-gold"></i> Tes Suara
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
+              <div class="flex items-start gap-3 px-6 py-5">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="monitor-play" class="h-5 w-5"></i></span>
+                <div>
+                  <h2 class="text-sm font-semibold text-bronze-dark">Pengaturan Tampilan</h2>
+                  <p class="text-xs text-muted-foreground">Teks berjalan pada layar TV ruang tunggu</p>
+                </div>
+              </div>
+              <div class="flex flex-1 flex-col gap-4 border-t border-border/60 px-6 py-5">
+                <div class="flex flex-col gap-2">
+                  <label for="aturTeksBerjalan" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Teks Berjalan (Ticker)</label>
+                  <textarea id="aturTeksBerjalan" rows="4" maxlength="240" placeholder="Contoh: Selamat datang di Kementerian Haji dan Umrah." class="w-full resize-none rounded-xl bg-cream/70 px-4 py-3 text-sm leading-relaxed text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50"></textarea>
+                  <p class="text-right text-[11px] text-muted-foreground"><span id="jumlahKarakterTicker">0</span>/240 karakter</p>
+                </div>
+                <div class="rounded-xl bg-bronze-dark px-4 py-3">
+                  <p class="text-[10px] font-semibold uppercase tracking-wider text-cream/50">Pratinjau Layar TV</p>
+                  <p id="pratinjauTicker" class="mt-1.5 truncate text-sm font-semibold text-gold">Selamat datang di Kementerian Haji dan Umrah.</p>
+                </div>
+                <button type="button" id="btnPerbaruiTicker" class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-xs font-semibold uppercase tracking-wider text-bronze-dark transition-colors hover:bg-gold-dark hover:text-cream">
+                  <i data-lucide="refresh-cw" class="h-4 w-4"></i> Perbarui Ticker
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)] xl:col-span-2">
+              <div class="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
+                <div class="flex items-start gap-3">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="layout-panel-left" class="h-5 w-5"></i></span>
+                  <div><h2 class="text-sm font-semibold text-bronze-dark">Manajemen Loket</h2><p class="text-xs text-muted-foreground">Aktifkan atau nonaktifkan loket pelayanan yang beroperasi hari ini</p></div>
+                </div>
+                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark"><span class="h-1.5 w-1.5 rounded-full bg-gold"></span> <span id="jumlahLoketAktif">4</span> Loket Aktif</span>
+              </div>
+              <div class="grid gap-4 border-t border-border/60 px-6 py-5 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket 1</p><p class="text-[11px] text-muted-foreground">Verifikasi Dokumen</p></div>
+                  <label for="aturLoket1" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket1" data-loket="1" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket 2</p><p class="text-[11px] text-muted-foreground">Verifikasi Dokumen</p></div>
+                  <label for="aturLoket2" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket2" data-loket="2" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket 3</p><p class="text-[11px] text-muted-foreground">Informasi Layanan</p></div>
+                  <label for="aturLoket3" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket3" data-loket="3" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket 4</p><p class="text-[11px] text-muted-foreground">Informasi Layanan</p></div>
+                  <label for="aturLoket4" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket4" data-loket="4" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <!-- Kecepatan TTS -->
-        <div class="flex flex-col gap-3">
-          <div class="flex items-baseline justify-between">
-            <label for="aturKecepatanTTS" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Kecepatan Bicara (TTS)</label>
-            <span class="font-mono text-sm font-bold text-bronze-dark"><span id="nilaiKecepatanTTS">1.0</span>x</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <i data-lucide="rabbit" class="h-4 w-4 shrink-0 text-bronze-soft"></i>
-            <input type="range" id="aturKecepatanTTS" min="0.5" max="2" step="0.1" value="1"
-              class="h-2 w-full cursor-pointer appearance-none rounded-full bg-cream accent-gold [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-gold [&::-webkit-slider-thumb]:shadow-[0_2px_6px_rgba(61,40,23,0.25)]">
-            <i data-lucide="turtle" class="h-4 w-4 shrink-0 text-gold-dark"></i>
-          </div>
-          <p class="text-[11px] leading-relaxed text-muted-foreground">Kecepatan 1.0x adalah tempo normal Bahasa Indonesia.</p>
-        </div>
-
-        <button type="button" id="btnTesSuara"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-bronze-dark px-5 py-3 text-xs font-semibold uppercase tracking-wider text-cream transition-colors hover:bg-bronze">
-          <i data-lucide="play-circle" class="h-4 w-4 text-gold"></i> Tes Suara
-        </button>
-      </div>
-    </div>
-
-    <!-- ---------- KARTU: PENGATURAN TAMPILAN ---------- -->
-    <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
-      <div class="flex items-start gap-3 px-6 py-5">
-        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark">
-          <i data-lucide="monitor-play" class="h-5 w-5"></i>
-        </span>
-        <div>
-          <h2 class="text-sm font-semibold text-bronze-dark">Pengaturan Tampilan</h2>
-          <p class="text-xs text-muted-foreground">Teks berjalan pada layar TV ruang tunggu</p>
-        </div>
-      </div>
-
-      <div class="flex flex-1 flex-col gap-4 border-t border-border/60 px-6 py-5">
-        <div class="flex flex-col gap-2">
-          <label for="aturTeksBerjalan" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Teks Berjalan (Ticker)</label>
-          <textarea id="aturTeksBerjalan" rows="4" maxlength="240"
-            placeholder="Contoh: Selamat datang di Kementerian Haji dan Umrah. Mohon menunggu nomor antrean Anda dipanggil."
-            class="w-full resize-none rounded-xl bg-cream/70 px-4 py-3 text-sm leading-relaxed text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">Selamat datang di Kementerian Haji dan Umrah. Mohon menunggu nomor antrean Anda dipanggil.</textarea>
-          <p class="text-right text-[11px] text-muted-foreground"><span id="jumlahKarakterTicker">0</span>/240 karakter</p>
-        </div>
-
-        <div class="rounded-xl bg-bronze-dark px-4 py-3">
-          <p class="text-[10px] font-semibold uppercase tracking-wider text-cream/50">Pratinjau Layar TV</p>
-          <p id="pratinjauTicker" class="mt-1.5 truncate text-sm font-semibold text-gold">Selamat datang di Kementerian Haji dan Umrah.</p>
-        </div>
-
-        <button type="button" id="btnPerbaruiTicker"
-          class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-xs font-semibold uppercase tracking-wider text-bronze-dark transition-colors hover:bg-gold-dark hover:text-cream">
-          <i data-lucide="refresh-cw" class="h-4 w-4"></i> Perbarui Ticker
-        </button>
-      </div>
-    </div>
-
-    <!-- ---------- KARTU: MANAJEMEN LOKET ---------- -->
-    <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)] xl:col-span-2">
-      <div class="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
-        <div class="flex items-start gap-3">
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark">
-            <i data-lucide="layout-panel-left" class="h-5 w-5"></i>
-          </span>
-          <div>
-            <h2 class="text-sm font-semibold text-bronze-dark">Manajemen Loket</h2>
-            <p class="text-xs text-muted-foreground">Aktifkan atau nonaktifkan loket pelayanan yang beroperasi hari ini</p>
-          </div>
-        </div>
-        <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark">
-          <span class="h-1.5 w-1.5 rounded-full bg-gold"></span> <span id="jumlahLoketAktif">4</span> Loket Aktif
-        </span>
-      </div>
-
-      <div class="grid gap-4 border-t border-border/60 px-6 py-5 sm:grid-cols-2 xl:grid-cols-4">
-
-        <!-- Loket 1 -->
-        <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-          <div>
-            <p class="text-sm font-bold text-bronze-dark">Loket 1</p>
-            <p class="text-[11px] text-muted-foreground">Verifikasi Dokumen</p>
-          </div>
-          <label for="aturLoket1" class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" id="aturLoket1" data-loket="1" class="peer sr-only" checked>
-            <span class="sr-only">Aktifkan Loket 1</span>
-            <span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/50 peer-focus-visible:ring-offset-2"></span>
-            <span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span>
-          </label>
-        </div>
-
-        <!-- Loket 2 -->
-        <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-          <div>
-            <p class="text-sm font-bold text-bronze-dark">Loket 2</p>
-            <p class="text-[11px] text-muted-foreground">Verifikasi Dokumen</p>
-          </div>
-          <label for="aturLoket2" class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" id="aturLoket2" data-loket="2" class="peer sr-only" checked>
-            <span class="sr-only">Aktifkan Loket 2</span>
-            <span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/50 peer-focus-visible:ring-offset-2"></span>
-            <span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span>
-          </label>
-        </div>
-
-        <!-- Loket 3 -->
-        <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-          <div>
-            <p class="text-sm font-bold text-bronze-dark">Loket 3</p>
-            <p class="text-[11px] text-muted-foreground">Informasi Layanan</p>
-          </div>
-          <label for="aturLoket3" class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" id="aturLoket3" data-loket="3" class="peer sr-only" checked>
-            <span class="sr-only">Aktifkan Loket 3</span>
-            <span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/50 peer-focus-visible:ring-offset-2"></span>
-            <span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span>
-          </label>
-        </div>
-
-        <!-- Loket 4 -->
-        <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-          <div>
-            <p class="text-sm font-bold text-bronze-dark">Loket 4</p>
-            <p class="text-[11px] text-muted-foreground">Informasi Layanan</p>
-          </div>
-          <label for="aturLoket4" class="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" id="aturLoket4" data-loket="4" class="peer sr-only" checked>
-            <span class="sr-only">Aktifkan Loket 4</span>
-            <span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold peer-focus-visible:ring-2 peer-focus-visible:ring-gold/50 peer-focus-visible:ring-offset-2"></span>
-            <span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span>
-          </label>
-        </div>
-
-      </div>
-
-      <div class="flex items-center gap-2 rounded-b-2xl bg-cream/40 px-6 py-3 text-[11px] text-muted-foreground">
-        <i data-lucide="info" class="h-3.5 w-3.5 text-gold-dark"></i>
-        <span>Loket yang dinonaktifkan tidak akan muncul pada layar TV dan tidak dapat memanggil nomor antrean.</span>
-      </div>
-    </div>
-
-  </div>
-</section>
-<!-- ==================== /VIEW: ATUR ==================== -->
+        </section>
       </div>
     </main>
   </div>
 
-  <!-- MODAL KONFIRMASI "TERUSKAN KE BIOMETRIK" (prefill dari kiosk) -->
+  <!-- MODAL -->
   <div id="overlayKonfirmasiBiometrik" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6">
     <div class="w-full max-w-md rounded-2xl border-4 border-gold bg-white p-8 text-center shadow-2xl">
       <h3 class="text-xl font-bold text-bronze-dark">Teruskan ke Ruang Biometrik?</h3>
@@ -684,7 +536,6 @@
     </div>
   </div>
 
-  <!-- MODAL "SELESAI (KELUARKAN DARI RUANGAN)" -->
   <div id="overlayKeluarBiometrik" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6">
     <div class="w-full max-w-md rounded-2xl border-4 border-gold bg-white p-8 text-center shadow-2xl">
       <h3 class="text-xl font-bold text-bronze-dark">Berapa orang yang keluar ruangan?</h3>
@@ -701,7 +552,6 @@
     </div>
   </div>
 
-  <!-- Modal alert generik -->
   <div id="overlayAlert" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6">
     <div class="w-full max-w-md rounded-2xl border-4 border-gold bg-white p-8 text-center shadow-2xl">
       <h3 id="alertJudul" class="text-xl font-bold text-bronze-dark">Pemberitahuan</h3>
@@ -710,24 +560,12 @@
     </div>
   </div>
 
-  <!-- ==================== FITUR BARU: MODAL RESET ANTREAN HARI INI ==================== -->
   <div id="overlayResetAntrean" class="fixed inset-0 z-40 hidden items-center justify-center bg-bronze-dark/70 p-6">
     <div class="w-full max-w-md rounded-2xl border-4 border-red-700 bg-white p-8 text-center shadow-2xl">
-      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-        <i data-lucide="triangle-alert" class="h-7 w-7 text-red-700"></i>
-      </div>
+      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100"><i data-lucide="triangle-alert" class="h-7 w-7 text-red-700"></i></div>
       <h3 class="mt-4 text-xl font-bold text-red-700">Reset Antrean Hari Ini?</h3>
-      <p class="mt-2 text-sm font-medium text-muted-foreground">
-        Tindakan ini akan <span class="font-bold text-bronze-dark">menghapus semua data antrean hari ini</span>
-        (nomor antrean, antrean menunggu, antrean biometrik, status semua loket) dan mengembalikan
-        kapasitas Ruang Biometrik ke 0. Tindakan ini <span class="font-bold text-red-700">tidak dapat dibatalkan.</span>
-      </p>
-      <p class="mt-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Ketik <span class="font-mono text-red-700">RESET</span> untuk konfirmasi
-      </p>
-      <input type="text" id="inputKonfirmasiReset" autocomplete="off"
-        class="mt-2 w-full rounded-xl border-2 border-border px-4 py-3 text-center font-mono text-lg font-bold uppercase tracking-widest text-bronze-dark focus:border-red-700 focus:outline-none"
-        placeholder="RESET">
+      <p class="mt-2 text-sm font-medium text-muted-foreground">Tindakan ini akan <span class="font-bold text-bronze-dark">menghapus semua data antrean</span> dan <span class="font-bold text-red-700">tidak dapat dibatalkan.</span></p>
+      <input type="text" id="inputKonfirmasiReset" autocomplete="off" class="mt-4 w-full rounded-xl border-2 border-border px-4 py-3 text-center font-mono text-lg font-bold uppercase tracking-widest text-bronze-dark focus:border-red-700 focus:outline-none" placeholder="RESET">
       <p id="pesanErrorReset" class="mt-2 hidden text-xs font-semibold text-red-700">Ketikkan "RESET" (huruf besar) untuk melanjutkan.</p>
       <div class="mt-6 flex gap-3">
         <button type="button" id="btnBatalResetAntrean" class="flex-1 rounded-xl border-2 border-border bg-cream py-3.5 text-sm font-bold text-bronze-dark">Batal</button>
@@ -738,10 +576,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getDatabase, ref, get, set, remove, onValue, runTransaction,
-  push, query, orderByChild, equalTo, limitToFirst, limitToLast, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, get, set, remove, onValue, runTransaction, push, query, orderByChild, equalTo, limitToFirst, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
@@ -755,22 +590,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* =========================================================================
-   PENTING — ATURAN INDEX FIREBASE (Realtime Database > Rules)
-   {
-     "rules": {
-       "antrean_menunggu": { ".indexOn": ["kategori"] },
-       ".read": true,
-       ".write": true
-     }
-   }
-   ========================================================================= */
-
 const KONFIGURASI_PERAN = {
-  loket1:    { nama: "Loket 1", kategori: "A", bisaTeruskanBiometrik: true  },
-  loket2:    { nama: "Loket 2", kategori: "B", bisaTeruskanBiometrik: false },
-  loket3:    { nama: "Loket 3", kategori: "A", bisaTeruskanBiometrik: true  },
-  loket4:    { nama: "Loket 4", kategori: "B", bisaTeruskanBiometrik: false },
+  loket1: { nama: "Loket 1", kategori: "A", bisaTeruskanBiometrik: true },
+  loket2: { nama: "Loket 2", kategori: "B", bisaTeruskanBiometrik: false },
+  loket3: { nama: "Loket 3", kategori: "A", bisaTeruskanBiometrik: true },
+  loket4: { nama: "Loket 4", kategori: "B", bisaTeruskanBiometrik: false },
   biometrik: { nama: "Ruang Biometrik" },
 };
 const KAPASITAS_MAKS_BIOMETRIK = 8;
@@ -784,6 +608,7 @@ let angkaModalBiometrik = 1;
 let angkaModalKeluar = 1;
 let statSelesai = 0;
 let statBiometrik = 0;
+let unsubscribeAntrean = null; 
 
 lucide.createIcons();
 
@@ -793,11 +618,9 @@ const el = {
   panelKosong: document.getElementById('panelKosong'),
   kontenPeran: document.getElementById('kontenPeran'),
   judulKonsol: document.getElementById('judulKonsol'),
-
   statMenunggu: document.getElementById('statMenunggu'),
   statSelesai: document.getElementById('statSelesai'),
   statBiometrik: document.getElementById('statBiometrik'),
-
   panelLoket: document.getElementById('panelLoket'),
   nomorSedangDilayaniEl: document.getElementById('nomorSedangDilayani'),
   badgeKategoriLoket: document.getElementById('badgeKategoriLoket'),
@@ -812,7 +635,6 @@ const el = {
   btnSelesaiTanpaBiometrik: document.getElementById('btnSelesaiTanpaBiometrik'),
   btnTeruskanBiometrik: document.getElementById('btnTeruskanBiometrik'),
   pesanLoket: document.getElementById('pesanLoket'),
-
   panelBiometrik: document.getElementById('panelBiometrik'),
   kapasitasSaatIni: document.getElementById('kapasitasSaatIni'),
   kapasitasMaks: document.getElementById('kapasitasMaks'),
@@ -822,12 +644,10 @@ const el = {
   btnPanggilUlangBiometrik: document.getElementById('btnPanggilUlangBiometrik'),
   btnSelesaiBiometrik: document.getElementById('btnSelesaiBiometrik'),
   pesanBiometrik: document.getElementById('pesanBiometrik'),
-
   judulTabelAntrean: document.getElementById('judulTabelAntrean'),
   subJudulTabelAntrean: document.getElementById('subJudulTabelAntrean'),
   isiTabelAntrean: document.getElementById('isiTabelAntrean'),
   daftarAktivitas: document.getElementById('daftarAktivitas'),
-
   overlayKonfirmasiBiometrik: document.getElementById('overlayKonfirmasiBiometrik'),
   modalBiometrikSub: document.getElementById('modalBiometrikSub'),
   angkaKonfirmasiBiometrik: document.getElementById('angkaKonfirmasiBiometrik'),
@@ -835,19 +655,16 @@ const el = {
   btnTambahBiometrik: document.getElementById('btnTambahBiometrik'),
   btnBatalKonfirmasiBiometrik: document.getElementById('btnBatalKonfirmasiBiometrik'),
   btnOkKonfirmasiBiometrik: document.getElementById('btnOkKonfirmasiBiometrik'),
-
   overlayKeluarBiometrik: document.getElementById('overlayKeluarBiometrik'),
   angkaKeluar: document.getElementById('angkaKeluar'),
   btnKurangKeluar: document.getElementById('btnKurangKeluar'),
   btnTambahKeluar: document.getElementById('btnTambahKeluar'),
   btnBatalKeluar: document.getElementById('btnBatalKeluar'),
   btnOkKeluar: document.getElementById('btnOkKeluar'),
-
   overlayAlert: document.getElementById('overlayAlert'),
   alertJudul: document.getElementById('alertJudul'),
   alertPesan: document.getElementById('alertPesan'),
   btnTutupAlert: document.getElementById('btnTutupAlert'),
-
   btnResetAntrean: document.getElementById('btnResetAntrean'),
   overlayResetAntrean: document.getElementById('overlayResetAntrean'),
   inputKonfirmasiReset: document.getElementById('inputKonfirmasiReset'),
@@ -857,56 +674,33 @@ const el = {
 };
 
 el.kapasitasMaks.textContent = KAPASITAS_MAKS_BIOMETRIK;
-
 function perbaruiJam(){ el.jamAdmin.textContent = new Date().toLocaleTimeString('id-ID', { hour12:false }); }
-perbaruiJam();
-setInterval(perbaruiJam, 1000);
+perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 function tampilkanAlert(judul, pesan){
-  el.alertJudul.textContent = judul;
-  el.alertPesan.textContent = pesan;
-  el.overlayAlert.classList.remove('hidden');
-  el.overlayAlert.classList.add('flex');
+  el.alertJudul.textContent = judul; el.alertPesan.textContent = pesan;
+  el.overlayAlert.classList.remove('hidden'); el.overlayAlert.classList.add('flex');
 }
 el.btnTutupAlert.addEventListener('click', () => { el.overlayAlert.classList.add('hidden'); el.overlayAlert.classList.remove('flex'); });
 
-/** Mencatat aktivitas ke /log_aktivitas/ (dibaca oleh panel "Aktivitas Terakhir") */
 async function catatAktivitas(nomor, aksi, catatan){
   const logRef = push(ref(db, 'log_aktivitas'));
-  await set(logRef, {
-    nomor, aksi, catatan,
-    waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }),
-    timestamp: serverTimestamp()
-  });
+  await set(logRef, { nomor, aksi, catatan, waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), timestamp: serverTimestamp() });
 }
 
 const IKON_AKSI = { Selesai:'check', Biometrik:'fingerprint', Panggil:'phone-call' };
 onValue(query(ref(db, 'log_aktivitas'), limitToLast(8)), (snap) => {
-  const items = [];
-  snap.forEach(child => items.unshift(child.val()));
+  const items = []; snap.forEach(child => items.unshift(child.val()));
   el.daftarAktivitas.innerHTML = items.length ? '' : '<li class="px-5 py-4 text-xs text-muted-foreground">Belum ada aktivitas.</li>';
   items.forEach(item => {
     const li = document.createElement('li');
     li.className = 'flex items-start gap-3 px-5 py-3';
-    li.innerHTML = `
-      <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-cream text-bronze">
-        <i data-lucide="${IKON_AKSI[item.aksi] || 'check'}" class="h-3.5 w-3.5"></i>
-      </span>
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center justify-between gap-2">
-          <span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span>
-          <span class="font-mono text-[11px] text-muted-foreground">${item.waktu}</span>
-        </div>
-        <p class="truncate text-xs text-muted-foreground">${item.catatan}</p>
-      </div>`;
+    li.innerHTML = `<span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-cream text-bronze"><i data-lucide="${IKON_AKSI[item.aksi] || 'check'}" class="h-3.5 w-3.5"></i></span><div class="min-w-0 flex-1"><div class="flex items-center justify-between gap-2"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span><span class="font-mono text-[11px] text-muted-foreground">${item.waktu}</span></div><p class="truncate text-xs text-muted-foreground">${item.catatan}</p></div>`;
     el.daftarAktivitas.appendChild(li);
   });
   lucide.createIcons();
 });
 
-/* =========================================================================
-   GANTI PERAN (LOGIN DUMMY)
-   ========================================================================= */
 el.pilihPeran.addEventListener('change', async () => {
   peranAktif = el.pilihPeran.value || null;
   nomorSedangDilayani = null;
@@ -919,13 +713,30 @@ el.pilihPeran.addEventListener('change', async () => {
   el.panelLoket.classList.add('hidden');
   el.panelBiometrik.classList.add('hidden');
 
-  if (!peranAktif) return;
+  if (!peranAktif) {
+    if (unsubscribeAntrean) { unsubscribeAntrean(); unsubscribeAntrean = null; }
+    return;
+  }
 
   if (peranAktif === 'biometrik') {
     el.judulKonsol.textContent = 'Konsol Ruang Biometrik';
     el.panelBiometrik.classList.remove('hidden');
     el.judulTabelAntrean.textContent = 'Rombongan Menunggu di Depan Ruang Biometrik';
+    el.biometrikNomorTampil.textContent = '—';
+    el.btnPanggilUlangBiometrik.disabled = true;
     dengarkanAntreanBiometrik();
+
+    try {
+      const snapStatus = await get(ref(db, `status_loket/biometrik`));
+      if (peranAktif === el.pilihPeran.value && snapStatus.exists()) {
+        const dataStatus = snapStatus.val();
+        if (dataStatus.nomor) {
+          nomorBiometrikAktif = dataStatus.nomor;
+          el.biometrikNomorTampil.textContent = `${dataStatus.nomor} (Dipulihkan)`;
+          el.btnPanggilUlangBiometrik.disabled = false;
+        }
+      }
+    } catch (err) { console.error(err); }
   } else {
     const konfig = KONFIGURASI_PERAN[peranAktif];
     el.judulKonsol.textContent = `Konsol Petugas ${konfig.nama}`;
@@ -940,178 +751,103 @@ el.pilihPeran.addEventListener('change', async () => {
     el.judulTabelAntrean.textContent = `Antrean Menunggu — ${konfig.nama}`;
     dengarkanAntreanLoket(konfig.kategori);
 
-    /* =====================================================================
-       PATCH BUG "STATE LOSS" — pulihkan panggilan yang belum selesai.
-       Skenario: petugas di Loket 1 sedang melayani A-007, pindah peran ke
-       Loket 3, lalu kembali ke Loket 1 — tampilan A-007 seharusnya tidak
-       hilang. Karena nomorSedangDilayani cuma variabel lokal (hilang saat
-       dropdown berubah), kita cek ke Firebase: /status_loket/{id_loket}/.
-       Jika node itu ada DAN sedangDilayani === true (petugas belum menekan
-       "Selesai"/"Teruskan Biometrik"), pulihkan nomor + kunci loketnya.
-       ===================================================================== */
     try {
       const snapStatus = await get(ref(db, `status_loket/${peranAktif}`));
-      // Peran bisa saja sudah berpindah lagi sebelum get() ini selesai —
-      // pastikan masih relevan sebelum menimpa UI.
       if (peranAktif === el.pilihPeran.value && snapStatus.exists()) {
         const dataStatus = snapStatus.val();
         if (dataStatus.sedangDilayani) {
-          nomorSedangDilayani = {
-            nomor: dataStatus.nomor,
-            kategori: dataStatus.kategori,
-            jumlahOrang: dataStatus.jumlahOrang || 1,
-          };
+          nomorSedangDilayani = { nomor: dataStatus.nomor, kategori: dataStatus.kategori, jumlahOrang: dataStatus.jumlahOrang || 1 };
           el.nomorSedangDilayaniEl.textContent = dataStatus.nomor;
-          el.infoWaktuPanggil.textContent = 'Panggilan sebelumnya dipulihkan otomatis';
+          el.infoWaktuPanggil.textContent = 'Panggilan dipulihkan otomatis';
           aturKunciLoket(true);
         }
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   }
   lucide.createIcons();
 });
 
-/* =========================================================================
-   PATCH KEAMANAN — DROPDOWN PERAN IKUT STATUS "MANAJEMEN LOKET" DI PENGATURAN
-   =========================================================================
-   Kalau sebuah loket dimatikan (false) di /pengaturan/loket_aktif/, opsi
-   loket itu di dropdown "Pilih Peran" harus ikut ter-disable secara
-   real-time. Kalau petugas KEBETULAN sedang login di loket yang baru saja
-   dimatikan admin lain, paksa jalankan tombol Keluar yang sudah ada.
-   ========================================================================= */
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
   const status = snap.exists() ? snap.val() : {};
-
   Array.from(el.pilihPeran.options).forEach((opt) => {
-    if (!opt.value || opt.value === 'biometrik') return; // Ruang Biometrik tidak dikontrol toggle ini
+    if (!opt.value || opt.value === 'biometrik') return;
     const aktif = status[opt.value] !== undefined ? !!status[opt.value] : true;
     opt.disabled = !aktif;
     opt.textContent = opt.textContent.replace(/ \(Tutup\)$/, '') + (aktif ? '' : ' (Tutup)');
   });
-
   if (peranAktif && status[peranAktif] === false) {
-    tampilkanAlert('Sesi Diakhiri', `${KONFIGURASI_PERAN[peranAktif]?.nama || 'Loket ini'} baru saja dinonaktifkan oleh Admin dari halaman Pengaturan.`);
+    tampilkanAlert('Sesi Diakhiri', `${KONFIGURASI_PERAN[peranAktif]?.nama || 'Loket ini'} dinonaktifkan.`);
     document.getElementById('btnKeluarSesi').click();
   }
 });
 
 function dengarkanAntreanLoket(kategori){
+  if (unsubscribeAntrean) { unsubscribeAntrean(); unsubscribeAntrean = null; }
   const antreanQuery = query(ref(db, 'antrean_menunggu'), orderByChild('kategori'), equalTo(kategori));
-  onValue(antreanQuery, (snap) => {
-    const items = [];
-    snap.forEach(c => items.push(c.val()));
+  unsubscribeAntrean = onValue(antreanQuery, (snap) => {
+    const items = []; snap.forEach(c => items.push(c.val()));
     el.statMenunggu.textContent = items.length;
     el.subJudulTabelAntrean.textContent = `${items.length} nomor dalam daftar tunggu`;
     el.isiTabelAntrean.innerHTML = items.length ? '' : `<tr><td colspan="3" class="px-5 py-6 text-center text-xs text-muted-foreground">Belum ada antrean menunggu.</td></tr>`;
     items.forEach((item, i) => {
       const tr = document.createElement('tr');
       tr.className = i % 2 === 1 ? 'bg-cream/60' : 'bg-white';
-      tr.innerHTML = `
-        <td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span>${i===0 ? '<span class="ml-2 text-[10px] font-semibold uppercase tracking-wider text-gold-dark">Berikutnya</span>' : ''}</td>
-        <td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang || 1} orang</td>
-        <td class="px-5 py-2.5 text-right text-xs text-muted-foreground">Menunggu</td>`;
+      tr.innerHTML = `<td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span>${i===0 ? '<span class="ml-2 text-[10px] font-semibold uppercase tracking-wider text-gold-dark">Berikutnya</span>' : ''}</td><td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang || 1} orang</td><td class="px-5 py-2.5 text-right text-xs text-muted-foreground">Menunggu</td>`;
       el.isiTabelAntrean.appendChild(tr);
     });
   });
 }
 
 function dengarkanAntreanBiometrik(){
-  onValue(ref(db, 'antrean_biometrik'), (snap) => {
-    const items = [];
-    snap.forEach(c => items.push(c.val()));
+  if (unsubscribeAntrean) { unsubscribeAntrean(); unsubscribeAntrean = null; }
+  unsubscribeAntrean = onValue(ref(db, 'antrean_biometrik'), (snap) => {
+    const items = []; snap.forEach(c => items.push(c.val()));
     el.subJudulTabelAntrean.textContent = `${items.length} rombongan dalam daftar tunggu`;
     el.isiTabelAntrean.innerHTML = items.length ? '' : `<tr><td colspan="3" class="px-5 py-6 text-center text-xs text-muted-foreground">Belum ada rombongan menunggu.</td></tr>`;
     items.forEach((item, i) => {
       const tr = document.createElement('tr');
       tr.className = i % 2 === 1 ? 'bg-cream/60' : 'bg-white';
-      tr.innerHTML = `
-        <td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomorAsal}</span></td>
-        <td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang} orang</td>
-        <td class="px-5 py-2.5 text-right text-xs text-muted-foreground">${item.asalLoket}</td>`;
+      tr.innerHTML = `<td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomorAsal}</span></td><td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang} orang</td><td class="px-5 py-2.5 text-right text-xs text-muted-foreground">${item.asalLoket}</td>`;
       el.isiTabelAntrean.appendChild(tr);
     });
   });
 }
 
-/* =========================================================================
-   LOGIKA PENGUNCIAN (FORCE ACTION)
-   ========================================================================= */
 function aturKunciLoket(kunci){
   terkunci = kunci;
   el.btnPanggilSelanjutnya.disabled = kunci;
   el.btnSelesaiTanpaBiometrik.disabled = !kunci;
   el.btnTeruskanBiometrik.disabled = !kunci;
-
-  el.statusKunciBadge.className = `inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider ${
-    kunci ? 'border-gold bg-bronze text-gold' : 'border-cream/30 bg-cream/10 text-cream'
-  }`;
-
-  /* -----------------------------------------------------------------------
-     PENTING (bug fix ikon Lucide): jangan hanya mengubah atribut
-     data-lucide pada elemen <svg> yang sudah dirender — setelah
-     lucide.createIcons() jalan pertama kali, tag <i> sudah DIGANTI
-     menjadi <svg>, jadi elemen itu bukan <i> lagi dan mengubah atribut
-     data-lucide di atasnya tidak memicu render ulang apa pun.
-     Solusinya: suntik ulang tag <i> mentah via innerHTML, baru panggil
-     lucide.createIcons() lagi supaya Lucide mem-parsing ulang <i> tsb
-     menjadi <svg> yang baru sesuai ikon yang diinginkan.
-     ----------------------------------------------------------------------- */
+  el.statusKunciBadge.className = `inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider ${kunci ? 'border-gold bg-bronze text-gold' : 'border-cream/30 bg-cream/10 text-cream'}`;
   el.iconKunci.innerHTML = `<i data-lucide="${kunci ? 'lock' : 'unlock'}" class="h-4 w-4"></i>`;
-
   el.statusKunciTeks.textContent = kunci ? 'Status Terkunci · Force Action' : 'Status Aktif';
-  el.statusKunciKeterangan.textContent = kunci
-    ? 'Loket dikunci. Wajib tekan "Selesai" atau "Teruskan ke Biometrik" sebelum memanggil nomor baru.'
-    : 'Loket aktif dan siap menerima nomor antrean berikutnya.';
+  el.statusKunciKeterangan.textContent = kunci ? 'Loket dikunci. Wajib tekan "Selesai" atau "Teruskan" sebelum lanjut.' : 'Loket aktif dan siap menerima antrean.';
   lucide.createIcons();
 }
 
-/* =========================================================================
-   PANGGIL SELANJUTNYA
-   =========================================================================
-   LOGIKA BARU: setiap kali berhasil memanggil, data disimpan ke DUA node:
-     1. /panggilan_aktif/         -> memicu animasi + suara TTS di tv.html
-     2. /status_loket/{id_loket}/ -> status PERMANEN per loket, dibaca TV
-        untuk mengisi grid dashboard (angka tetap tampil walau loket lain
-        memanggil setelahnya — tidak ditimpa satu global state saja).
-   ========================================================================= */
 el.btnPanggilSelanjutnya.addEventListener('click', async () => {
   if (!peranAktif || peranAktif === 'biometrik' || terkunci) return;
   const konfig = KONFIGURASI_PERAN[peranAktif];
   el.btnPanggilSelanjutnya.disabled = true;
-
   try {
     const antreanQuery = query(ref(db, 'antrean_menunggu'), orderByChild('kategori'), equalTo(konfig.kategori), limitToFirst(1));
     const snap = await get(antreanQuery);
-
     if (!snap.exists()) {
       tampilkanAlert('Antrean Kosong', `Tidak ada antrean kategori ${konfig.kategori} yang menunggu.`);
       el.btnPanggilSelanjutnya.disabled = false;
       return;
     }
-
     let tiket = null, keyTiket = null;
     snap.forEach(child => { tiket = child.val(); keyTiket = child.key; });
     await remove(ref(db, `antrean_menunggu/${keyTiket}`));
-
-    const payloadPanggilan = {
-      nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori,
-      jumlahOrang: tiket.jumlahOrang || 1,
-      sedangDilayani: true, // dipakai admin.html utk memulihkan state saat ganti peran lalu kembali (lihat GANTI PERAN)
-      timestamp: serverTimestamp()
-    };
-
+    const payloadPanggilan = { nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang || 1, sedangDilayani: true, timestamp: serverTimestamp() };
     await set(ref(db, 'panggilan_aktif'), payloadPanggilan);
-    await set(ref(db, `status_loket/${peranAktif}`), payloadPanggilan); // <-- node baru untuk TV grid
-
+    await set(ref(db, `status_loket/${peranAktif}`), payloadPanggilan);
     nomorSedangDilayani = { nomor: tiket.nomor, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang || 1 };
     el.nomorSedangDilayaniEl.textContent = tiket.nomor;
     el.infoWaktuPanggil.textContent = `Dipanggil ${new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' })}`;
-
     aturKunciLoket(true);
     catatAktivitas(tiket.nomor, 'Panggil', `Dipanggil ke ${konfig.nama}`);
-
   } catch (err) {
     console.error(err);
     tampilkanAlert('Gagal', 'Tidak dapat memanggil antrean. Cek konfigurasi Firebase.');
@@ -1133,27 +869,19 @@ el.btnSelesaiTanpaBiometrik.addEventListener('click', () => {
 });
 
 function resetSetelahSelesai(){
-  // Tandai di Firebase bahwa loket ini SUDAH SELESAI melayani nomor tsb, tanpa
-  // menghapus node status_loket (TV tetap menampilkan nomor terakhir sesuai
-  // desain awal). Ini yang dipakai dropdown peran utk tahu apakah ada
-  // panggilan yang masih berjalan saat petugas berpindah-pindah peran.
-  if (peranAktif && peranAktif !== 'biometrik') {
-    set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false).catch((err) => console.error(err));
-  }
+  if (peranAktif && peranAktif !== 'biometrik') set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false).catch((err) => console.error(err));
   nomorSedangDilayani = null;
   el.nomorSedangDilayaniEl.textContent = '—';
   el.infoWaktuPanggil.textContent = '';
   aturKunciLoket(false);
 }
 
-/* ==================  TERUSKAN KE BIOMETRIK (prefill dari kiosk)  ================== */
 el.btnTeruskanBiometrik.addEventListener('click', () => {
   if (!nomorSedangDilayani) return;
   angkaModalBiometrik = nomorSedangDilayani.jumlahOrang || 1;
   el.angkaKonfirmasiBiometrik.textContent = angkaModalBiometrik;
   el.modalBiometrikSub.textContent = `Rombongan ${nomorSedangDilayani.nomor} — konfirmasi jumlah orang`;
-  el.overlayKonfirmasiBiometrik.classList.remove('hidden');
-  el.overlayKonfirmasiBiometrik.classList.add('flex');
+  el.overlayKonfirmasiBiometrik.classList.remove('hidden'); el.overlayKonfirmasiBiometrik.classList.add('flex');
 });
 el.btnKurangBiometrik.addEventListener('click', () => { angkaModalBiometrik = Math.max(1, angkaModalBiometrik - 1); el.angkaKonfirmasiBiometrik.textContent = angkaModalBiometrik; });
 el.btnTambahBiometrik.addEventListener('click', () => { angkaModalBiometrik = Math.min(KAPASITAS_MAKS_BIOMETRIK, angkaModalBiometrik + 1); el.angkaKonfirmasiBiometrik.textContent = angkaModalBiometrik; });
@@ -1165,74 +893,46 @@ el.btnOkKonfirmasiBiometrik.addEventListener('click', async () => {
   try {
     const entriBaruRef = push(ref(db, 'antrean_biometrik'));
     await set(entriBaruRef, { nomorAsal: nomorSedangDilayani.nomor, asalLoket: konfig.nama, jumlahOrang: angkaModalBiometrik, timestamp: serverTimestamp() });
-
-    el.overlayKonfirmasiBiometrik.classList.add('hidden');
-    el.overlayKonfirmasiBiometrik.classList.remove('flex');
+    el.overlayKonfirmasiBiometrik.classList.add('hidden'); el.overlayKonfirmasiBiometrik.classList.remove('flex');
     el.pesanLoket.textContent = `Rombongan ${nomorSedangDilayani.nomor} (${angkaModalBiometrik} orang) diteruskan ke Ruang Biometrik.`;
     statBiometrik++; el.statBiometrik.textContent = statBiometrik;
     catatAktivitas(nomorSedangDilayani.nomor, 'Biometrik', `Diteruskan ke Ruang Biometrik (${angkaModalBiometrik} orang)`);
     resetSetelahSelesai();
   } catch (err) {
-    console.error(err);
-    tampilkanAlert('Gagal', 'Tidak dapat meneruskan ke Biometrik. Cek konfigurasi Firebase.');
+    console.error(err); tampilkanAlert('Gagal', 'Tidak dapat meneruskan ke Biometrik.');
   }
 });
 
-/* ==================== PANEL RUANG BIOMETRIK ==================== */
 onValue(ref(db, 'kapasitas_biometrik/saat_ini'), (snap) => {
   const kapasitasSekarang = snap.exists() ? snap.val() : 0;
   el.kapasitasSaatIni.textContent = kapasitasSekarang;
   el.kapasitasBar.style.width = `${Math.min(100, (kapasitasSekarang / KAPASITAS_MAKS_BIOMETRIK) * 100)}%`;
 });
 
-/**
- * ====================  KALKULASI KAPASITAS 8 ORANG  ====================
- * 1. Ambil rombongan PALING DEPAN (FIFO via push key, limitToFirst(1)).
- * 2. Baca kapasitas ruangan saat ini.
- * 3. VALIDASI: (kapasitas + jumlah rombongan) > 8 ?
- *      YA    -> batalkan, tampilkan modal peringatan, rombongan TETAP di antrean.
- *      TIDAK -> hapus dari antrean, tambah kapasitas (transaction atomik),
- *               set /panggilan_aktif DAN /status_loket/biometrik.
- * ========================================================================= */
 el.btnPanggilBiometrik.addEventListener('click', async () => {
-  el.pesanBiometrik.textContent = '';
-  el.btnPanggilBiometrik.disabled = true;
+  el.pesanBiometrik.textContent = ''; el.btnPanggilBiometrik.disabled = true;
   try {
     const antreanQuery = query(ref(db, 'antrean_biometrik'), limitToFirst(1));
     const snapAntrean = await get(antreanQuery);
-    if (!snapAntrean.exists()) {
-      el.pesanBiometrik.textContent = 'Tidak ada rombongan yang menunggu.';
-      return;
-    }
+    if (!snapAntrean.exists()) { el.pesanBiometrik.textContent = 'Tidak ada rombongan yang menunggu.'; return; }
     let rombongan = null, keyRombongan = null;
     snapAntrean.forEach(child => { rombongan = child.val(); keyRombongan = child.key; });
-
     const snapKapasitas = await get(ref(db, 'kapasitas_biometrik/saat_ini'));
     const kapasitasSekarang = snapKapasitas.exists() ? snapKapasitas.val() : 0;
-
     if (kapasitasSekarang + rombongan.jumlahOrang > KAPASITAS_MAKS_BIOMETRIK) {
-      tampilkanAlert('⚠️ Kapasitas Ruangan Tidak Mencukupi',
-        `Saat ini: ${kapasitasSekarang} orang\nRombongan berikutnya: ${rombongan.jumlahOrang} orang\nMaksimal ruangan: ${KAPASITAS_MAKS_BIOMETRIK} orang\n\nSilakan tunggu hingga ada jemaah yang keluar ruangan.`);
+      tampilkanAlert('⚠️ Kapasitas Ruangan Tidak Mencukupi', `Saat ini: ${kapasitasSekarang} orang\nRombongan berikutnya: ${rombongan.jumlahOrang} orang\nMaksimal ruangan: ${KAPASITAS_MAKS_BIOMETRIK} orang\n\nSilakan tunggu hingga ada jemaah yang keluar ruangan.`);
       return;
     }
-
     await remove(ref(db, `antrean_biometrik/${keyRombongan}`));
     await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => (k || 0) + rombongan.jumlahOrang);
-
     const payloadPanggilan = { nomor: rombongan.nomorAsal, loket: 'Ruang Biometrik', kategori: 'BIO', timestamp: serverTimestamp() };
     await set(ref(db, 'panggilan_aktif'), payloadPanggilan);
-    await set(ref(db, 'status_loket/biometrik'), payloadPanggilan); // <-- node baru untuk TV grid
-
+    await set(ref(db, 'status_loket/biometrik'), payloadPanggilan);
     nomorBiometrikAktif = rombongan.nomorAsal;
     el.biometrikNomorTampil.textContent = `${rombongan.nomorAsal} (${rombongan.jumlahOrang} org)`;
     el.btnPanggilUlangBiometrik.disabled = false;
     catatAktivitas(rombongan.nomorAsal, 'Panggil', `Dipanggil ke Ruang Biometrik (${rombongan.jumlahOrang} orang)`);
-  } catch (err) {
-    console.error(err);
-    el.pesanBiometrik.textContent = 'Gagal memanggil rombongan. Cek konfigurasi Firebase.';
-  } finally {
-    el.btnPanggilBiometrik.disabled = false;
-  }
+  } catch (err) { console.error(err); el.pesanBiometrik.textContent = 'Gagal memanggil rombongan.'; } finally { el.btnPanggilBiometrik.disabled = false; }
 });
 
 el.btnPanggilUlangBiometrik.addEventListener('click', async () => {
@@ -1241,119 +941,50 @@ el.btnPanggilUlangBiometrik.addEventListener('click', async () => {
 });
 
 el.btnSelesaiBiometrik.addEventListener('click', () => {
-  angkaModalKeluar = 1;
-  el.angkaKeluar.textContent = angkaModalKeluar;
-  el.overlayKeluarBiometrik.classList.remove('hidden');
-  el.overlayKeluarBiometrik.classList.add('flex');
+  angkaModalKeluar = 1; el.angkaKeluar.textContent = angkaModalKeluar;
+  el.overlayKeluarBiometrik.classList.remove('hidden'); el.overlayKeluarBiometrik.classList.add('flex');
 });
 el.btnKurangKeluar.addEventListener('click', () => { angkaModalKeluar = Math.max(1, angkaModalKeluar - 1); el.angkaKeluar.textContent = angkaModalKeluar; });
 el.btnTambahKeluar.addEventListener('click', () => { angkaModalKeluar = Math.min(KAPASITAS_MAKS_BIOMETRIK, angkaModalKeluar + 1); el.angkaKeluar.textContent = angkaModalKeluar; });
 el.btnBatalKeluar.addEventListener('click', () => { el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex'); });
 el.btnOkKeluar.addEventListener('click', async () => {
   await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - angkaModalKeluar));
-  el.overlayKeluarBiometrik.classList.add('hidden');
-  el.overlayKeluarBiometrik.classList.remove('flex');
+  el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex');
 });
 
-/* =========================================================================
-   FITUR BARU — RESET ANTREAN HARI INI
-   =========================================================================
-   Solusi reset harian gratis tanpa Cloud Functions: petugas menghapus
-   langsung node-node antrean dari sisi client setelah konfirmasi ganda
-   (tombol merah -> modal peringatan -> wajib ketik "RESET").
-
-   Node yang dihapus/direset sesuai PRD:
-     - /counter_nomor/        -> dihapus (nomor antrean mulai dari awal lagi)
-     - /antrean_menunggu/     -> dihapus (semua tiket yang belum dipanggil)
-     - /antrean_biometrik/    -> dihapus (semua rombongan yang belum dipanggil ke biometrik)
-     - /status_loket/         -> dihapus (grid TV tidak lagi menampilkan nomor kemarin)
-     - /kapasitas_biometrik/saat_ini -> di-set ke 0 (bukan dihapus, agar node tetap ada)
-
-   Catatan: /panggilan_aktif/ turut dihapus juga agar layar TV tidak macet
-   menampilkan nomor terakhir dari sesi kemarin setelah semua node lain
-   direset — ini konsisten dengan tujuan "reset antrean hari ini", meski
-   tidak disebutkan literal di PRD.
-   ========================================================================= */
-el.inputKonfirmasiReset.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') el.btnKonfirmasiResetAntrean.click();
-});
-
+el.inputKonfirmasiReset.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.btnKonfirmasiResetAntrean.click(); });
 el.btnResetAntrean.addEventListener('click', () => {
-  el.inputKonfirmasiReset.value = '';
-  el.pesanErrorReset.classList.add('hidden');
-  el.overlayResetAntrean.classList.remove('hidden');
-  el.overlayResetAntrean.classList.add('flex');
+  el.inputKonfirmasiReset.value = ''; el.pesanErrorReset.classList.add('hidden');
+  el.overlayResetAntrean.classList.remove('hidden'); el.overlayResetAntrean.classList.add('flex');
   el.inputKonfirmasiReset.focus();
 });
-
-el.btnBatalResetAntrean.addEventListener('click', () => {
-  el.overlayResetAntrean.classList.add('hidden');
-  el.overlayResetAntrean.classList.remove('flex');
-});
+el.btnBatalResetAntrean.addEventListener('click', () => { el.overlayResetAntrean.classList.add('hidden'); el.overlayResetAntrean.classList.remove('flex'); });
 
 el.btnKonfirmasiResetAntrean.addEventListener('click', async () => {
-  if (el.inputKonfirmasiReset.value.trim() !== 'RESET') {
-    el.pesanErrorReset.classList.remove('hidden');
-    return;
-  }
-
-  el.btnKonfirmasiResetAntrean.disabled = true;
-  el.btnKonfirmasiResetAntrean.textContent = 'Memproses...';
-
+  if (el.inputKonfirmasiReset.value.trim() !== 'RESET') { el.pesanErrorReset.classList.remove('hidden'); return; }
+  el.btnKonfirmasiResetAntrean.disabled = true; el.btnKonfirmasiResetAntrean.textContent = 'Memproses...';
   try {
-    await Promise.all([
-      remove(ref(db, 'counter_nomor')),
-      remove(ref(db, 'antrean_menunggu')),
-      remove(ref(db, 'antrean_biometrik')),
-      remove(ref(db, 'status_loket')),
-      remove(ref(db, 'panggilan_aktif')),
-      set(ref(db, 'kapasitas_biometrik/saat_ini'), 0),
-    ]);
-
+    await Promise.all([ remove(ref(db, 'counter_nomor')), remove(ref(db, 'antrean_menunggu')), remove(ref(db, 'antrean_biometrik')), remove(ref(db, 'status_loket')), remove(ref(db, 'panggilan_aktif')), set(ref(db, 'kapasitas_biometrik/saat_ini'), 0) ]);
     await catatAktivitas('SISTEM', 'Reset', `Antrean hari ini direset oleh ${peranAktif ? KONFIGURASI_PERAN[peranAktif].nama : 'petugas'}.`);
-
-    // Kembalikan tampilan lokal loket yang sedang aktif ke kondisi kosong
-    nomorSedangDilayani = null;
-    nomorBiometrikAktif = null;
-    statSelesai = 0;
-    statBiometrik = 0;
-    el.statSelesai.textContent = '0';
-    el.statBiometrik.textContent = '0';
+    nomorSedangDilayani = null; nomorBiometrikAktif = null; statSelesai = 0; statBiometrik = 0;
+    el.statSelesai.textContent = '0'; el.statBiometrik.textContent = '0';
     if (el.nomorSedangDilayaniEl) el.nomorSedangDilayaniEl.textContent = '—';
     if (el.infoWaktuPanggil) el.infoWaktuPanggil.textContent = '';
     if (el.biometrikNomorTampil) el.biometrikNomorTampil.textContent = '—';
     if (el.btnPanggilUlangBiometrik) el.btnPanggilUlangBiometrik.disabled = true;
     aturKunciLoket(false);
-
-    el.overlayResetAntrean.classList.add('hidden');
-    el.overlayResetAntrean.classList.remove('flex');
+    el.overlayResetAntrean.classList.add('hidden'); el.overlayResetAntrean.classList.remove('flex');
     tampilkanAlert('Berhasil', 'Antrean hari ini telah direset. Semua loket siap memulai sesi baru.');
   } catch (err) {
-    console.error(err);
-    el.overlayResetAntrean.classList.add('hidden');
-    el.overlayResetAntrean.classList.remove('flex');
+    console.error(err); el.overlayResetAntrean.classList.add('hidden'); el.overlayResetAntrean.classList.remove('flex');
     tampilkanAlert('Gagal', 'Tidak dapat mereset antrean. Cek konfigurasi/koneksi Firebase.');
   } finally {
-    el.btnKonfirmasiResetAntrean.disabled = false;
-    el.btnKonfirmasiResetAntrean.textContent = 'Ya, Reset Sekarang';
+    el.btnKonfirmasiResetAntrean.disabled = false; el.btnKonfirmasiResetAntrean.textContent = 'Ya, Reset Sekarang';
   }
 });
 
-/* =========================================================================
-   NAVIGASI SIDEBAR — DASHBOARD / RIWAYAT / LAPORAN
-   =========================================================================
-   Satu <main> menampung tiga "view" (<div id="viewDashboard|viewRiwayat|
-   viewLaporan">). Sidebar hanya menukar view mana yang tampil; markup
-   header & sidebar tidak diubah selain penambahan atribut data-view.
-   ========================================================================= */
-const VIEWS = {
-  dashboard: document.getElementById('viewDashboard'),
-  riwayat:   document.getElementById('viewRiwayat'),
-  laporan:   document.getElementById('viewLaporan'),
-  atur:      document.getElementById('viewAtur'),
-};
+const VIEWS = { dashboard: document.getElementById('viewDashboard'), riwayat: document.getElementById('viewRiwayat'), laporan: document.getElementById('viewLaporan'), atur: document.getElementById('viewAtur') };
 const tombolNav = Array.from(document.querySelectorAll('nav [data-view]'));
-
 const KELAS_NAV_AKTIF = 'group relative flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl bg-gold text-bronze-dark';
 const KELAS_NAV_PASIF = 'flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl text-cream/55 transition-colors hover:bg-bronze hover:text-cream';
 
@@ -1361,8 +992,7 @@ function gantiView(namaView){
   Object.entries(VIEWS).forEach(([nama, node]) => {
     if (!node) return;
     const aktif = nama === namaView;
-    node.classList.toggle('hidden', !aktif);
-    node.classList.toggle('flex', aktif);
+    node.classList.toggle('hidden', !aktif); node.classList.toggle('flex', aktif);
   });
   tombolNav.forEach(btn => {
     const aktif = btn.dataset.view === namaView;
@@ -1374,73 +1004,28 @@ function gantiView(namaView){
 }
 tombolNav.forEach(btn => btn.addEventListener('click', () => gantiView(btn.dataset.view)));
 
-/* =========================================================================
-   TOMBOL "KELUAR" (SIDEBAR) — akhiri sesi petugas
-   =========================================================================
-   Yang terjadi saat diklik:
-     1. Kembali ke tab Dashboard (jika sedang berada di Riwayat/Laporan).
-     2. Kosongkan dropdown "Pilih Peran" lalu picu event 'change'-nya —
-        ini memakai ulang logika ganti-peran yang sudah ada (baris di
-        bawah) sehingga panelLoket/panelBiometrik disembunyikan, status
-        loket kembali terbuka, dan layar "Silakan pilih peran…" tampil
-        lagi. Tidak perlu menduplikasi logika reset tampilan di sini.
-   ========================================================================= */
 document.getElementById('btnKeluarSesi').addEventListener('click', () => {
-  gantiView('dashboard');
-  el.pilihPeran.value = '';
-  el.pilihPeran.dispatchEvent(new Event('change'));
+  gantiView('dashboard'); el.pilihPeran.value = ''; el.pilihPeran.dispatchEvent(new Event('change'));
 });
 
-/* =========================================================================
-   SUMBER DATA RIWAYAT & LAPORAN
-   Keduanya membaca /log_aktivitas (limitToLast 300), lalu diolah di client.
-   ========================================================================= */
 let logRiwayat = [];
-
-const LABEL_STATUS = {
-  Panggil:   { teks: 'Dipanggil',   kelas: 'border-gold/50 bg-gold/15 text-gold-dark' },
-  Selesai:   { teks: 'Selesai',     kelas: 'border-emerald-600/30 bg-emerald-50 text-emerald-700' },
-  Biometrik: { teks: 'Diteruskan',  kelas: 'border-bronze/30 bg-cream text-bronze' },
-  Reset:     { teks: 'Sistem',      kelas: 'border-red-600/30 bg-red-50 text-red-700' },
-};
-
-function jenisLayananDariNomor(nomor){
-  const kode = String(nomor || '').trim().charAt(0).toUpperCase();
-  return NAMA_KATEGORI[kode] ? `${NAMA_KATEGORI[kode]} · Kode ${kode}` : '—';
-}
-function loketDariCatatan(catatan){
-  const cocok = String(catatan || '').match(/(Loket\s?\d|Ruang Biometrik)/i);
-  return cocok ? cocok[0] : '—';
-}
-function awalHari(selisihHari){
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - selisihHari);
-  return d.getTime();
-}
+const LABEL_STATUS = { Panggil: { teks: 'Dipanggil', kelas: 'border-gold/50 bg-gold/15 text-gold-dark' }, Selesai: { teks: 'Selesai', kelas: 'border-emerald-600/30 bg-emerald-50 text-emerald-700' }, Biometrik: { teks: 'Diteruskan', kelas: 'border-bronze/30 bg-cream text-bronze' }, Reset: { teks: 'Sistem', kelas: 'border-red-600/30 bg-red-50 text-red-700' } };
+function jenisLayananDariNomor(nomor){ const kode = String(nomor || '').trim().charAt(0).toUpperCase(); return NAMA_KATEGORI[kode] ? `${NAMA_KATEGORI[kode]} · Kode ${kode}` : '—'; }
+function loketDariCatatan(catatan){ const cocok = String(catatan || '').match(/(Loket\s?\d|Ruang Biometrik)/i); return cocok ? cocok[0] : '—'; }
+function awalHari(selisihHari){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - selisihHari); return d.getTime(); }
 function cocokPeriode(item, periode){
   if (periode === 'semua') return true;
   const ts = typeof item.timestamp === 'number' ? item.timestamp : null;
   if (ts === null) return periode === 'hari-ini';
   if (periode === 'hari-ini') return ts >= awalHari(0);
-  if (periode === 'kemarin')  return ts >= awalHari(1) && ts < awalHari(0);
+  if (periode === 'kemarin') return ts >= awalHari(1) && ts < awalHari(0);
   return true;
 }
 
-const elRiwayat = {
-  periode:  document.getElementById('filterPeriode'),
-  status:   document.getElementById('filterStatus'),
-  cari:     document.getElementById('cariNomorRiwayat'),
-  reset:    document.getElementById('btnResetFilterRiwayat'),
-  unduh:    document.getElementById('btnUnduhRiwayat'),
-  isi:      document.getElementById('isiTabelRiwayat'),
-  info:     document.getElementById('infoJumlahRiwayat'),
-};
+const elRiwayat = { periode: document.getElementById('filterPeriode'), status: document.getElementById('filterStatus'), cari: document.getElementById('cariNomorRiwayat'), reset: document.getElementById('btnResetFilterRiwayat'), unduh: document.getElementById('btnUnduhRiwayat'), isi: document.getElementById('isiTabelRiwayat'), info: document.getElementById('infoJumlahRiwayat') };
 
 function riwayatTersaring(){
-  const periode = elRiwayat.periode.value;
-  const status  = elRiwayat.status.value;
-  const kunci   = elRiwayat.cari.value.trim().toUpperCase();
+  const periode = elRiwayat.periode.value, status = elRiwayat.status.value, kunci = elRiwayat.cari.value.trim().toUpperCase();
   return logRiwayat.filter(item => {
     if (!cocokPeriode(item, periode)) return false;
     if (status !== 'semua' && (LABEL_STATUS[item.aksi]?.teks || item.aksi) !== status) return false;
@@ -1452,109 +1037,55 @@ function riwayatTersaring(){
 function renderRiwayat(){
   const data = riwayatTersaring();
   elRiwayat.info.textContent = `${data.length} catatan pemanggilan ditampilkan`;
-  if (!data.length){
-    elRiwayat.isi.innerHTML = `<tr><td colspan="5" class="px-6 py-14 text-center text-xs text-muted-foreground">Tidak ada catatan yang cocok dengan filter.</td></tr>`;
-    return;
-  }
+  if (!data.length){ elRiwayat.isi.innerHTML = `<tr><td colspan="5" class="px-6 py-14 text-center text-xs text-muted-foreground">Tidak ada catatan yang cocok dengan filter.</td></tr>`; return; }
   elRiwayat.isi.innerHTML = data.map((item, i) => {
     const badge = LABEL_STATUS[item.aksi] || { teks: item.aksi || '—', kelas: 'border-border bg-cream text-bronze' };
-    return `
-      <tr class="${i % 2 === 1 ? 'bg-cream/35' : 'bg-white'} transition-colors hover:bg-cream/70">
-        <td class="px-6 py-3.5 font-mono text-sm text-bronze-dark">${item.waktu || '--:--'}</td>
-        <td class="px-6 py-3.5"><span class="font-mono text-sm font-bold text-bronze-dark">${item.nomor || '—'}</span></td>
-        <td class="px-6 py-3.5 text-xs font-medium text-muted-foreground">${jenisLayananDariNomor(item.nomor)}</td>
-        <td class="px-6 py-3.5 text-xs font-semibold text-bronze">${loketDariCatatan(item.catatan)}</td>
-        <td class="px-6 py-3.5 text-right">
-          <span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.kelas}">${badge.teks}</span>
-        </td>
-      </tr>`;
+    return `<tr class="${i % 2 === 1 ? 'bg-cream/35' : 'bg-white'} transition-colors hover:bg-cream/70"><td class="px-6 py-3.5 font-mono text-sm text-bronze-dark">${item.waktu || '--:--'}</td><td class="px-6 py-3.5"><span class="font-mono text-sm font-bold text-bronze-dark">${item.nomor || '—'}</span></td><td class="px-6 py-3.5 text-xs font-medium text-muted-foreground">${jenisLayananDariNomor(item.nomor)}</td><td class="px-6 py-3.5 text-xs font-semibold text-bronze">${loketDariCatatan(item.catatan)}</td><td class="px-6 py-3.5 text-right"><span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.kelas}">${badge.teks}</span></td></tr>`;
   }).join('');
 }
 
 [elRiwayat.periode, elRiwayat.status].forEach(node => node.addEventListener('change', renderRiwayat));
 elRiwayat.cari.addEventListener('input', renderRiwayat);
-elRiwayat.reset.addEventListener('click', () => {
-  elRiwayat.periode.value = 'hari-ini';
-  elRiwayat.status.value = 'semua';
-  elRiwayat.cari.value = '';
-  renderRiwayat();
-});
+elRiwayat.reset.addEventListener('click', () => { elRiwayat.periode.value = 'hari-ini'; elRiwayat.status.value = 'semua'; elRiwayat.cari.value = ''; renderRiwayat(); });
 elRiwayat.unduh.addEventListener('click', () => {
-  const baris = [['Waktu Panggil','Nomor Antrean','Jenis Layanan','Loket','Status']]
-    .concat(riwayatTersaring().map(item => [
-      item.waktu || '', item.nomor || '', jenisLayananDariNomor(item.nomor),
-      loketDariCatatan(item.catatan), LABEL_STATUS[item.aksi]?.teks || item.aksi || ''
-    ]));
+  const baris = [['Waktu Panggil','Nomor Antrean','Jenis Layanan','Loket','Status']].concat(riwayatTersaring().map(item => [ item.waktu || '', item.nomor || '', jenisLayananDariNomor(item.nomor), loketDariCatatan(item.catatan), LABEL_STATUS[item.aksi]?.teks || item.aksi || '' ]));
   const csv = baris.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }));
-  const a = document.createElement('a');
-  a.href = url; a.download = `riwayat-antrean-${new Date().toISOString().slice(0,10)}.csv`;
+  const a = document.createElement('a'); a.href = url; a.download = `riwayat-antrean-${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
 });
 
-/* ==================== LAPORAN (ANALITIK) ==================== */
-const elLaporan = {
-  periode:        document.getElementById('filterPeriodeLaporan'),
-  totalPengunjung:document.getElementById('lapTotalPengunjung'),
-  rataTunggu:     document.getElementById('lapRataTunggu'),
-  loketTersibuk:  document.getElementById('lapLoketTersibuk'),
-  loketSub:       document.getElementById('lapLoketTersibukSub'),
-  totalBiometrik: document.getElementById('lapTotalBiometrik'),
-  persenA:        document.getElementById('lapPersenA'),
-  persenB:        document.getElementById('lapPersenB'),
-  barA:           document.getElementById('lapBarA'),
-  barB:           document.getElementById('lapBarB'),
-  jumlahA:        document.getElementById('lapJumlahA'),
-  jumlahB:        document.getElementById('lapJumlahB'),
-  jamTersibuk:    document.getElementById('lapJamTersibuk'),
-};
+const elLaporan = { periode: document.getElementById('filterPeriodeLaporan'), totalPengunjung: document.getElementById('lapTotalPengunjung'), rataTunggu: document.getElementById('lapRataTunggu'), loketTersibuk: document.getElementById('lapLoketTersibuk'), loketSub: document.getElementById('lapLoketTersibukSub'), totalBiometrik: document.getElementById('lapTotalBiometrik'), persenA: document.getElementById('lapPersenA'), persenB: document.getElementById('lapPersenB'), barA: document.getElementById('lapBarA'), barB: document.getElementById('lapBarB'), jumlahA: document.getElementById('lapJumlahA'), jumlahB: document.getElementById('lapJumlahB'), jamTersibuk: document.getElementById('lapJamTersibuk') };
 
 function renderLaporan(){
   const periode = elLaporan.periode.value;
   const data = logRiwayat.filter(item => cocokPeriode(item, periode));
   const panggilan = data.filter(item => item.aksi === 'Panggil');
-
   elLaporan.totalPengunjung.textContent = panggilan.length;
   elLaporan.totalBiometrik.textContent = data.filter(item => item.aksi === 'Biometrik').length;
 
-  // Rata-rata jarak antar pemanggilan (proxy waktu tunggu)
   const stempel = panggilan.map(i => i.timestamp).filter(t => typeof t === 'number').sort((a,b) => a - b);
   let rata = 0;
-  if (stempel.length > 1){
-    const total = stempel[stempel.length - 1] - stempel[0];
-    rata = Math.round(total / (stempel.length - 1) / 60000);
-  }
+  if (stempel.length > 1){ const total = stempel[stempel.length - 1] - stempel[0]; rata = Math.round(total / (stempel.length - 1) / 60000); }
   elLaporan.rataTunggu.textContent = rata;
 
-  // Loket tersibuk
   const perLoket = {};
-  panggilan.forEach(i => {
-    const loket = loketDariCatatan(i.catatan);
-    if (loket !== '—') perLoket[loket] = (perLoket[loket] || 0) + 1;
-  });
+  panggilan.forEach(i => { const loket = loketDariCatatan(i.catatan); if (loket !== '—') perLoket[loket] = (perLoket[loket] || 0) + 1; });
   const urutLoket = Object.entries(perLoket).sort((a,b) => b[1] - a[1]);
   elLaporan.loketTersibuk.textContent = urutLoket.length ? urutLoket[0][0] : '—';
   elLaporan.loketSub.textContent = urutLoket.length ? `${urutLoket[0][1]} nomor dilayani` : 'belum ada data';
 
-  // Komposisi kategori
   const jumlahA = panggilan.filter(i => String(i.nomor || '').toUpperCase().startsWith('A')).length;
   const jumlahB = panggilan.filter(i => String(i.nomor || '').toUpperCase().startsWith('B')).length;
   const totalAB = jumlahA + jumlahB;
   const persenA = totalAB ? Math.round((jumlahA / totalAB) * 100) : 0;
   const persenB = totalAB ? 100 - persenA : 0;
-  elLaporan.persenA.textContent = persenA;
-  elLaporan.persenB.textContent = persenB;
-  elLaporan.barA.style.width = `${persenA}%`;
-  elLaporan.barB.style.width = `${persenB}%`;
-  elLaporan.jumlahA.textContent = `${jumlahA} nomor`;
-  elLaporan.jumlahB.textContent = `${jumlahB} nomor`;
+  elLaporan.persenA.textContent = persenA; elLaporan.persenB.textContent = persenB;
+  elLaporan.barA.style.width = `${persenA}%`; elLaporan.barB.style.width = `${persenB}%`;
+  elLaporan.jumlahA.textContent = `${jumlahA} nomor`; elLaporan.jumlahB.textContent = `${jumlahB} nomor`;
 
-  // Jam tersibuk
   const perJam = {};
-  panggilan.forEach(i => {
-    const jam = String(i.waktu || '').slice(0, 2);
-    if (/^\d\d$/.test(jam)) perJam[jam] = (perJam[jam] || 0) + 1;
-  });
+  panggilan.forEach(i => { const jam = String(i.waktu || '').slice(0, 2); if (/^\d\d$/.test(jam)) perJam[jam] = (perJam[jam] || 0) + 1; });
   const urutJam = Object.entries(perJam).sort((a,b) => b[1] - a[1]);
   elLaporan.jamTersibuk.textContent = urutJam.length ? `${urutJam[0][0]}.00 — ${urutJam[0][0]}.59` : '—';
   perbaruiChartKunjungan(perJam);
@@ -1562,207 +1093,78 @@ function renderLaporan(){
 elLaporan.periode.addEventListener('change', renderLaporan);
 
 onValue(query(ref(db, 'log_aktivitas'), limitToLast(300)), (snap) => {
-  const items = [];
-  snap.forEach(child => items.unshift(child.val())); // terbaru di atas
-  logRiwayat = items;
-  renderRiwayat();
-  renderLaporan();
+  const items = []; snap.forEach(child => items.unshift(child.val()));
+  logRiwayat = items; renderRiwayat(); renderLaporan();
 });
 
 gantiView('dashboard');
 
-/* =========================================================================
-   GRAFIK KUNJUNGAN (Chart.js) — dipanggil dari dalam renderLaporan()
-   ========================================================================= */
-const LABEL_JAM_CHART = Array.from({ length: 14 }, (_, i) => String(i + 7).padStart(2, '0')); // 07..20
+const LABEL_JAM_CHART = Array.from({ length: 14 }, (_, i) => String(i + 7).padStart(2, '0'));
 let chartKunjungan = null;
 
 function perbaruiChartKunjungan(perJam) {
   const canvas = document.getElementById('chartKunjungan');
   if (!canvas || typeof Chart === 'undefined') return;
   const dataChart = LABEL_JAM_CHART.map(jam => perJam[jam] || 0);
-
   if (!chartKunjungan) {
-    chartKunjungan = new Chart(canvas, {
-      type: 'bar',
-      data: {
-        labels: LABEL_JAM_CHART.map(j => `${j}.00`),
-        datasets: [{
-          label: 'Jumlah Panggilan',
-          data: dataChart,
-          backgroundColor: '#d4af37',
-          borderRadius: 6,
-          maxBarThickness: 36,
-        }],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#e7dcc8' } },
-          x: { grid: { display: false } },
-        },
-      },
-    });
-  } else {
-    chartKunjungan.data.datasets[0].data = dataChart;
-    chartKunjungan.update();
-  }
+    chartKunjungan = new Chart(canvas, { type: 'bar', data: { labels: LABEL_JAM_CHART.map(j => `${j}.00`), datasets: [{ label: 'Jumlah Panggilan', data: dataChart, backgroundColor: '#d4af37', borderRadius: 6, maxBarThickness: 36 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#e7dcc8' } }, x: { grid: { display: false } } } } });
+  } else { chartKunjungan.data.datasets[0].data = dataChart; chartKunjungan.update(); }
 }
 
-/* =========================================================================
-   PENGATURAN — PREFERENSI AUDIO (localStorage + Web Speech API)
-   ========================================================================= */
-const elAudio = {
-  volume: document.getElementById('aturVolume'),
-  nilaiVolume: document.getElementById('nilaiVolume'),
-  kecepatan: document.getElementById('aturKecepatanTTS'),
-  nilaiKecepatan: document.getElementById('nilaiKecepatanTTS'),
-  tesSuara: document.getElementById('btnTesSuara'),
-};
+const elAudio = { volume: document.getElementById('aturVolume'), nilaiVolume: document.getElementById('nilaiVolume'), kecepatan: document.getElementById('aturKecepatanTTS'), nilaiKecepatan: document.getElementById('nilaiKecepatanTTS'), tesSuara: document.getElementById('btnTesSuara') };
 
 if (elAudio.volume) {
-  const volumeTersimpan = localStorage.getItem('simantri_volume');
-  const kecepatanTersimpan = localStorage.getItem('simantri_kecepatan_tts');
+  const volumeTersimpan = localStorage.getItem('simantri_volume'), kecepatanTersimpan = localStorage.getItem('simantri_kecepatan_tts');
   elAudio.volume.value = volumeTersimpan !== null ? volumeTersimpan : 80;
   elAudio.kecepatan.value = kecepatanTersimpan !== null ? kecepatanTersimpan : 1;
   elAudio.nilaiVolume.textContent = elAudio.volume.value;
   elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1);
 
-  elAudio.volume.addEventListener('input', () => {
-    elAudio.nilaiVolume.textContent = elAudio.volume.value;
-    localStorage.setItem('simantri_volume', elAudio.volume.value);
-  });
-
-  elAudio.kecepatan.addEventListener('input', () => {
-    elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1);
-    localStorage.setItem('simantri_kecepatan_tts', elAudio.kecepatan.value);
-  });
-
-  /* =========================================================================
-     SELEKSI SUARA PEREMPUAN INDONESIA — LINTAS PLATFORM (sama dengan tv.html).
-     Mencari kata kunci nama suara perempuan Indonesia yang umum tersedia di
-     berbagai OS/browser, lalu jatuh ke suara id-ID yang ditandai perempuan,
-     lalu ke suara id-ID apa pun sebagai upaya terakhir.
-     ========================================================================= */
-  const KATA_KUNCI_SUARA_PEREMPUAN_ID = ['Gadis', 'Damayanti', 'Google Bahasa Indonesia', 'Putri'];
-  function pilihSuaraPeremuanIndonesia(daftar){
-    if (!daftar || !daftar.length) return null;
-    for (const kw of KATA_KUNCI_SUARA_PEREMPUAN_ID) {
-      const cocok = daftar.find(v => v.name && v.name.includes(kw));
-      if (cocok) return cocok;
-    }
-    const female = daftar.find(v =>
-      (v.lang === 'id-ID' || v.lang === 'id_ID') &&
-      /female|perempuan|wanita/i.test(`${v.name} ${v.voiceURI || ''}`)
-    );
-    if (female) return female;
-    return daftar.find(v => v.lang === 'id-ID' || v.lang === 'id_ID') || null;
-  }
+  elAudio.volume.addEventListener('input', () => { elAudio.nilaiVolume.textContent = elAudio.volume.value; localStorage.setItem('simantri_volume', elAudio.volume.value); });
+  elAudio.kecepatan.addEventListener('input', () => { elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1); localStorage.setItem('simantri_kecepatan_tts', elAudio.kecepatan.value); });
 
   elAudio.tesSuara.addEventListener('click', () => {
-    if (!('speechSynthesis' in window)) {
-      tampilkanAlert('Tidak Didukung', 'Peramban ini tidak mendukung Web Speech API (Text-to-Speech).');
-      return;
+    const teksPanggilan = 'Tes panggilan. Nomor antrean. A. Kosong. Kosong. Satu. Silakan menuju. Loket 1.';
+    
+    // Pastikan library ResponsiveVoice berhasil dimuat dari internet
+    if (typeof responsiveVoice !== 'undefined') {
+      // Panggil profil "Indonesian Female" (Suara Perempuan Indonesia)
+      responsiveVoice.speak(teksPanggilan, "Indonesian Female", {
+        pitch: 1.05, // Sedikit dinaikkan nadanya agar lebih jernih
+        rate: Number(elAudio.kecepatan.value),
+        volume: Number(elAudio.volume.value) / 100
+      });
+    } else {
+      tampilkanAlert('Error Audio', 'Sistem suara gagal dimuat. Pastikan koneksi internet stabil atau matikan AdBlock.');
     }
-    window.speechSynthesis.cancel();
-
-    // Tanda titik (.) biasanya memberikan jeda yang lebih tegas dan natural daripada koma (,)
-    const ucapan = new SpeechSynthesisUtterance('Tes panggilan. Nomor. A. Kosong. Kosong. Satu. Silakan menuju. Loket 1.');
-    ucapan.lang = 'id-ID';
-    ucapan.volume = Number(elAudio.volume.value) / 100;
-
-    let suaraTes = window.speechSynthesis.getVoices();
-    const suaraNatural = suaraTes.find(v => v.name.includes('Gadis') && v.name.includes('Natural'));
-    const suaraTerpilih = suaraNatural || pilihSuaraPeremuanIndonesia(suaraTes);
-
-    if (suaraNatural) {
-      ucapan.voice = suaraNatural;
-      // Jika pakai suara Natural, hiraukan pengaturan slider kecepatan agar tidak rusak
-      ucapan.rate = 0.95;
-      ucapan.pitch = 1;
-    } else if (suaraTerpilih) {
-      ucapan.voice = suaraTerpilih;
-      ucapan.rate = Number(elAudio.kecepatan.value);
-      ucapan.pitch = 1.1;
-    }
-    // Jika tidak ada suara id-ID sama sekali, tetap ucapkan dengan suara default.
-
-    window.speechSynthesis.speak(ucapan);
   });
 }
 
-/* =========================================================================
-   PENGATURAN — TEKS BERJALAN (TICKER) VIA FIREBASE
-   ========================================================================= */
-const elTicker = {
-  textarea: document.getElementById('aturTeksBerjalan'),
-  counter: document.getElementById('jumlahKarakterTicker'),
-  preview: document.getElementById('pratinjauTicker'),
-  btnUpdate: document.getElementById('btnPerbaruiTicker'),
-};
+const elTicker = { textarea: document.getElementById('aturTeksBerjalan'), counter: document.getElementById('jumlahKarakterTicker'), preview: document.getElementById('pratinjauTicker'), btnUpdate: document.getElementById('btnPerbaruiTicker') };
 
 if (elTicker.textarea) {
-  function perbaruiTampilanTicker() {
-    const teks = elTicker.textarea.value;
-    elTicker.counter.textContent = teks.length;
-    elTicker.preview.textContent = teks || '—';
-  }
-
-  get(ref(db, 'pengaturan/ticker/teks_berjalan'))
-    .then((snap) => {
-      if (snap.exists()) elTicker.textarea.value = snap.val();
-      perbaruiTampilanTicker();
-    })
-    .catch((err) => { console.error(err); perbaruiTampilanTicker(); });
-
+  function perbaruiTampilanTicker() { const teks = elTicker.textarea.value; elTicker.counter.textContent = teks.length; elTicker.preview.textContent = teks || '—'; }
+  get(ref(db, 'pengaturan/ticker/teks_berjalan')).then((snap) => { if (snap.exists()) elTicker.textarea.value = snap.val(); perbaruiTampilanTicker(); }).catch((err) => { console.error(err); perbaruiTampilanTicker(); });
   elTicker.textarea.addEventListener('input', perbaruiTampilanTicker);
-
   elTicker.btnUpdate.addEventListener('click', async () => {
-    try {
-      await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elTicker.textarea.value);
-      tampilkanAlert('Berhasil', 'Teks berjalan pada layar TV telah diperbarui.');
-    } catch (err) {
-      console.error(err);
-      tampilkanAlert('Gagal', 'Tidak dapat memperbarui teks berjalan. Cek koneksi Firebase.');
-    }
+    try { await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elTicker.textarea.value); tampilkanAlert('Berhasil', 'Teks berjalan pada layar TV telah diperbarui.'); }
+    catch (err) { console.error(err); tampilkanAlert('Gagal', 'Tidak dapat memperbarui teks berjalan. Cek koneksi Firebase.'); }
   });
 }
 
-/* =========================================================================
-   PENGATURAN — MANAJEMEN LOKET (AKTIF/NONAKTIF) VIA FIREBASE
-   ========================================================================= */
-const elLoket = {
-  checkboxes: Array.from(document.querySelectorAll('[id^="aturLoket"]')),
-  jumlahAktif: document.getElementById('jumlahLoketAktif'),
-};
-
-function perbaruiJumlahLoketAktif() {
-  const aktif = elLoket.checkboxes.filter((cb) => cb.checked).length;
-  if (elLoket.jumlahAktif) elLoket.jumlahAktif.textContent = aktif;
-}
+const elLoket = { checkboxes: Array.from(document.querySelectorAll('[id^="aturLoket"]')), jumlahAktif: document.getElementById('jumlahLoketAktif') };
+function perbaruiJumlahLoketAktif() { const aktif = elLoket.checkboxes.filter((cb) => cb.checked).length; if (elLoket.jumlahAktif) elLoket.jumlahAktif.textContent = aktif; }
 
 if (elLoket.checkboxes.length) {
   onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
     const status = snap.exists() ? snap.val() : {};
-    elLoket.checkboxes.forEach((cb) => {
-      const nomor = cb.dataset.loket;
-      cb.checked = status[nomor] !== undefined ? !!status[nomor] : true;
-    });
+    elLoket.checkboxes.forEach((cb) => { const nomor = cb.dataset.loket; cb.checked = status[nomor] !== undefined ? !!status[nomor] : true; });
     perbaruiJumlahLoketAktif();
   });
-
   elLoket.checkboxes.forEach((cb) => {
     cb.addEventListener('change', async () => {
-      try {
-        await set(ref(db, `pengaturan/loket_aktif/${cb.dataset.loket}`), cb.checked);
-        perbaruiJumlahLoketAktif();
-      } catch (err) {
-        console.error(err);
-        cb.checked = !cb.checked; // rollback tampilan jika gagal simpan
-        tampilkanAlert('Gagal', 'Tidak dapat menyimpan status loket. Cek koneksi Firebase.');
-      }
+      try { await set(ref(db, `pengaturan/loket_aktif/${cb.dataset.loket}`), cb.checked); perbaruiJumlahLoketAktif(); }
+      catch (err) { console.error(err); cb.checked = !cb.checked; tampilkanAlert('Gagal', 'Tidak dapat menyimpan status loket. Cek koneksi Firebase.'); }
     });
   });
 }
