@@ -59,53 +59,53 @@
   </div>
 
   <!-- ==================== HEADER (display-header.tsx) ==================== -->
-  <header class="flex items-center justify-between gap-[2vw] border-b border-border/70 px-[2vw] py-[1.4vh]">
-    <div class="flex items-center gap-[1.2vw]">
-      <img src="logo.png" alt="Logo Instansi" class="h-[6.4vh] w-[6.4vh] rounded-full object-cover border border-gold shadow-md">
+  <header class="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-2 md:gap-6 md:px-8 md:py-3">
+    <div class="flex items-center gap-2 md:gap-4">
+      <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold object-cover shadow-md md:h-14 md:w-14 lg:h-16 lg:w-16">
       <div class="text-left">
-        <h1 class="font-sans text-[1.9vw] font-extrabold uppercase leading-none tracking-[0.1em] text-gold">
+        <h1 class="font-sans text-base font-extrabold uppercase leading-none tracking-[0.1em] text-gold md:text-2xl lg:text-3xl">
           SIMANTRI <span class="text-cream/60">&mdash;</span> Ruang Tunggu
         </h1>
-        <p class="mt-[0.5vh] font-sans text-[0.95vw] font-medium uppercase tracking-[0.28em] text-cream/65">
+        <p class="mt-1 hidden font-sans text-xs font-medium uppercase tracking-[0.28em] text-cream/65 sm:block md:text-sm">
           Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kabupaten Jember
         </p>
       </div>
     </div>
     <div class="text-right">
-      <p id="tvJam" class="font-mono text-[2.4vw] font-bold leading-none text-gold">00:00:00</p>
-      <p id="tvTanggal" class="mt-[0.5vh] font-sans text-[0.95vw] font-medium uppercase tracking-[0.2em] text-cream/65"></p>
+      <p id="tvJam" class="font-mono text-xl font-bold leading-none text-gold md:text-3xl lg:text-4xl">00:00:00</p>
+      <p id="tvTanggal" class="mt-1 hidden font-sans text-xs font-medium uppercase tracking-[0.2em] text-cream/65 sm:block md:text-sm"></p>
     </div>
   </header>
 
   <!-- ==================== GRID LOKET (counter-card.tsx x5) ==================== -->
-  <section aria-label="Nomor antrean per loket" class="grid flex-1 grid-cols-5 gap-[1.1vw] px-[2vw] py-[2.2vh]">
+  <section aria-label="Nomor antrean per loket" class="grid flex-1 grid-cols-2 gap-2 overflow-y-auto px-3 py-3 sm:grid-cols-3 md:gap-3 md:px-6 md:py-4 lg:grid-cols-5">
     <!-- Kartu di-generate oleh JavaScript dari KONFIGURASI_LOKET di bawah,
          supaya jumlah loket mudah diubah tanpa menyentuh markup ini. -->
   </section>
   <template id="templateKartuLoket">
-    <article class="flex h-full flex-col items-center justify-between rounded-2xl border border-border/70 bg-bronze-raised px-[1vw] py-[1.6vh] text-center transition-colors">
-      <header class="w-full border-b border-border/60 pb-[1.1vh]">
-        <h2 class="nama-loket font-sans text-[1.35vw] font-semibold uppercase leading-tight tracking-[0.16em] text-cream"></h2>
+    <article class="flex h-full min-h-[9rem] flex-col items-center justify-between rounded-2xl border border-border/70 bg-bronze-raised px-2 py-2 text-center transition-colors md:px-3 md:py-4">
+      <header class="w-full border-b border-border/60 pb-1 md:pb-2">
+        <h2 class="nama-loket font-sans text-xs font-semibold uppercase leading-tight tracking-[0.16em] text-cream sm:text-sm md:text-lg lg:text-xl"></h2>
       </header>
-      <div class="flex flex-1 flex-col items-center justify-center gap-[1.4vh]">
-        <p class="label-seri font-sans text-[1.5vw] font-bold uppercase leading-none tracking-[0.34em] text-gold-deep">Seri &ndash;</p>
-        <p class="nomor-tampil font-mono text-[8.4vw] font-bold leading-none tracking-[-0.03em] text-gold-deep">&ndash;&ndash;&ndash;</p>
+      <div class="flex flex-1 flex-col items-center justify-center gap-1 md:gap-2">
+        <p class="label-seri font-sans text-xs font-bold uppercase leading-none tracking-[0.3em] text-gold-deep sm:text-sm md:text-base">Seri &ndash;</p>
+        <p class="nomor-tampil font-mono text-3xl font-bold leading-none tracking-[-0.03em] text-gold-deep sm:text-4xl md:text-5xl lg:text-6xl">&ndash;&ndash;&ndash;</p>
       </div>
-      <footer class="w-full border-t border-border/60 pt-[1.1vh]">
-        <p class="label-status font-sans text-[1.1vw] font-medium uppercase tracking-[0.22em] text-cream/45">Kosong</p>
+      <footer class="w-full border-t border-border/60 pt-1 md:pt-2">
+        <p class="label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/45 sm:text-xs md:text-sm">Kosong</p>
       </footer>
     </article>
   </template>
 
   <!-- ==================== TICKER (queue-ticker.tsx) ==================== -->
-  <footer class="flex items-center gap-[1.6vw] border-t border-border/70 px-[2vw] py-[1.3vh]">
-    <p class="shrink-0 font-sans text-[1.05vw] font-bold uppercase tracking-[0.24em] text-bronze">
-      <span class="rounded-md bg-gold px-[0.9vw] py-[0.5vh]">Pengumuman</span>
+  <footer class="flex items-center gap-2 border-t border-border/70 px-3 py-2 md:gap-4 md:px-6 md:py-3">
+    <p class="shrink-0 font-sans text-xs font-bold uppercase tracking-[0.2em] text-bronze sm:text-sm md:text-base">
+      <span class="rounded-md bg-gold px-2 py-1 md:px-3 md:py-1.5">Pengumuman</span>
     </p>
     <div class="relative flex-1 overflow-hidden">
       <div class="ticker-track" id="tickerTrack">
-        <span class="shrink-0 pr-[6vw] font-mono text-[1.5vw] font-semibold tracking-[0.08em] text-gold-deep" id="tickerTeks1">Memuat antrean…</span>
-        <span class="shrink-0 pr-[6vw] font-mono text-[1.5vw] font-semibold tracking-[0.08em] text-gold-deep" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
+        <span class="shrink-0 pr-12 font-mono text-sm font-semibold tracking-[0.08em] text-gold-deep sm:text-base md:pr-24 md:text-xl" id="tickerTeks1">Memuat antrean…</span>
+        <span class="shrink-0 pr-12 font-mono text-sm font-semibold tracking-[0.08em] text-gold-deep sm:text-base md:pr-24 md:text-xl" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
       </div>
     </div>
   </footer>
@@ -206,7 +206,7 @@ KONFIGURASI_LOKET.forEach(loket => {
       kartu.nomorTampil.textContent = '—';
       kartu.nomorTampil.classList.add('text-cream/20');
       kartu.labelStatus.textContent = 'Kosong';
-      kartu.labelStatus.className = 'label-status font-sans text-[1.1vw] font-medium uppercase tracking-[0.22em] text-cream/45';
+      kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/45 sm:text-xs md:text-sm';
       return;
     }
     const data = snap.val();
@@ -214,7 +214,7 @@ KONFIGURASI_LOKET.forEach(loket => {
     kartu.nomorTampil.textContent = data.nomor;
     kartu.nomorTampil.classList.remove('text-cream/20');
     kartu.labelStatus.textContent = 'Sedang Dilayani';
-    kartu.labelStatus.className = 'label-status font-sans text-[1.1vw] font-medium uppercase tracking-[0.22em] text-cream/80';
+    kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/80 sm:text-xs md:text-sm';
   });
 });
 
@@ -290,7 +290,7 @@ function terapkanStatusTutupLoket(loketId, aktif){
   kartu.nomorTampil.textContent = '—';
   kartu.nomorTampil.classList.add('text-cream/15');
   kartu.labelStatus.textContent = 'TUTUP / OFFLINE';
-  kartu.labelStatus.className = 'label-status font-sans text-[1.1vw] font-bold uppercase tracking-[0.22em] text-red-400';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-red-400 sm:text-xs md:text-sm';
 }
 
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
@@ -351,10 +351,37 @@ function mainkanPanggilan(nomor, namaLoket){
 }
 
 /* =========================================================================
-   SELEKSI SUARA PEREMPUAN (MICROSOFT GADIS / GOOGLE)
+   SELEKSI SUARA PEREMPUAN INDONESIA — LINTAS PLATFORM (Windows/Edge, Android
+   Chrome, iOS Safari, dsb). Sebagian OS/browser tidak punya suara "Microsoft
+   Gadis", jadi fungsi ini mencari beberapa kandidat nama yang umum dipakai,
+   lalu jatuh ke suara apa pun yang ditandai perempuan + id-ID, lalu ke
+   suara id-ID apa pun sebagai upaya terakhir (supaya tidak diam sama sekali).
    ========================================================================= */
+const KATA_KUNCI_SUARA_PEREMPUAN_ID = ['Gadis', 'Damayanti', 'Google Bahasa Indonesia', 'Putri'];
+
+function pilihSuaraPeremuanIndonesia(daftar){
+  if (!daftar || !daftar.length) return null;
+
+  // 1. Cocokkan kata kunci nama suara perempuan Indonesia yang umum, berurutan sesuai prioritas
+  for (const kw of KATA_KUNCI_SUARA_PEREMPUAN_ID) {
+    const cocok = daftar.find(v => v.name && v.name.includes(kw));
+    if (cocok) return cocok;
+  }
+
+  // 2. Paksa cari suara id-ID yang eksplisit ditandai "female" di nama/voiceURI-nya
+  const female = daftar.find(v =>
+    (v.lang === 'id-ID' || v.lang === 'id_ID') &&
+    /female|perempuan|wanita/i.test(`${v.name} ${v.voiceURI || ''}`)
+  );
+  if (female) return female;
+
+  // 3. Upaya terakhir: suara id-ID apa pun, supaya panggilan tetap terdengar
+  return daftar.find(v => v.lang === 'id-ID' || v.lang === 'id_ID') || null;
+}
+
 let daftarSuara = [];
 if ('speechSynthesis' in window) {
+  daftarSuara = window.speechSynthesis.getVoices();
   window.speechSynthesis.onvoiceschanged = () => {
     daftarSuara = window.speechSynthesis.getVoices();
   };
@@ -363,7 +390,7 @@ if ('speechSynthesis' in window) {
 function ucapkanTeks(teks){
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
-  
+
   const ucapan = new SpeechSynthesisUtterance(teks);
   ucapan.lang = 'id-ID';
 
@@ -371,22 +398,20 @@ function ucapkanTeks(teks){
     daftarSuara = window.speechSynthesis.getVoices();
   }
 
-  // 1. Cari suara AI Natural dari Edge
   const suaraNatural = daftarSuara.find(v => v.name.includes('Gadis') && v.name.includes('Natural'));
-  // 2. Cari suara Gadis biasa (Offline)
-  const suaraGadis = daftarSuara.find(v => v.name.includes('Gadis'));
-  // 3. Cadangan suara Indo lainnya
-  const suaraCadangan = daftarSuara.find(v => v.lang === 'id-ID' || v.lang === 'id_ID');
+  const suaraTerpilih = suaraNatural || pilihSuaraPeremuanIndonesia(daftarSuara);
 
   if (suaraNatural) {
     ucapan.voice = suaraNatural;
     ucapan.rate = 0.95; // Sedikit saja diperlambat agar AI tidak rusak
     ucapan.pitch = 1;   // HARUS 1 agar suara AI tidak sumbang
-  } else if (suaraGadis || suaraCadangan) {
-    ucapan.voice = suaraGadis || suaraCadangan;
+  } else if (suaraTerpilih) {
+    ucapan.voice = suaraTerpilih;
     ucapan.rate = 0.85; // Boleh diperlambat karena ini suara robot
     ucapan.pitch = 1.1; // Boleh dinaikkan
   }
+  // Jika tidak ada suara id-ID sama sekali, tetap ucapkan dengan suara
+  // default browser (lebih baik daripada diam total).
 
   window.speechSynthesis.speak(ucapan);
 }

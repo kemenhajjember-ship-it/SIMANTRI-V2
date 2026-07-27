@@ -907,7 +907,7 @@ onValue(query(ref(db, 'log_aktivitas'), limitToLast(8)), (snap) => {
 /* =========================================================================
    GANTI PERAN (LOGIN DUMMY)
    ========================================================================= */
-el.pilihPeran.addEventListener('change', () => {
+el.pilihPeran.addEventListener('change', async () => {
   peranAktif = el.pilihPeran.value || null;
   nomorSedangDilayani = null;
   nomorBiometrikAktif = null;
@@ -939,6 +939,36 @@ el.pilihPeran.addEventListener('change', () => {
     el.pesanLoket.textContent = 'Setiap tindakan tercatat pada log aktivitas.';
     el.judulTabelAntrean.textContent = `Antrean Menunggu — ${konfig.nama}`;
     dengarkanAntreanLoket(konfig.kategori);
+
+    /* =====================================================================
+       PATCH BUG "STATE LOSS" — pulihkan panggilan yang belum selesai.
+       Skenario: petugas di Loket 1 sedang melayani A-007, pindah peran ke
+       Loket 3, lalu kembali ke Loket 1 — tampilan A-007 seharusnya tidak
+       hilang. Karena nomorSedangDilayani cuma variabel lokal (hilang saat
+       dropdown berubah), kita cek ke Firebase: /status_loket/{id_loket}/.
+       Jika node itu ada DAN sedangDilayani === true (petugas belum menekan
+       "Selesai"/"Teruskan Biometrik"), pulihkan nomor + kunci loketnya.
+       ===================================================================== */
+    try {
+      const snapStatus = await get(ref(db, `status_loket/${peranAktif}`));
+      // Peran bisa saja sudah berpindah lagi sebelum get() ini selesai —
+      // pastikan masih relevan sebelum menimpa UI.
+      if (peranAktif === el.pilihPeran.value && snapStatus.exists()) {
+        const dataStatus = snapStatus.val();
+        if (dataStatus.sedangDilayani) {
+          nomorSedangDilayani = {
+            nomor: dataStatus.nomor,
+            kategori: dataStatus.kategori,
+            jumlahOrang: dataStatus.jumlahOrang || 1,
+          };
+          el.nomorSedangDilayaniEl.textContent = dataStatus.nomor;
+          el.infoWaktuPanggil.textContent = 'Panggilan sebelumnya dipulihkan otomatis';
+          aturKunciLoket(true);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }
   lucide.createIcons();
 });
@@ -1065,7 +1095,12 @@ el.btnPanggilSelanjutnya.addEventListener('click', async () => {
     snap.forEach(child => { tiket = child.val(); keyTiket = child.key; });
     await remove(ref(db, `antrean_menunggu/${keyTiket}`));
 
-    const payloadPanggilan = { nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori, timestamp: serverTimestamp() };
+    const payloadPanggilan = {
+      nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori,
+      jumlahOrang: tiket.jumlahOrang || 1,
+      sedangDilayani: true, // dipakai admin.html utk memulihkan state saat ganti peran lalu kembali (lihat GANTI PERAN)
+      timestamp: serverTimestamp()
+    };
 
     await set(ref(db, 'panggilan_aktif'), payloadPanggilan);
     await set(ref(db, `status_loket/${peranAktif}`), payloadPanggilan); // <-- node baru untuk TV grid
@@ -1098,6 +1133,13 @@ el.btnSelesaiTanpaBiometrik.addEventListener('click', () => {
 });
 
 function resetSetelahSelesai(){
+  // Tandai di Firebase bahwa loket ini SUDAH SELESAI melayani nomor tsb, tanpa
+  // menghapus node status_loket (TV tetap menampilkan nomor terakhir sesuai
+  // desain awal). Ini yang dipakai dropdown peran utk tahu apakah ada
+  // panggilan yang masih berjalan saat petugas berpindah-pindah peran.
+  if (peranAktif && peranAktif !== 'biometrik') {
+    set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false).catch((err) => console.error(err));
+  }
   nomorSedangDilayani = null;
   el.nomorSedangDilayaniEl.textContent = '—';
   el.infoWaktuPanggil.textContent = '';
@@ -1598,33 +1640,54 @@ if (elAudio.volume) {
     localStorage.setItem('simantri_kecepatan_tts', elAudio.kecepatan.value);
   });
 
+  /* =========================================================================
+     SELEKSI SUARA PEREMPUAN INDONESIA — LINTAS PLATFORM (sama dengan tv.html).
+     Mencari kata kunci nama suara perempuan Indonesia yang umum tersedia di
+     berbagai OS/browser, lalu jatuh ke suara id-ID yang ditandai perempuan,
+     lalu ke suara id-ID apa pun sebagai upaya terakhir.
+     ========================================================================= */
+  const KATA_KUNCI_SUARA_PEREMPUAN_ID = ['Gadis', 'Damayanti', 'Google Bahasa Indonesia', 'Putri'];
+  function pilihSuaraPeremuanIndonesia(daftar){
+    if (!daftar || !daftar.length) return null;
+    for (const kw of KATA_KUNCI_SUARA_PEREMPUAN_ID) {
+      const cocok = daftar.find(v => v.name && v.name.includes(kw));
+      if (cocok) return cocok;
+    }
+    const female = daftar.find(v =>
+      (v.lang === 'id-ID' || v.lang === 'id_ID') &&
+      /female|perempuan|wanita/i.test(`${v.name} ${v.voiceURI || ''}`)
+    );
+    if (female) return female;
+    return daftar.find(v => v.lang === 'id-ID' || v.lang === 'id_ID') || null;
+  }
+
   elAudio.tesSuara.addEventListener('click', () => {
     if (!('speechSynthesis' in window)) {
       tampilkanAlert('Tidak Didukung', 'Peramban ini tidak mendukung Web Speech API (Text-to-Speech).');
       return;
     }
     window.speechSynthesis.cancel();
-    
+
     // Tanda titik (.) biasanya memberikan jeda yang lebih tegas dan natural daripada koma (,)
     const ucapan = new SpeechSynthesisUtterance('Tes panggilan. Nomor. A. Kosong. Kosong. Satu. Silakan menuju. Loket 1.');
     ucapan.lang = 'id-ID';
     ucapan.volume = Number(elAudio.volume.value) / 100;
-    
+
     let suaraTes = window.speechSynthesis.getVoices();
     const suaraNatural = suaraTes.find(v => v.name.includes('Gadis') && v.name.includes('Natural'));
-    const suaraGadis = suaraTes.find(v => v.name.includes('Gadis'));
-    const suaraCadangan = suaraTes.find(v => v.lang === 'id-ID' || v.lang === 'id_ID');
-    
+    const suaraTerpilih = suaraNatural || pilihSuaraPeremuanIndonesia(suaraTes);
+
     if (suaraNatural) {
       ucapan.voice = suaraNatural;
       // Jika pakai suara Natural, hiraukan pengaturan slider kecepatan agar tidak rusak
-      ucapan.rate = 0.95; 
+      ucapan.rate = 0.95;
       ucapan.pitch = 1;
-    } else {
-      ucapan.voice = suaraGadis || suaraCadangan;
+    } else if (suaraTerpilih) {
+      ucapan.voice = suaraTerpilih;
       ucapan.rate = Number(elAudio.kecepatan.value);
       ucapan.pitch = 1.1;
     }
+    // Jika tidak ada suara id-ID sama sekali, tetap ucapkan dengan suara default.
 
     window.speechSynthesis.speak(ucapan);
   });
