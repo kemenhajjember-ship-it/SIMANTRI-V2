@@ -61,7 +61,8 @@
 </head>
 <body class="flex h-screen w-full flex-col overflow-hidden bg-bronze font-sans text-cream">
 
-  <div id="overlayAktifkan" class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bronze/98">
+  <!-- OVERLAY PERBAIKAN (bg-black murni agar tidak transparan error) -->
+  <div id="overlayAktifkan" class="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-black/95">
     <p class="font-sans text-3xl font-extrabold uppercase tracking-[0.1em] text-gold">SIMANTRI — Layar Ruang Tunggu</p>
     <button id="btnAktifkan" type="button" class="rounded-full bg-gold px-12 py-5 text-xl font-extrabold text-bronze shadow-lg transition-transform active:scale-95 hover:scale-105">
       🔊 Aktifkan Layar &amp; Suara
@@ -69,46 +70,45 @@
   </div>
 
   <!-- HEADER -->
-  <header class="flex items-center justify-between gap-3 border-b-2 border-gold/30 bg-black/20 px-6 py-3 shadow-md md:px-8">
+  <header class="shrink-0 flex items-center justify-between gap-3 border-b-2 border-gold/30 bg-black/20 px-6 py-3 shadow-md md:px-8">
     <div class="flex items-center gap-4">
-      <img src="logo.png" alt="Logo" class="h-14 w-14 rounded-full border-2 border-gold object-cover shadow-md lg:h-20 lg:w-20">
+      <img src="logo.png" alt="Logo" class="h-14 w-14 rounded-full border-2 border-gold object-cover shadow-md lg:h-16 lg:w-16">
       <div class="text-left">
         <h1 class="font-sans text-xl font-extrabold uppercase leading-none tracking-widest text-gold md:text-3xl lg:text-4xl">
           SIMANTRI <span class="text-cream/60">&mdash;</span> RUANG TUNGGU
         </h1>
-        <p class="mt-1 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-cream/70 md:text-sm lg:text-base">
+        <p class="mt-1 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-cream/70 md:text-sm">
           Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
         </p>
       </div>
     </div>
-    <div class="text-right">
+    <div class="text-right shrink-0">
       <p id="tvJam" class="font-mono text-3xl font-extrabold leading-none tracking-tight text-gold lg:text-5xl">00:00:00</p>
-      <p id="tvTanggal" class="mt-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-cream/70 lg:text-sm"></p>
+      <p id="tvTanggal" class="mt-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-cream/70"></p>
     </div>
   </header>
 
   <!-- MAIN KONTEN: Highlight & Video -->
-  <main class="flex min-h-0 flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+  <main class="flex-1 flex flex-col min-h-0 gap-4 p-4 lg:gap-6 lg:p-6">
     
     <!-- BARIS ATAS: Layar Pemanggilan Utama & Video -->
-    <div class="flex flex-1 gap-4 lg:gap-6">
+    <div class="flex-1 flex gap-4 lg:gap-6 min-h-0">
       
       <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) -->
-      <div id="boxHighlight" class="flex w-[40%] flex-col items-center justify-center rounded-[2rem] border-2 border-gold/40 bg-bronze-raised p-6 text-center shadow-2xl transition-all duration-500">
-        <p class="font-sans text-xl font-bold uppercase tracking-[0.3em] text-cream/70 lg:text-2xl">Panggilan Ke</p>
-        <h2 id="highlightLoket" class="mt-2 font-sans text-4xl font-extrabold uppercase tracking-widest text-gold lg:text-5xl">—</h2>
+      <!-- PERBAIKAN: Font disesuaikan ukurannya agar tidak meluber (overflow) -->
+      <div id="boxHighlight" class="w-[40%] flex flex-col items-center justify-center rounded-[2rem] border-2 border-gold/40 bg-bronze-raised p-4 lg:p-8 text-center shadow-2xl transition-all duration-500 overflow-hidden shrink-0">
+        <p class="font-sans text-sm md:text-lg lg:text-xl font-bold uppercase tracking-[0.3em] text-cream/70 shrink-0">Panggilan Ke</p>
+        <h2 id="highlightLoket" class="mt-1 font-sans text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold uppercase tracking-widest text-gold leading-tight shrink-0">—</h2>
         
-        <div class="my-6 h-1 w-3/4 rounded-full bg-gradient-to-r from-transparent via-gold/50 to-transparent lg:my-8"></div>
+        <div class="my-4 lg:my-6 h-1 w-3/4 shrink-0 rounded-full bg-gradient-to-r from-transparent via-gold/50 to-transparent"></div>
         
-        <p class="font-sans text-lg font-semibold uppercase tracking-[0.4em] text-cream/60 lg:text-xl">Nomor Antrean</p>
-        <p id="highlightNomor" class="mt-2 font-mono text-[6rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_20px_rgba(232,197,71,0.6)] lg:text-[9rem]">---</p>
+        <p class="font-sans text-xs md:text-sm lg:text-lg font-semibold uppercase tracking-[0.4em] text-cream/60 shrink-0">Nomor Antrean</p>
+        <p id="highlightNomor" class="mt-1 font-mono text-5xl md:text-7xl lg:text-[6rem] xl:text-[8rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_20px_rgba(232,197,71,0.6)] shrink-0">---</p>
       </div>
 
       <!-- KOTAK KANAN (VIDEO PLAYER) -->
-      <div class="relative w-[60%] overflow-hidden rounded-[2rem] border-2 border-border/80 bg-black shadow-2xl">
-        <!-- Iframe akan diisi otomatis oleh JavaScript -->
+      <div class="relative w-[60%] overflow-hidden rounded-[2rem] border-2 border-border/80 bg-black shadow-2xl shrink-0">
         <iframe id="tvVideo" class="absolute inset-0 h-full w-full pointer-events-none" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        <!-- Fallback teks jika video belum diatur -->
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-cream/30">
           <i data-lucide="video" class="h-16 w-16 mb-2 opacity-50"></i>
           <p class="font-sans text-sm font-semibold tracking-widest uppercase">Video Belum Diatur</p>
@@ -117,37 +117,39 @@
     </div>
 
     <!-- BARIS BAWAH: Grid 5 Loket -->
-    <section aria-label="Nomor antrean per loket" class="grid h-[30%] min-h-[14rem] grid-cols-5 gap-3 lg:gap-4">
+    <!-- PERBAIKAN: Dikunci tingginya (h-48) agar tidak bisa didorong/dikecilkan -->
+    <section aria-label="Nomor antrean per loket" class="shrink-0 grid h-40 md:h-48 lg:h-56 grid-cols-5 gap-3 lg:gap-4">
       <!-- Kartu di-generate JS -->
     </section>
   </main>
 
   <!-- TEMPLATE KARTU LOKET BAWAH -->
   <template id="templateKartuLoket">
-    <article class="flex h-full flex-col items-center justify-between rounded-[1.5rem] border-2 border-border/60 bg-bronze-raised px-2 py-3 text-center shadow-lg transition-all duration-500 lg:px-4 lg:py-5">
-      <header class="w-full border-b border-border/60 pb-2">
-        <h2 class="nama-loket font-sans text-sm font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-lg"></h2>
+    <article class="flex h-full flex-col items-center justify-between rounded-2xl border-2 border-border/60 bg-bronze-raised px-2 py-3 text-center shadow-lg transition-all duration-500 lg:px-4 lg:py-4">
+      <header class="w-full border-b border-border/60 pb-2 shrink-0">
+        <h2 class="nama-loket font-sans text-xs font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-base"></h2>
       </header>
       
-      <div class="container-isi flex flex-1 flex-col items-center justify-center gap-1">
-        <p class="label-seri font-sans text-xs font-bold uppercase leading-none tracking-[0.3em] text-gold-deep lg:text-sm"></p>
-        <p class="nomor-tampil font-mono text-4xl font-bold leading-none tracking-tight text-gold-deep lg:text-5xl"></p>
+      <div class="container-isi flex flex-1 flex-col items-center justify-center gap-1 min-h-0">
+        <p class="label-seri font-sans text-[10px] font-bold uppercase leading-none tracking-[0.3em] text-gold-deep lg:text-xs"></p>
+        <p class="nomor-tampil font-mono text-3xl font-bold leading-none tracking-tight text-gold-deep lg:text-5xl"></p>
       </div>
 
-      <div class="container-selesai hidden flex-1 flex-col items-center justify-center">
-        <div class="lingkaran-ikon rounded-full bg-green-500/20 p-4 opacity-0">
-          <i data-lucide="check-circle-2" class="h-10 w-10 text-green-500 lg:h-14 lg:w-14"></i>
+      <div class="container-selesai hidden flex-1 flex-col items-center justify-center min-h-0">
+        <div class="lingkaran-ikon rounded-full bg-green-500/20 p-3 opacity-0">
+          <i data-lucide="check-circle-2" class="h-8 w-8 text-green-500 lg:h-12 lg:w-12"></i>
         </div>
       </div>
 
-      <footer class="w-full border-t border-border/60 pt-2">
-        <p class="label-status font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-cream/45 lg:text-xs">TERSEDIA</p>
+      <footer class="w-full border-t border-border/60 pt-2 shrink-0">
+        <p class="label-status font-sans text-[9px] font-bold uppercase tracking-[0.25em] text-cream/45 lg:text-[11px]">TERSEDIA</p>
       </footer>
     </article>
   </template>
 
   <!-- TICKER PENGUMUMAN -->
-  <footer class="flex items-center gap-4 bg-gold px-4 py-2 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] md:px-6 md:py-3 lg:py-4">
+  <!-- PERBAIKAN: Dikunci shrink-0 dan z-index agar tetap berada di bawah -->
+  <footer class="shrink-0 relative z-50 flex items-center gap-4 bg-gold px-4 py-2 shadow-[0_-10px_20px_rgba(0,0,0,0.4)] md:px-6 md:py-3">
     <div class="flex items-center gap-2 shrink-0 rounded-xl bg-bronze-dark px-4 py-2 shadow-inner">
       <i data-lucide="megaphone" class="h-5 w-5 text-gold animate-pulse"></i>
       <p class="font-sans text-xs font-extrabold uppercase tracking-[0.25em] text-gold lg:text-sm">INFO</p>
@@ -193,13 +195,9 @@ const el = {
   tvTanggal: document.getElementById('tvTanggal'),
   tickerTeks1: document.getElementById('tickerTeks1'),
   tickerTeks2: document.getElementById('tickerTeks2'),
-  
-  // Elemen Highlight Atas
   boxHighlight: document.getElementById('boxHighlight'),
   highlightLoket: document.getElementById('highlightLoket'),
   highlightNomor: document.getElementById('highlightNomor'),
-  
-  // Video
   tvVideo: document.getElementById('tvVideo'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
 };
@@ -264,7 +262,6 @@ onValue(ref(db, 'pengaturan/video_url'), (snap) => {
   const ytID = extractYouTubeID(urlMentah);
   
   if (ytID) {
-    // Format embed YouTube rahasia: Autoplay, Loop, Mute (Wajib Mute agar bisa Autoplay di Browser)
     el.tvVideo.src = `https://www.youtube.com/embed/${ytID}?autoplay=1&mute=1&loop=1&playlist=${ytID}&controls=0&modestbranding=1&showinfo=0`;
     el.videoPlaceholder.style.display = 'none';
   } else {
@@ -307,7 +304,7 @@ KONFIGURASI_LOKET.forEach(loket => {
       kartu.nomorTampil.classList.remove('text-cream/20');
       kartu.nomorTampil.style.transform = 'scale(1)'; 
       kartu.labelStatus.textContent = 'SEDANG DILAYANI';
-      kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/80 lg:text-xs';
+      kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/80 lg:text-[11px]';
     }
   });
 });
@@ -324,7 +321,7 @@ function jalankanAnimasiSelesai(kartu) {
   kartu.ikonSelesai.classList.add('animate-pop');
   
   kartu.labelStatus.textContent = 'SELESAI LAYANAN';
-  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-green-400 lg:text-xs';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-green-400 lg:text-[11px]';
   kartu.artikel.classList.add('card-selesai');
   
   setTimeout(() => { if(!kartu.sedangDilayani) resetTampilanKosong(kartu); }, 3500);
@@ -343,7 +340,7 @@ function resetTampilanKosong(kartu) {
   kartu.nomorTampil.style.transform = 'scale(1)';
   kartu.nomorTampil.classList.add('text-cream/20');
   kartu.labelStatus.textContent = 'TERSEDIA';
-  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-cream/45 lg:text-xs';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-cream/45 lg:text-[11px]';
 }
 
 /* =========================================================================
@@ -384,7 +381,6 @@ onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
     void artikel.offsetWidth; 
     artikel.classList.add('card-active');
     
-    // Hentikan animasi berkedip setelah 8 detik
     setTimeout(() => {
       artikel.classList.remove('card-active');
       el.boxHighlight.classList.remove('card-active');
@@ -425,7 +421,7 @@ function terapkanStatusTutupLoket(loketId, aktif){
   kartu.nomorTampil.style.transform = 'scale(1)';
   kartu.nomorTampil.classList.add('text-cream/15');
   kartu.labelStatus.textContent = 'TUTUP / OFFLINE';
-  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-red-400 lg:text-xs';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-red-400 lg:text-[11px]';
 }
 
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
