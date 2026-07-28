@@ -28,8 +28,6 @@
     },
   };
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <!-- ICON -->
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -43,48 +41,18 @@
   html,body{ height:100%; margin:0; }
   body{ font-variant-numeric: tabular-nums; }
 
-  /* =========================================================================
-     1. ANIMASI MODERN: NOMOR DIPANGGIL (MENGAMBANG & GLOW)
-     ========================================================================= */
-  @keyframes float-glow {
-    0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 0 0 0 rgba(212,175,55,0); border-color: #6b4e2a; }
-    50% { 
-      transform: translateY(-8px) scale(1.02); 
-      box-shadow: 0 20px 40px -10px var(--glow-gold), 0 0 15px 2px rgba(212,175,55,0.3); 
-      border-color: #e8c547;
-      background: var(--bg-active);
-    }
+  /* Animasi Kilat untuk Panggilan Aktif */
+  @keyframes card-pulse{
+    0%,100%{ border-color:#e8c547; box-shadow:0 0 0 1px #d4af37, 0 0 34px -8px rgba(232,197,71,0.45); }
+    50%{ border-color:#f5eee0; box-shadow:0 0 0 3px #e8c547, 0 0 60px 0px rgba(232,197,71,0.7); }
   }
-  .card-active { 
-    animation: float-glow 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
-    z-index: 10; position: relative;
-  }
-  .card-active .nomor-tampil {
-    color: #ffffff !important;
-    text-shadow: 0 0 20px rgba(232, 197, 71, 0.8);
-    transform: scale(1.15);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  /* =========================================================================
-     2. ANIMASI MODERN: LAYANAN SELESAI (TENGGELAM & HIJAU GELAP)
-     ========================================================================= */
-  .card-selesai {
-    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform: scale(0.96);
-    background: var(--bg-selesai) !important;
-    border-color: #22c55e !important;
-    opacity: 0.95;
-  }
+  .card-active { animation: card-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; background: var(--bg-active); }
   
-  @keyframes pop-bounce {
-    0% { transform: scale(0.5) translateY(20px); opacity: 0; }
-    60% { transform: scale(1.2) translateY(-5px); opacity: 1; }
-    100% { transform: scale(1) translateY(0); opacity: 1; }
-  }
-  .animate-pop { 
-    animation: pop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
-  }
+  /* Efek Kotak Loket Selesai */
+  .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: var(--bg-selesai) !important; border-color: #22c55e !important; opacity: 0.95; }
+  
+  @keyframes pop-bounce { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  .animate-pop { animation: pop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
   /* Ticker */
   @keyframes ticker-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
@@ -93,72 +61,104 @@
 </head>
 <body class="flex h-screen w-full flex-col overflow-hidden bg-bronze font-sans text-cream">
 
-  <!-- Overlay Aktifkan -->
-  <div id="overlayAktifkan" class="fixed inset-0 z-20 flex flex-col items-center justify-center gap-6 bg-bronze/98">
-    <p class="font-sans text-2xl font-extrabold uppercase tracking-[0.1em] text-gold">SIMANTRI — Layar Ruang Tunggu</p>
-    <button id="btnAktifkan" type="button" class="rounded-full bg-gold px-10 py-5 text-lg font-extrabold text-bronze shadow-lg transition-transform active:scale-95 hover:scale-105">
+  <div id="overlayAktifkan" class="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-bronze/98">
+    <p class="font-sans text-3xl font-extrabold uppercase tracking-[0.1em] text-gold">SIMANTRI — Layar Ruang Tunggu</p>
+    <button id="btnAktifkan" type="button" class="rounded-full bg-gold px-12 py-5 text-xl font-extrabold text-bronze shadow-lg transition-transform active:scale-95 hover:scale-105">
       🔊 Aktifkan Layar &amp; Suara
     </button>
   </div>
 
-  <header class="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-2 md:gap-6 md:px-8 md:py-3">
-    <div class="flex items-center gap-2 md:gap-4">
-      <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold object-cover shadow-md md:h-14 md:w-14 lg:h-16 lg:w-16">
+  <!-- HEADER -->
+  <header class="flex items-center justify-between gap-3 border-b-2 border-gold/30 bg-black/20 px-6 py-3 shadow-md md:px-8">
+    <div class="flex items-center gap-4">
+      <img src="logo.png" alt="Logo" class="h-14 w-14 rounded-full border-2 border-gold object-cover shadow-md lg:h-20 lg:w-20">
       <div class="text-left">
-        <h1 class="font-sans text-base font-extrabold uppercase leading-none tracking-[0.1em] text-gold md:text-2xl lg:text-3xl">
-          SIMANTRI <span class="text-cream/60">&mdash;</span> Ruang Tunggu
+        <h1 class="font-sans text-xl font-extrabold uppercase leading-none tracking-widest text-gold md:text-3xl lg:text-4xl">
+          SIMANTRI <span class="text-cream/60">&mdash;</span> RUANG TUNGGU
         </h1>
-        <p class="mt-1 hidden font-sans text-xs font-medium uppercase tracking-[0.28em] text-cream/65 sm:block md:text-sm">
-          Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kabupaten Jember
+        <p class="mt-1 font-sans text-xs font-semibold uppercase tracking-[0.25em] text-cream/70 md:text-sm lg:text-base">
+          Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
         </p>
       </div>
     </div>
     <div class="text-right">
-      <p id="tvJam" class="font-mono text-xl font-bold leading-none text-gold md:text-3xl lg:text-4xl">00:00:00</p>
-      <p id="tvTanggal" class="mt-1 hidden font-sans text-xs font-medium uppercase tracking-[0.2em] text-cream/65 sm:block md:text-sm"></p>
+      <p id="tvJam" class="font-mono text-3xl font-extrabold leading-none tracking-tight text-gold lg:text-5xl">00:00:00</p>
+      <p id="tvTanggal" class="mt-2 font-sans text-xs font-bold uppercase tracking-[0.2em] text-cream/70 lg:text-sm"></p>
     </div>
   </header>
 
-  <section aria-label="Nomor antrean per loket" class="grid flex-1 grid-cols-2 gap-2 overflow-y-auto px-3 py-3 sm:grid-cols-3 md:gap-3 md:px-6 md:py-4 lg:grid-cols-5">
-  </section>
-  
-  <template id="templateKartuLoket">
-    <article class="flex h-full min-h-[9rem] flex-col items-center justify-between rounded-2xl border border-border/70 bg-bronze-raised px-2 py-2 text-center transition-all duration-500 md:px-3 md:py-4">
-      <header class="w-full border-b border-border/60 pb-1 md:pb-2">
-        <h2 class="nama-loket font-sans text-xs font-semibold uppercase leading-tight tracking-[0.16em] text-cream sm:text-sm md:text-lg lg:text-xl"></h2>
-      </header>
+  <!-- MAIN KONTEN: Highlight & Video -->
+  <main class="flex min-h-0 flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    
+    <!-- BARIS ATAS: Layar Pemanggilan Utama & Video -->
+    <div class="flex flex-1 gap-4 lg:gap-6">
       
-      <div class="container-isi flex flex-1 flex-col items-center justify-center gap-1 md:gap-2">
-        <p class="label-seri font-sans text-xs font-bold uppercase leading-none tracking-[0.3em] text-gold-deep sm:text-sm md:text-base"></p>
-        <p class="nomor-tampil font-mono text-3xl font-bold leading-none tracking-[-0.03em] text-gold-deep sm:text-4xl md:text-5xl lg:text-6xl"></p>
+      <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) -->
+      <div id="boxHighlight" class="flex w-[40%] flex-col items-center justify-center rounded-[2rem] border-2 border-gold/40 bg-bronze-raised p-6 text-center shadow-2xl transition-all duration-500">
+        <p class="font-sans text-xl font-bold uppercase tracking-[0.3em] text-cream/70 lg:text-2xl">Panggilan Ke</p>
+        <h2 id="highlightLoket" class="mt-2 font-sans text-4xl font-extrabold uppercase tracking-widest text-gold lg:text-5xl">—</h2>
+        
+        <div class="my-6 h-1 w-3/4 rounded-full bg-gradient-to-r from-transparent via-gold/50 to-transparent lg:my-8"></div>
+        
+        <p class="font-sans text-lg font-semibold uppercase tracking-[0.4em] text-cream/60 lg:text-xl">Nomor Antrean</p>
+        <p id="highlightNomor" class="mt-2 font-mono text-[6rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_20px_rgba(232,197,71,0.6)] lg:text-[9rem]">---</p>
       </div>
 
-      <!-- Ikon Centang Selesai (Animasi Pop) -->
+      <!-- KOTAK KANAN (VIDEO PLAYER) -->
+      <div class="relative w-[60%] overflow-hidden rounded-[2rem] border-2 border-border/80 bg-black shadow-2xl">
+        <!-- Iframe akan diisi otomatis oleh JavaScript -->
+        <iframe id="tvVideo" class="absolute inset-0 h-full w-full pointer-events-none" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <!-- Fallback teks jika video belum diatur -->
+        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center text-cream/30">
+          <i data-lucide="video" class="h-16 w-16 mb-2 opacity-50"></i>
+          <p class="font-sans text-sm font-semibold tracking-widest uppercase">Video Belum Diatur</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARIS BAWAH: Grid 5 Loket -->
+    <section aria-label="Nomor antrean per loket" class="grid h-[30%] min-h-[14rem] grid-cols-5 gap-3 lg:gap-4">
+      <!-- Kartu di-generate JS -->
+    </section>
+  </main>
+
+  <!-- TEMPLATE KARTU LOKET BAWAH -->
+  <template id="templateKartuLoket">
+    <article class="flex h-full flex-col items-center justify-between rounded-[1.5rem] border-2 border-border/60 bg-bronze-raised px-2 py-3 text-center shadow-lg transition-all duration-500 lg:px-4 lg:py-5">
+      <header class="w-full border-b border-border/60 pb-2">
+        <h2 class="nama-loket font-sans text-sm font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-lg"></h2>
+      </header>
+      
+      <div class="container-isi flex flex-1 flex-col items-center justify-center gap-1">
+        <p class="label-seri font-sans text-xs font-bold uppercase leading-none tracking-[0.3em] text-gold-deep lg:text-sm"></p>
+        <p class="nomor-tampil font-mono text-4xl font-bold leading-none tracking-tight text-gold-deep lg:text-5xl"></p>
+      </div>
+
       <div class="container-selesai hidden flex-1 flex-col items-center justify-center">
         <div class="lingkaran-ikon rounded-full bg-green-500/20 p-4 opacity-0">
-          <i data-lucide="check-circle-2" class="h-14 w-14 text-green-500"></i>
+          <i data-lucide="check-circle-2" class="h-10 w-10 text-green-500 lg:h-14 lg:w-14"></i>
         </div>
       </div>
 
-      <footer class="w-full border-t border-border/60 pt-1 md:pt-2">
-        <p class="label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/45 sm:text-xs md:text-sm"></p>
+      <footer class="w-full border-t border-border/60 pt-2">
+        <p class="label-status font-sans text-[10px] font-bold uppercase tracking-[0.25em] text-cream/45 lg:text-xs">TERSEDIA</p>
       </footer>
     </article>
   </template>
 
-  <footer class="flex items-center gap-2 border-t border-border/70 px-3 py-2 md:gap-4 md:px-6 md:py-3">
-    <p class="shrink-0 font-sans text-xs font-bold uppercase tracking-[0.2em] text-bronze sm:text-sm md:text-base">
-      <span class="rounded-md bg-gold px-2 py-1 md:px-3 md:py-1.5">Pengumuman</span>
-    </p>
+  <!-- TICKER PENGUMUMAN -->
+  <footer class="flex items-center gap-4 bg-gold px-4 py-2 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] md:px-6 md:py-3 lg:py-4">
+    <div class="flex items-center gap-2 shrink-0 rounded-xl bg-bronze-dark px-4 py-2 shadow-inner">
+      <i data-lucide="megaphone" class="h-5 w-5 text-gold animate-pulse"></i>
+      <p class="font-sans text-xs font-extrabold uppercase tracking-[0.25em] text-gold lg:text-sm">INFO</p>
+    </div>
     <div class="relative flex-1 overflow-hidden">
       <div class="ticker-track" id="tickerTrack">
-        <span class="shrink-0 pr-12 font-mono text-sm font-semibold tracking-[0.08em] text-gold-deep sm:text-base md:pr-24 md:text-xl" id="tickerTeks1">Memuat antrean…</span>
-        <span class="shrink-0 pr-12 font-mono text-sm font-semibold tracking-[0.08em] text-gold-deep sm:text-base md:pr-24 md:text-xl" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
+        <span class="shrink-0 pr-24 font-sans text-sm font-bold uppercase tracking-[0.1em] text-bronze-dark lg:text-xl" id="tickerTeks1">Memuat antrean…</span>
+        <span class="shrink-0 pr-24 font-sans text-sm font-bold uppercase tracking-[0.1em] text-bronze-dark lg:text-xl" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
       </div>
     </div>
   </footer>
-
-  <div id="statusFirebase" class="fixed bottom-2 right-3 text-[10px] text-cream/40">Menghubungkan ke server...</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -193,7 +193,15 @@ const el = {
   tvTanggal: document.getElementById('tvTanggal'),
   tickerTeks1: document.getElementById('tickerTeks1'),
   tickerTeks2: document.getElementById('tickerTeks2'),
-  statusFirebase: document.getElementById('statusFirebase'),
+  
+  // Elemen Highlight Atas
+  boxHighlight: document.getElementById('boxHighlight'),
+  highlightLoket: document.getElementById('highlightLoket'),
+  highlightNomor: document.getElementById('highlightNomor'),
+  
+  // Video
+  tvVideo: document.getElementById('tvVideo'),
+  videoPlaceholder: document.getElementById('videoPlaceholder'),
 };
 
 const kartuLoket = {};
@@ -203,12 +211,10 @@ KONFIGURASI_LOKET.forEach(loket => {
   artikel.dataset.loketId = loket.id;
   node.querySelector('.nama-loket').textContent = loket.nama;
   
-  // PEMBENAHAN KONSISTENSI VISUAL AWAL (Mencegah belang-belang)
   node.querySelector('.label-seri').textContent = loket.seri ? `Seri ${loket.seri}` : 'Rombongan';
   node.querySelector('.nomor-tampil').textContent = '---';
   node.querySelector('.nomor-tampil').classList.add('text-cream/20');
-  node.querySelector('.label-status').textContent = 'TERSEDIA';
-
+  
   el.grid.appendChild(node);
   
   const artikelReal = el.grid.querySelector(`[data-loket-id="${loket.id}"]`);
@@ -245,32 +251,49 @@ el.btnAktifkan.addEventListener('click', () => {
 });
 
 /* =========================================================================
-   SINKRONISASI STATUS & ANIMASI SELESAI
+   BACA VIDEO YOUTUBE DARI FIREBASE
+   ========================================================================= */
+function extractYouTubeID(url) {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[7].length === 11) ? match[7] : false;
+}
+
+onValue(ref(db, 'pengaturan/video_url'), (snap) => {
+  const urlMentah = snap.exists() ? snap.val() : '';
+  const ytID = extractYouTubeID(urlMentah);
+  
+  if (ytID) {
+    // Format embed YouTube rahasia: Autoplay, Loop, Mute (Wajib Mute agar bisa Autoplay di Browser)
+    el.tvVideo.src = `https://www.youtube.com/embed/${ytID}?autoplay=1&mute=1&loop=1&playlist=${ytID}&controls=0&modestbranding=1&showinfo=0`;
+    el.videoPlaceholder.style.display = 'none';
+  } else {
+    el.tvVideo.src = '';
+    el.videoPlaceholder.style.display = 'flex';
+  }
+});
+
+/* =========================================================================
+   SINKRONISASI STATUS GRID BAWAH
    ========================================================================= */
 KONFIGURASI_LOKET.forEach(loket => {
   onValue(ref(db, `status_loket/${loket.id}`), (snap) => {
     const kartu = kartuLoket[loket.id];
     if (kartu.tutup) return; 
 
-    // Jika DB kosong
     if (!snap.exists()) {
-      resetTampilanKosong(kartu); 
+      if(kartu.sedangDilayani) resetTampilanKosong(kartu); 
       return;
     }
     
     const data = snap.val();
     
-    // PEMBENAHAN LOGIKA STATE: Memaksa bersih jika TV baru di-refresh tapi di admin sudah Selesai
     if (data.sedangDilayani === false) {
-      if (kartu.sedangDilayani === true) {
-         jalankanAnimasiSelesai(kartu);
-      } else {
-         resetTampilanKosong(kartu);
-      }
+      if (kartu.sedangDilayani === true) jalankanAnimasiSelesai(kartu);
+      else resetTampilanKosong(kartu);
       return;
     }
 
-    // Jika Status Sedang Dilayani Aktif
     if(data.sedangDilayani === true || data.sedangDilayani === undefined) {
       kartu.sedangDilayani = true;
       kartu.artikel.classList.remove('card-selesai');
@@ -282,37 +305,29 @@ KONFIGURASI_LOKET.forEach(loket => {
       kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
       kartu.nomorTampil.textContent = data.nomor;
       kartu.nomorTampil.classList.remove('text-cream/20');
-      kartu.nomorTampil.style.transform = 'scale(1)'; // Reset gaya dari animasi
+      kartu.nomorTampil.style.transform = 'scale(1)'; 
       kartu.labelStatus.textContent = 'SEDANG DILAYANI';
-      kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/80 sm:text-xs md:text-sm';
+      kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/80 lg:text-xs';
     }
   });
 });
 
 function jalankanAnimasiSelesai(kartu) {
   kartu.sedangDilayani = false;
-  
-  // Transisi Menghilang -> Ikon Masuk
   kartu.containerIsi.classList.remove('flex');
   kartu.containerIsi.classList.add('hidden');
   kartu.containerSelesai.classList.remove('hidden');
   kartu.containerSelesai.classList.add('flex');
   
-  // Pemicu Animasi Pop-Bounce (Memantul)
   kartu.ikonSelesai.classList.remove('animate-pop');
   void kartu.ikonSelesai.offsetWidth; 
   kartu.ikonSelesai.classList.add('animate-pop');
   
   kartu.labelStatus.textContent = 'SELESAI LAYANAN';
-  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-green-400 sm:text-xs md:text-sm';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-green-400 lg:text-xs';
   kartu.artikel.classList.add('card-selesai');
   
-  // Tahan Ikon Hijau selama 3.5 Detik, lalu bersihkan layar
-  setTimeout(() => {
-    if(!kartu.sedangDilayani) {
-      resetTampilanKosong(kartu);
-    }
-  }, 3500);
+  setTimeout(() => { if(!kartu.sedangDilayani) resetTampilanKosong(kartu); }, 3500);
 }
 
 function resetTampilanKosong(kartu) {
@@ -324,15 +339,15 @@ function resetTampilanKosong(kartu) {
   kartu.containerIsi.classList.add('flex');
   
   kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
-  kartu.nomorTampil.textContent = '---'; // Seragam 3 Strip
+  kartu.nomorTampil.textContent = '---'; 
   kartu.nomorTampil.style.transform = 'scale(1)';
   kartu.nomorTampil.classList.add('text-cream/20');
   kartu.labelStatus.textContent = 'TERSEDIA';
-  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-medium uppercase tracking-[0.2em] text-cream/45 sm:text-xs md:text-sm';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-cream/45 lg:text-xs';
 }
 
 /* =========================================================================
-   ANIMASI NOMOR DIPANGGIL (KARTU MENGAMBANG & GLOWING)
+   ANIMASI PANGGILAN (KOTAK BAWAH & HIGHLIGHT KIRI ATAS)
    ========================================================================= */
 const PETA_NAMA_KE_ID = {
   'Loket 1': 'loket1', 'Loket 2': 'loket2', 'Loket 3': 'loket3', 'Loket 4': 'loket4',
@@ -343,7 +358,6 @@ let iniPembacaanPertama = true;
 let idPanggilanTerakhir = null;
 
 onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
-  el.statusFirebase.textContent = 'Terhubung ke SIMANTRI Server ✓';
   if (!snapshot.exists()) return;
   const data = snapshot.val();
 
@@ -351,17 +365,30 @@ onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
   if (idPanggilan === idPanggilanTerakhir) return;
   idPanggilanTerakhir = idPanggilan;
 
+  // 1. ANIMASI PADA HIGHLIGHT KOTAK KIRI ATAS
+  el.highlightLoket.textContent = data.loket.toUpperCase();
+  el.highlightNomor.textContent = data.nomor;
+  
+  el.boxHighlight.classList.remove('card-active');
+  void el.boxHighlight.offsetWidth;
+  el.boxHighlight.classList.add('card-active');
+
+  // 2. ANIMASI PADA KOTAK KECIL DI BAWAH
   const loketId = PETA_NAMA_KE_ID[data.loket];
   if (loketId && kartuLoket[loketId] && !kartuLoket[loketId].tutup) {
     const artikel = kartuLoket[loketId].artikel;
     kartuLoket[loketId].sedangDilayani = true;
     artikel.classList.remove('card-selesai');
     
-    // Pemantik Animasi Float-Glow & Pop Number
     artikel.classList.remove('card-active');
     void artikel.offsetWidth; 
     artikel.classList.add('card-active');
-    setTimeout(() => artikel.classList.remove('card-active'), 8000); // Padam setelah 8 detik
+    
+    // Hentikan animasi berkedip setelah 8 detik
+    setTimeout(() => {
+      artikel.classList.remove('card-active');
+      el.boxHighlight.classList.remove('card-active');
+    }, 8000); 
   }
 
   if (iniPembacaanPertama) { iniPembacaanPertama = false; return; }
@@ -369,14 +396,12 @@ onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
 });
 
 /* =========================================================================
-   TICKER PENGUMUMAN & TUTUP LOKET
+   TICKER & TUTUP LOKET
    ========================================================================= */
-function perbaruiTicker(snap){
+onValue(ref(db, 'pengaturan/ticker/teks_berjalan'), (snap) => {
   const teks = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean.';
-  el.tickerTeks1.textContent = teks;
-  el.tickerTeks2.textContent = teks;
-}
-onValue(ref(db, 'pengaturan/ticker/teks_berjalan'), perbaruiTicker);
+  el.tickerTeks1.textContent = teks; el.tickerTeks2.textContent = teks;
+});
 
 function terapkanStatusTutupLoket(loketId, aktif){
   const kartu = kartuLoket[loketId];
@@ -400,7 +425,7 @@ function terapkanStatusTutupLoket(loketId, aktif){
   kartu.nomorTampil.style.transform = 'scale(1)';
   kartu.nomorTampil.classList.add('text-cream/15');
   kartu.labelStatus.textContent = 'TUTUP / OFFLINE';
-  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-red-400 sm:text-xs md:text-sm';
+  kartu.labelStatus.className = 'label-status font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-red-400 lg:text-xs';
 }
 
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
@@ -458,11 +483,7 @@ function mainkanPanggilan(nomor, namaLoket){
   
   setTimeout(() => {
     if (typeof responsiveVoice !== 'undefined') {
-      responsiveVoice.speak(teks, "Indonesian Female", {
-        pitch: 1.05,
-        rate: 1.0, 
-        volume: 1.0
-      });
+      responsiveVoice.speak(teks, "Indonesian Female", { pitch: 1.05, rate: 1.0, volume: 1.0 });
     }
   }, 1000); 
 }
