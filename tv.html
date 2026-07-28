@@ -39,7 +39,7 @@
     --bg-active: linear-gradient(145deg, #4a3320 0%, #2b1b10 100%);
     --bg-selesai: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%);
   }
-  html,body{ height:100%; margin:0; overflow:hidden; }
+  html,body{ height:100%; margin:0; }
   body{ font-variant-numeric: tabular-nums; }
 
   /* Animasi Kilat untuk Panggilan Aktif */
@@ -65,59 +65,55 @@
   <!-- OVERLAY AKTIVASI -->
   <div id="overlayAktifkan" class="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-black/95">
     <p class="font-sans text-3xl font-extrabold uppercase tracking-[0.1em] text-gold">SIMANTRI — Layar Ruang Tunggu</p>
-    <button id="btnAktifkan" type="button" class="animate-bounce rounded-full bg-gold px-12 py-5 text-xl font-extrabold text-bronze shadow-[0_0_40px_rgba(232,197,71,0.4)] transition-transform active:scale-95 hover:scale-105 hover:bg-gold-deep">
-      🔊 Klik Untuk Mengaktifkan Layar &amp; Suara
+    <button id="btnAktifkan" type="button" class="rounded-full bg-gold px-12 py-5 text-xl font-extrabold text-bronze shadow-lg transition-transform active:scale-95 hover:scale-105">
+      🔊 Aktifkan Layar &amp; Suara
     </button>
   </div>
 
-  <!-- HEADER FULL WIDTH -->
-  <header class="shrink-0 flex items-center justify-between gap-3 border-b-2 border-gold/30 bg-black/20 px-6 py-3 lg:py-4 shadow-md md:px-8">
-    <div class="flex items-center gap-3 lg:gap-4 min-w-0">
-      <img src="logo.png" alt="Logo" class="h-10 w-10 lg:h-14 lg:w-14 rounded-full border-2 border-gold object-cover shadow-md shrink-0">
-      <div class="text-left min-w-0">
-        <h1 class="font-sans text-lg md:text-xl lg:text-3xl font-extrabold uppercase leading-none tracking-widest text-gold truncate">
-          SIMANTRI <span class="hidden sm:inline text-cream/60">&mdash; RUANG TUNGGU</span>
+  <!-- HEADER -->
+  <header class="shrink-0 flex items-center justify-between gap-3 border-b-2 border-gold/30 bg-black/20 px-6 py-2.5 shadow-md md:px-8">
+    <div class="flex items-center gap-4">
+      <img src="logo.png" alt="Logo" class="h-10 w-10 lg:h-12 lg:w-12 rounded-full border-2 border-gold object-cover shadow-md">
+      <div class="text-left">
+        <h1 class="font-sans text-lg lg:text-2xl xl:text-3xl font-extrabold uppercase leading-none tracking-widest text-gold">
+          SIMANTRI <span class="text-cream/60">&mdash;</span> RUANG TUNGGU
         </h1>
-        <p class="mt-1 font-sans text-[8px] lg:text-[11px] xl:text-xs font-semibold uppercase tracking-[0.15em] text-cream/70 truncate">
+        <p class="mt-1 font-sans text-[9px] lg:text-[11px] font-semibold uppercase tracking-[0.2em] text-cream/70">
           Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
         </p>
       </div>
     </div>
     <div class="text-right shrink-0">
-      <p id="tvJam" class="font-mono text-2xl md:text-3xl lg:text-4xl font-extrabold leading-none tracking-tight text-gold">00:00:00</p>
-      <p id="tvTanggal" class="mt-1 font-sans text-[8px] lg:text-[10px] xl:text-xs font-bold uppercase tracking-[0.2em] text-cream/70"></p>
+      <p id="tvJam" class="font-mono text-2xl lg:text-4xl font-extrabold leading-none tracking-tight text-gold">00:00:00</p>
+      <p id="tvTanggal" class="mt-1 font-sans text-[9px] lg:text-[11px] font-bold uppercase tracking-[0.2em] text-cream/70"></p>
     </div>
   </header>
 
   <!-- MAIN KONTEN -->
-  <main class="flex-1 flex flex-col min-h-0 gap-3 p-3 lg:gap-4 lg:p-4">
+  <main class="flex-1 flex flex-col min-h-0 gap-4 p-4 lg:gap-5 lg:p-5">
     
-    <!-- BARIS TENGAH: Kiri (Sisa Layar) Kanan (Video 16:9 Mutlak) -->
-    <div class="flex-1 flex gap-3 lg:gap-4 min-h-0 w-full">
+    <!-- BARIS ATAS: Proporsi 40:60 -->
+    <div class="flex-1 flex gap-4 lg:gap-5 min-h-0">
       
-      <!-- ========================================== -->
-      <!-- KOTAK KIRI: Fleksibel mengisi sisa ruang mendatar -->
-      <!-- ========================================== -->
-      <div id="boxHighlight" class="flex-1 flex flex-col items-center justify-center rounded-[2rem] border-2 border-gold/40 bg-bronze-raised p-6 lg:p-8 text-center shadow-2xl transition-all duration-500 overflow-hidden min-w-[30%]">
-        <p class="font-sans text-xs md:text-sm lg:text-base font-bold uppercase tracking-[0.3em] text-cream/70 shrink-0">Panggilan Ke</p>
+      <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) -->
+      <div id="boxHighlight" class="w-[40%] flex flex-col items-center justify-center rounded-[2rem] border-2 border-gold/40 bg-bronze-raised p-4 lg:p-6 text-center shadow-2xl transition-all duration-500 overflow-hidden shrink-0">
+        <p class="font-sans text-xs lg:text-sm font-bold uppercase tracking-[0.3em] text-cream/70 shrink-0">Panggilan Ke</p>
+        <h2 id="highlightLoket" class="mt-1 font-sans text-2xl md:text-3xl lg:text-4xl font-extrabold uppercase tracking-widest text-gold leading-tight shrink-0 w-full px-2 break-words">—</h2>
         
-        <!-- TEKS BISA WRAP: Tidak akan terpotong lagi -->
-        <h2 id="highlightLoket" class="mt-2 font-sans text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold uppercase tracking-widest text-gold leading-tight shrink-0 w-full px-2 break-words">—</h2>
-        
-        <div class="my-4 lg:my-8 h-1 w-3/4 shrink-0 rounded-full bg-gradient-to-r from-transparent via-gold/50 to-transparent"></div>
+        <div class="my-4 lg:my-6 h-1 w-2/3 shrink-0 rounded-full bg-gradient-to-r from-transparent via-gold/50 to-transparent"></div>
         
         <p class="font-sans text-[10px] md:text-xs lg:text-sm font-semibold uppercase tracking-[0.4em] text-cream/60 shrink-0">Nomor Antrean</p>
-        <p id="highlightNomor" class="mt-2 font-mono text-6xl md:text-7xl lg:text-[6rem] xl:text-[8.5rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_20px_rgba(232,197,71,0.6)] shrink-0">---</p>
+        <p id="highlightNomor" class="mt-1 font-mono text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-none tracking-tighter text-white drop-shadow-[0_0_20px_rgba(232,197,71,0.6)] shrink-0">---</p>
       </div>
 
-      <!-- ========================================== -->
-      <!-- KOTAK KANAN: Tinggi Penuh & Rasio Lebar 16:9 Murni -->
-      <!-- ========================================== -->
-      <div class="h-full aspect-video relative overflow-hidden rounded-[2rem] border-2 border-border/80 bg-black shadow-2xl shrink-0">
-        <!-- Iframe API Youtube -->
-        <div id="ytplayer" class="absolute inset-0 h-full w-full pointer-events-none"></div>
+      <!-- KOTAK KANAN (VIDEO PLAYER) -> 60% Width, Diisi kontainer 16:9 presisi -->
+      <div class="relative w-[60%] overflow-hidden rounded-[2rem] border-2 border-border/80 bg-black shadow-2xl shrink-0 flex items-center justify-center">
+        <!-- Wadah Murni 16:9 -->
+        <div class="w-full aspect-video pointer-events-none relative">
+          <div id="ytplayer" class="absolute inset-0 h-full w-full"></div>
+        </div>
         
-        <!-- Placeholder Jika Kosong -->
+        <!-- Layar Tunggu (Muncul bila tidak ada link video) -->
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black text-cream/30 z-10">
           <i data-lucide="video" class="h-10 w-10 mb-2 opacity-50 lg:h-14 lg:w-14"></i>
           <p class="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">Video Belum Diatur</p>
@@ -125,18 +121,17 @@
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- BARIS BAWAH: Grid 5 Loket (Tinggi Presisi 22% Layar) -->
-    <!-- ========================================== -->
-    <section aria-label="Nomor antrean per loket" class="shrink-0 grid h-[22vh] min-h-[8rem] grid-cols-5 gap-3 lg:gap-4">
+    <!-- BARIS BAWAH: Grid 5 Loket -> Tinggi direndahkan menjadi 20vh agar baris atas lega -->
+    <section aria-label="Nomor antrean per loket" class="shrink-0 grid h-[20vh] min-h-[9rem] grid-cols-5 gap-3 lg:gap-4">
       <!-- Kartu di-generate JS -->
     </section>
   </main>
 
+  <!-- TEMPLATE KARTU LOKET BAWAH -->
   <template id="templateKartuLoket">
     <article class="flex h-full flex-col items-center justify-between rounded-xl lg:rounded-2xl border-2 border-border/60 bg-bronze-raised px-2 py-2 text-center shadow-lg transition-all duration-500 min-h-0">
       <header class="w-full border-b border-border/60 pb-1.5 shrink-0">
-        <h2 class="nama-loket font-sans text-[9px] font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-[13px] truncate"></h2>
+        <h2 class="nama-loket font-sans text-[10px] font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-xs truncate"></h2>
       </header>
       
       <div class="container-isi flex flex-1 flex-col items-center justify-center gap-0.5 min-h-0">
@@ -146,7 +141,7 @@
 
       <div class="container-selesai hidden flex-1 flex-col items-center justify-center min-h-0">
         <div class="lingkaran-ikon rounded-full bg-green-500/20 p-2 opacity-0">
-          <i data-lucide="check-circle-2" class="h-6 w-6 text-green-500 lg:h-10 lg:w-10"></i>
+          <i data-lucide="check-circle-2" class="h-6 w-6 text-green-500 lg:h-8 lg:w-8"></i>
         </div>
       </div>
 
@@ -157,7 +152,7 @@
   </template>
 
   <!-- TICKER PENGUMUMAN -->
-  <footer class="shrink-0 relative z-50 flex items-center gap-3 bg-gold px-4 py-1.5 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] md:px-6">
+  <footer class="shrink-0 relative z-50 flex items-center gap-3 bg-gold px-4 py-1.5 shadow-[0_-5px_15px_rgba(0,0,0,0.3)] md:px-6 lg:py-2">
     <div class="flex items-center gap-2 shrink-0 rounded-lg bg-bronze-dark px-3 py-1 shadow-inner">
       <i data-lucide="megaphone" class="h-4 w-4 text-gold animate-pulse"></i>
       <p class="font-sans text-[9px] font-extrabold uppercase tracking-[0.2em] text-gold lg:text-[11px]">INFO</p>
@@ -246,14 +241,14 @@ function perbaruiJam(){
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 /* =========================================================================
-   YOUTUBE IFRAME API (Menghapus 'origin' agar bisa jalan di file:// lokal)
+   YOUTUBE IFRAME API (Suara & Auto-Ducking)
    ========================================================================= */
 let ytPlayer;
 let isYtReady = false;
 let pendingVideoId = null;
 
 const VOLUME_NORMAL = 85; 
-const VOLUME_MENGECIL = 10; 
+const VOLUME_MENGECIL = 15;
 
 window.onYouTubeIframeAPIReady = function() {
   ytPlayer = new YT.Player('ytplayer', {
@@ -265,8 +260,7 @@ window.onYouTubeIframeAPIReady = function() {
       'modestbranding': 1,
       'rel': 0,
       'showinfo': 0,
-      'mute': 1,
-      'playsinline': 1
+      'mute': 1 
     },
     events: {
       'onReady': onPlayerReady,
@@ -300,37 +294,20 @@ function pulihkanSuaraVideo() {
   }
 }
 
-/* =========================================================================
-   SISTEM SUARA & KLIK AKTIVASI
-   ========================================================================= */
+// Aktivasi Layar
 let suaraDiizinkan = false;
-let konteksAudio = null;
-
-function ambilKonteksAudio(){
-  if (!konteksAudio) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    konteksAudio = new AC();
-  }
-  if (konteksAudio.state === 'suspended') {
-    konteksAudio.resume();
-  }
-  return konteksAudio;
-}
-
 el.btnAktifkan.addEventListener('click', () => {
   suaraDiizinkan = true;
   el.overlay.style.display = 'none';
-  
   ambilKonteksAudio();
   
   if (typeof responsiveVoice !== 'undefined') {
-    responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
+    responsiveVoice.speak("Sistem Antrean Layar TV Diaktifkan.", "Indonesian Female", { volume: 0 });
   }
   
   if (ytPlayer && isYtReady) {
     ytPlayer.unMute();
     ytPlayer.setVolume(VOLUME_NORMAL);
-    ytPlayer.playVideo();
   }
 });
 
@@ -349,9 +326,6 @@ onValue(ref(db, 'pengaturan/video_url'), (snap) => {
     document.getElementById('ytplayer').style.display = 'block';
     if (isYtReady) {
       ytPlayer.loadVideoById(ytID);
-      if(suaraDiizinkan){
-          setTimeout(() => { ytPlayer.unMute(); ytPlayer.setVolume(VOLUME_NORMAL); ytPlayer.playVideo(); }, 1000);
-      }
     } else {
       pendingVideoId = ytID;
     }
@@ -436,7 +410,7 @@ function resetTampilanKosong(kartu) {
 }
 
 /* =========================================================================
-   ANIMASI PANGGILAN & SISTEM BEL
+   ANIMASI PANGGILAN & PENGATURAN SUARA DUCKING
    ========================================================================= */
 const PETA_NAMA_KE_ID = {
   'Loket 1': 'loket1', 'Loket 2': 'loket2', 'Loket 3': 'loket3', 'Loket 4': 'loket4',
@@ -520,6 +494,15 @@ onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
   });
 });
 
+let konteksAudio = null;
+function ambilKonteksAudio(){
+  if (!konteksAudio) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    konteksAudio = new AC();
+  }
+  if (konteksAudio.state === 'suspended') konteksAudio.resume();
+  return konteksAudio;
+}
 function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
   const osc = konteks.createOscillator();
   const gain = konteks.createGain();
@@ -530,14 +513,13 @@ function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
   gain.gain.exponentialRampToValueAtTime(0.0001, waktuMulai + durasi);
   osc.start(waktuMulai); osc.stop(waktuMulai + durasi);
 }
-
 function mainkanBel(){
   try {
     const konteks = ambilKonteksAudio();
     const sekarang = konteks.currentTime;
     mainkanNada(880, sekarang, 0.35, konteks);
     mainkanNada(659, sekarang + 0.32, 0.45, konteks);
-  } catch (e) { console.warn('Audio bel gagal dimainkan:', e); }
+  } catch (e) { console.warn('Audio bel tidak dapat dimainkan:', e); }
 }
 
 const PETA_ANGKA = { '0':'kosong','1':'satu','2':'dua','3':'tiga','4':'empat','5':'lima','6':'enam','7':'tujuh','8':'delapan','9':'sembilan' };
