@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMANTRI — Konsol Petugas</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- LIBRARY SUARA PREMIUM -->
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -36,7 +37,6 @@
 </head>
 <body class="flex h-dvh flex-col overflow-hidden bg-background font-sans text-bronze-dark">
 
-  <!-- ==================== HEADER ==================== -->
   <header class="flex h-16 shrink-0 items-center gap-6 bg-bronze-dark px-6 text-cream">
     <div class="flex items-center gap-3">
       <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold/40 object-cover">
@@ -69,7 +69,6 @@
   </header>
 
   <div class="flex min-h-0 flex-1">
-    <!-- ==================== SIDEBAR ==================== -->
     <nav aria-label="Navigasi utama" class="flex w-20 shrink-0 flex-col items-center gap-2 bg-bronze-dark py-5">
       <button type="button" data-view="dashboard" title="Dashboard" class="group relative flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl bg-gold text-bronze-dark">
         <span class="absolute -left-3 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-gold"></span>
@@ -104,7 +103,6 @@
     </nav>
 
     <main class="min-w-0 flex-1 overflow-y-auto px-6 py-5">
-      <!-- PERBAIKAN LEBAR PANEL ADMIN: max-w-[1600px] -->
       <div class="mx-auto flex w-full max-w-[1600px] flex-col gap-5 xl:max-w-[95%]">
 
         <!-- ==================== VIEW: DASHBOARD ==================== -->
@@ -168,19 +166,17 @@
                       </div>
                     </div>
                   </div>
+                  <!-- PERBAIKAN: Tombol dengan jarak ikon yang pas dan text dua baris -->
                   <div id="baristAksiLoket" class="grid gap-3 px-7 py-6 md:grid-cols-3">
-                    <button type="button" id="btnPanggilSelanjutnya"
-                      class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-gold px-2 text-sm font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
+                    <button type="button" id="btnPanggilSelanjutnya" class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-gold px-2 text-sm font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
                       <i data-lucide="phone-call" class="h-5 w-5 shrink-0"></i> 
                       <span class="text-left leading-tight">Panggil<br>Selanjutnya</span>
                     </button>
-                    <button type="button" id="btnSelesaiTanpaBiometrik" disabled
-                      class="flex h-16 items-center justify-center gap-2.5 rounded-xl border-2 border-bronze bg-white px-2 text-sm font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream active:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
+                    <button type="button" id="btnSelesaiTanpaBiometrik" disabled class="flex h-16 items-center justify-center gap-2.5 rounded-xl border-2 border-bronze bg-white px-2 text-sm font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream active:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
                       <i data-lucide="check" class="h-5 w-5 shrink-0"></i> 
                       <span>Selesai</span>
                     </button>
-                    <button type="button" id="btnTeruskanBiometrik" disabled
-                      class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-bronze px-2 text-sm font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark active:bg-bronze-dark disabled:cursor-not-allowed disabled:opacity-40">
+                    <button type="button" id="btnTeruskanBiometrik" disabled class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-bronze px-2 text-sm font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark active:bg-bronze-dark disabled:cursor-not-allowed disabled:opacity-40">
                       <i data-lucide="fingerprint" class="h-5 w-5 shrink-0"></i> 
                       <span class="text-left leading-tight">Teruskan Ke<br>Biometrik</span>
                     </button>
@@ -204,14 +200,17 @@
                     <p id="biometrikNomorTampil" class="mt-1 font-mono text-4xl font-bold text-cream">—</p>
                   </div>
                   <div class="grid gap-3 px-7 py-6 md:grid-cols-3">
-                    <button type="button" id="btnPanggilBiometrik" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-gold text-base font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:opacity-45">
-                      <i data-lucide="phone-call" class="h-5 w-5"></i> Panggil Selanjutnya
+                    <button type="button" id="btnPanggilBiometrik" class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-gold px-2 text-sm font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:opacity-45">
+                      <i data-lucide="phone-call" class="h-5 w-5 shrink-0"></i> 
+                      <span class="text-left leading-tight">Panggil<br>Selanjutnya</span>
                     </button>
-                    <button type="button" id="btnPanggilUlangBiometrik" disabled class="inline-flex h-16 items-center justify-center gap-3 rounded-xl border-2 border-bronze bg-white text-base font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
-                      <i data-lucide="volume-2" class="h-5 w-5"></i> Panggil Ulang
+                    <button type="button" id="btnPanggilUlangBiometrik" disabled class="flex h-16 items-center justify-center gap-2.5 rounded-xl border-2 border-bronze bg-white px-2 text-sm font-bold uppercase tracking-wide text-bronze transition-colors hover:bg-cream disabled:cursor-not-allowed disabled:opacity-40">
+                      <i data-lucide="volume-2" class="h-5 w-5 shrink-0"></i> 
+                      <span class="text-left leading-tight">Panggil<br>Ulang</span>
                     </button>
-                    <button type="button" id="btnSelesaiBiometrik" class="inline-flex h-16 items-center justify-center gap-3 rounded-xl bg-bronze text-base font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark">
-                      <i data-lucide="log-out" class="h-5 w-5"></i> Selesai (Keluarkan)
+                    <button type="button" id="btnSelesaiBiometrik" class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-bronze px-2 text-sm font-bold uppercase tracking-wide text-gold transition-colors hover:bg-bronze-dark">
+                      <i data-lucide="log-out" class="h-5 w-5 shrink-0"></i> 
+                      <span>Keluarkan</span>
                     </button>
                   </div>
                   <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
@@ -469,29 +468,34 @@
                 </button>
               </div>
             </div>
+            
+            <!-- PERUBAHAN: Penambahan Input Video -->
             <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex items-start gap-3 px-6 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="monitor-play" class="h-5 w-5"></i></span>
                 <div>
                   <h2 class="text-sm font-semibold text-bronze-dark">Pengaturan Tampilan</h2>
-                  <p class="text-xs text-muted-foreground">Teks berjalan pada layar TV ruang tunggu</p>
+                  <p class="text-xs text-muted-foreground">Video dan teks berjalan pada layar TV ruang tunggu</p>
                 </div>
               </div>
               <div class="flex flex-1 flex-col gap-4 border-t border-border/60 px-6 py-5">
                 <div class="flex flex-col gap-2">
+                  <label for="aturVideo" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Link Video YouTube</label>
+                  <input type="text" id="aturVideo" placeholder="https://www.youtube.com/watch?v=..." class="w-full rounded-xl bg-cream/70 px-4 py-3 text-sm font-medium text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
+                </div>
+                
+                <div class="flex flex-col gap-2">
                   <label for="aturTeksBerjalan" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Teks Berjalan (Ticker)</label>
-                  <textarea id="aturTeksBerjalan" rows="4" maxlength="240" placeholder="Contoh: Selamat datang di Kementerian Haji dan Umrah." class="w-full resize-none rounded-xl bg-cream/70 px-4 py-3 text-sm leading-relaxed text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50"></textarea>
+                  <textarea id="aturTeksBerjalan" rows="2" maxlength="240" placeholder="Contoh: Selamat datang di Kementerian Haji dan Umrah." class="w-full resize-none rounded-xl bg-cream/70 px-4 py-3 text-sm leading-relaxed text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50"></textarea>
                   <p class="text-right text-[11px] text-muted-foreground"><span id="jumlahKarakterTicker">0</span>/240 karakter</p>
                 </div>
-                <div class="rounded-xl bg-bronze-dark px-4 py-3">
-                  <p class="text-[10px] font-semibold uppercase tracking-wider text-cream/50">Pratinjau Layar TV</p>
-                  <p id="pratinjauTicker" class="mt-1.5 truncate text-sm font-semibold text-gold">Selamat datang di Kementerian Haji dan Umrah.</p>
-                </div>
-                <button type="button" id="btnPerbaruiTicker" class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-xs font-semibold uppercase tracking-wider text-bronze-dark transition-colors hover:bg-gold-dark hover:text-cream">
-                  <i data-lucide="refresh-cw" class="h-4 w-4"></i> Perbarui Ticker
+                
+                <button type="button" id="btnPerbaruiTampilan" class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-xs font-semibold uppercase tracking-wider text-bronze-dark transition-colors hover:bg-gold-dark hover:text-cream">
+                  <i data-lucide="refresh-cw" class="h-4 w-4"></i> Perbarui Tampilan
                 </button>
               </div>
             </div>
+
             <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)] xl:col-span-2">
               <div class="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
                 <div class="flex items-start gap-3">
@@ -736,7 +740,7 @@ el.pilihPeran.addEventListener('change', async () => {
       const snapStatus = await get(ref(db, `status_loket/biometrik`));
       if (peranAktif === el.pilihPeran.value && snapStatus.exists()) {
         const dataStatus = snapStatus.val();
-        if (dataStatus.nomor) {
+        if (dataStatus.nomor && dataStatus.sedangDilayani !== false) {
           nomorBiometrikAktif = dataStatus.nomor;
           el.biometrikNomorTampil.textContent = `${dataStatus.nomor} (Dipulihkan)`;
           el.btnPanggilUlangBiometrik.disabled = false;
@@ -953,11 +957,10 @@ el.btnSelesaiBiometrik.addEventListener('click', () => {
 el.btnKurangKeluar.addEventListener('click', () => { angkaModalKeluar = Math.max(1, angkaModalKeluar - 1); el.angkaKeluar.textContent = angkaModalKeluar; });
 el.btnTambahKeluar.addEventListener('click', () => { angkaModalKeluar = Math.min(KAPASITAS_MAKS_BIOMETRIK, angkaModalKeluar + 1); el.angkaKeluar.textContent = angkaModalKeluar; });
 el.btnBatalKeluar.addEventListener('click', () => { el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex'); });
+
 el.btnOkKeluar.addEventListener('click', async () => {
-  // Simpan nilai transaksi ke dalam variabel 'result'
   const result = await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - angkaModalKeluar));
   
-  // Jika kapasitas ruangan sekarang sudah kosong (0), bersihkan layar TV & panel Admin
   if (result.snapshot.val() === 0) {
     await set(ref(db, 'status_loket/biometrik/sedangDilayani'), false);
     nomorBiometrikAktif = null;
@@ -965,8 +968,7 @@ el.btnOkKeluar.addEventListener('click', async () => {
     el.btnPanggilUlangBiometrik.disabled = true;
   }
   
-  el.overlayKeluarBiometrik.classList.add('hidden'); 
-  el.overlayKeluarBiometrik.classList.remove('flex');
+  el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex');
 });
 
 el.inputKonfirmasiReset.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.btnKonfirmasiResetAntrean.click(); });
@@ -1032,8 +1034,6 @@ function loketDariCatatan(catatan){ const cocok = String(catatan || '').match(/(
 function awalHari(selisihHari){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - selisihHari); return d.getTime(); }
 function cocokPeriode(item, periode){
   if (periode === 'semua') return true;
-  
-  // Ambil waktu dari Firebase, jika belum sinkron anggap hari ini
   const ts = typeof item.timestamp === 'number' ? item.timestamp : null;
   if (ts === null) return periode === 'hari-ini';
 
@@ -1041,19 +1041,13 @@ function cocokPeriode(item, periode){
   const dateNow = new Date();
 
   if (periode === 'hari-ini') {
-    return dateItem.getDate() === dateNow.getDate() &&
-           dateItem.getMonth() === dateNow.getMonth() &&
-           dateItem.getFullYear() === dateNow.getFullYear();
+    return dateItem.getDate() === dateNow.getDate() && dateItem.getMonth() === dateNow.getMonth() && dateItem.getFullYear() === dateNow.getFullYear();
   }
-  
   if (periode === 'kemarin') {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    return dateItem.getDate() === yesterday.getDate() &&
-           dateItem.getMonth() === yesterday.getMonth() &&
-           dateItem.getFullYear() === yesterday.getFullYear();
+    return dateItem.getDate() === yesterday.getDate() && dateItem.getMonth() === yesterday.getMonth() && dateItem.getFullYear() === yesterday.getFullYear();
   }
-  
   return true;
 }
 
@@ -1160,12 +1154,9 @@ if (elAudio.volume) {
 
   elAudio.tesSuara.addEventListener('click', () => {
     const teksPanggilan = 'Tes panggilan. Nomor antrean. A. Kosong. Kosong. Satu. Silakan menuju. Loket 1.';
-    
-    // Pastikan library ResponsiveVoice berhasil dimuat dari internet
     if (typeof responsiveVoice !== 'undefined') {
-      // Panggil profil "Indonesian Female" (Suara Perempuan Indonesia)
       responsiveVoice.speak(teksPanggilan, "Indonesian Female", {
-        pitch: 1.05, // Sedikit dinaikkan nadanya agar lebih jernih
+        pitch: 1.05,
         rate: Number(elAudio.kecepatan.value),
         volume: Number(elAudio.volume.value) / 100
       });
@@ -1175,15 +1166,45 @@ if (elAudio.volume) {
   });
 }
 
-const elTicker = { textarea: document.getElementById('aturTeksBerjalan'), counter: document.getElementById('jumlahKarakterTicker'), preview: document.getElementById('pratinjauTicker'), btnUpdate: document.getElementById('btnPerbaruiTicker') };
+const elTampilan = {
+  ticker: document.getElementById('aturTeksBerjalan'),
+  video: document.getElementById('aturVideo'),
+  counter: document.getElementById('jumlahKarakterTicker'),
+  btnUpdate: document.getElementById('btnPerbaruiTampilan')
+};
 
-if (elTicker.textarea) {
-  function perbaruiTampilanTicker() { const teks = elTicker.textarea.value; elTicker.counter.textContent = teks.length; elTicker.preview.textContent = teks || '—'; }
-  get(ref(db, 'pengaturan/ticker/teks_berjalan')).then((snap) => { if (snap.exists()) elTicker.textarea.value = snap.val(); perbaruiTampilanTicker(); }).catch((err) => { console.error(err); perbaruiTampilanTicker(); });
-  elTicker.textarea.addEventListener('input', perbaruiTampilanTicker);
-  elTicker.btnUpdate.addEventListener('click', async () => {
-    try { await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elTicker.textarea.value); tampilkanAlert('Berhasil', 'Teks berjalan pada layar TV telah diperbarui.'); }
-    catch (err) { console.error(err); tampilkanAlert('Gagal', 'Tidak dapat memperbarui teks berjalan. Cek koneksi Firebase.'); }
+if (elTampilan.ticker) {
+  function perbaruiTampilanTicker() { const teks = elTampilan.ticker.value; elTampilan.counter.textContent = teks.length; }
+  
+  // Ambil Data Tampilan (Ticker & Video)
+  get(ref(db, 'pengaturan/tampilan')).then((snap) => { 
+    if (snap.exists()) {
+      const data = snap.val();
+      if(data.teks_berjalan) elTampilan.ticker.value = data.teks_berjalan; 
+      if(data.video_url) elTampilan.video.value = data.video_url;
+    } else {
+      // Coba ambil dari path lama jika baru di-update
+      get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => {
+        if(s.exists()) elTampilan.ticker.value = s.val();
+      });
+    }
+    perbaruiTampilanTicker(); 
+  }).catch((err) => { console.error(err); perbaruiTampilanTicker(); });
+  
+  elTampilan.ticker.addEventListener('input', perbaruiTampilanTicker);
+  
+  elTampilan.btnUpdate.addEventListener('click', async () => {
+    try { 
+      await set(ref(db, 'pengaturan/tampilan'), {
+        teks_berjalan: elTampilan.ticker.value,
+        video_url: elTampilan.video.value
+      });
+      // Sinkronkan ke path lama agar TV yang belum refresh tidak rusak
+      await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elTampilan.ticker.value);
+      await set(ref(db, 'pengaturan/video_url'), elTampilan.video.value);
+      
+      tampilkanAlert('Berhasil', 'Pengaturan Tampilan pada layar TV telah diperbarui.'); 
+    } catch (err) { console.error(err); tampilkanAlert('Gagal', 'Tidak dapat memperbarui pengaturan tampilan. Cek koneksi Firebase.'); }
   });
 }
 
