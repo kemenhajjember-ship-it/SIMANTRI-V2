@@ -39,37 +39,39 @@
     --bg-active: linear-gradient(145deg, #4a3320 0%, #2b1b10 100%);
     --bg-selesai: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%);
   }
-  /* Modifikasi CSS agar background bisa menutupi seluruh layar TV */
   html,body{ width: 100%; height: 100%; margin:0; overflow:hidden; }
   body{ font-variant-numeric: tabular-nums; }
 
-  /* Animasi Kilat untuk Panggilan Aktif */
+  /* Animasi Kilat untuk Panggilan Aktif (Dikembalikan ke gaya 3D) */
   @keyframes card-pulse{
     0%,100%{ border-color:#e8c547; box-shadow:0 0 0 1px #d4af37, 0 0 34px -8px rgba(232,197,71,0.45); }
     50%{ border-color:#f5eee0; box-shadow:0 0 0 3px #e8c547, 0 0 60px 0px rgba(232,197,71,0.7); }
   }
   .card-active { animation: card-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; background: var(--bg-active); }
   
-  /* Efek Kotak Loket Selesai */
   .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: var(--bg-selesai) !important; border-color: #22c55e !important; opacity: 0.95; }
   
   @keyframes pop-bounce { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
   .animate-pop { animation: pop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
-  /* Ticker */
-  @keyframes ticker-scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
-  .ticker-track{ display:flex; width:max-content; white-space:nowrap; animation: ticker-scroll 32s linear infinite; }
+  /* Ticker Mulus Bersambung */
+  @keyframes ticker-scroll{ 
+    0% { transform:translateX(0); } 
+    100% { transform:translateX(-50%); } 
+  }
+  .ticker-track{ 
+    display:flex; 
+    width:max-content; 
+    white-space:nowrap; 
+    animation: ticker-scroll 25s linear infinite; 
+  }
 </style>
 </head>
 <body id="tvBody" class="relative flex w-full flex-col overflow-hidden bg-bronze font-sans text-cream" style="height: 100vh;">
 
-  <!-- =============================================================
-       EFEK DEKORASI LATAR BELAKANG TV (Grid Premium)
-       ============================================================= -->
+  <!-- EFEK DEKORASI LATAR BELAKANG TV (Grid Premium) -->
   <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-30">
-    <!-- Grid Emas Super Tipis -->
     <div class="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.15)_1px,transparent_1px)]" style="background-size: 4rem 4rem;"></div>
-    <!-- Vignette (Memudarkan grid di bagian tepi layar) -->
     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#2b1b10_80%)]"></div>
   </div>
 
@@ -147,10 +149,8 @@
   </main>
 
   <template id="templateKartuLoket">
-    <!-- Penerapan gaya 3D pada kartu loket -->
     <article class="relative flex h-full flex-col items-center justify-between rounded-xl lg:rounded-2xl bg-[linear-gradient(145deg,#3d2817,#1b1008)] border-t border-t-white/10 border-x border-x-black/30 border-b-[6px] border-b-[#0c0704] px-2 py-2 text-center shadow-lg transition-all duration-500 min-h-0 overflow-hidden">
       
-      <!-- Efek Kaca Memantul Kecil -->
       <div class="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none"></div>
 
       <header class="relative z-10 w-full border-b border-gold/20 pb-1.5 shrink-0">
@@ -182,8 +182,8 @@
     </div>
     <div class="relative flex-1 overflow-hidden">
       <div class="ticker-track" id="tickerTrack">
-        <span class="shrink-0 pr-24 font-sans text-xs font-bold uppercase tracking-[0.1em] text-bronze-ink lg:text-sm" id="tickerTeks1">Memuat antrean…</span>
-        <span class="shrink-0 pr-24 font-sans text-xs font-bold uppercase tracking-[0.1em] text-bronze-ink lg:text-sm" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
+        <span class="shrink-0 font-sans text-xs font-bold uppercase tracking-[0.1em] text-bronze-ink lg:text-sm" id="tickerTeks1">Memuat antrean…</span>
+        <span class="shrink-0 font-sans text-xs font-bold uppercase tracking-[0.1em] text-bronze-ink lg:text-sm" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
       </div>
     </div>
   </footer>
@@ -225,7 +225,7 @@ const el = {
   highlightLoket: document.getElementById('highlightLoket'),
   highlightNomor: document.getElementById('highlightNomor'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
-  tvBody: document.getElementById('tvBody') // Referensi untuk full screen
+  tvBody: document.getElementById('tvBody') 
 };
 
 const kartuLoket = {};
@@ -265,7 +265,7 @@ function perbaruiJam(){
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 /* =========================================================================
-   YOUTUBE IFRAME API (Menonaktifkan Subtitle / CC)
+   YOUTUBE IFRAME API
    ========================================================================= */
 let ytPlayer;
 let isYtReady = false;
@@ -290,8 +290,8 @@ window.onYouTubeIframeAPIReady = function() {
       'rel': 0,
       'mute': 1,
       'playsinline': 1,
-      'cc_load_policy': 0, // PERBAIKAN: Mematikan Subtitle/Closed Captions
-      'iv_load_policy': 3  // Mematikan anotasi/saran video
+      'cc_load_policy': 0, 
+      'iv_load_policy': 3  
     },
     events: {
       'onReady': onPlayerReady,
@@ -326,7 +326,7 @@ function pulihkanSuaraVideo() {
 }
 
 /* =========================================================================
-   SISTEM SUARA & KLIK AKTIVASI (DENGAN REQUEST FULL SCREEN)
+   SISTEM SUARA & KLIK AKTIVASI
    ========================================================================= */
 let suaraDiizinkan = false;
 let konteksAudio = null;
@@ -345,9 +345,9 @@ function ambilKonteksAudio(){
 function bukaFullScreen() {
   if (el.tvBody.requestFullscreen) {
     el.tvBody.requestFullscreen();
-  } else if (el.tvBody.webkitRequestFullscreen) { /* Safari */
+  } else if (el.tvBody.webkitRequestFullscreen) { 
     el.tvBody.webkitRequestFullscreen();
-  } else if (el.tvBody.msRequestFullscreen) { /* IE11 */
+  } else if (el.tvBody.msRequestFullscreen) { 
     el.tvBody.msRequestFullscreen();
   }
 }
@@ -521,8 +521,12 @@ onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
 });
 
 onValue(ref(db, 'pengaturan/ticker/teks_berjalan'), (snap) => {
-  const teks = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean.';
-  el.tickerTeks1.textContent = teks; el.tickerTeks2.textContent = teks;
+  const teksAsli = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean.';
+  
+  const teksPanjang = `${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; `;
+  
+  el.tickerTeks1.innerHTML = teksPanjang;
+  el.tickerTeks2.innerHTML = teksPanjang;
 });
 
 function terapkanStatusTutupLoket(loketId, aktif){
