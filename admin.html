@@ -166,7 +166,6 @@
                       </div>
                     </div>
                   </div>
-                  <!-- PERBAIKAN: Tombol dengan jarak ikon yang pas dan text dua baris -->
                   <div id="baristAksiLoket" class="grid gap-3 px-7 py-6 md:grid-cols-3">
                     <button type="button" id="btnPanggilSelanjutnya" class="flex h-16 items-center justify-center gap-2.5 rounded-xl bg-gold px-2 text-sm font-bold uppercase tracking-wide text-bronze-dark shadow-[0_2px_0_#b8860b] transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none">
                       <i data-lucide="phone-call" class="h-5 w-5 shrink-0"></i> 
@@ -469,30 +468,53 @@
               </div>
             </div>
             
-            <!-- PERUBAHAN: Penambahan Input Video -->
+            <!-- PERUBAHAN BESAR: SISTEM MANAJEMEN PLAYLIST VIDEO -->
             <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex items-start gap-3 px-6 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="monitor-play" class="h-5 w-5"></i></span>
                 <div>
-                  <h2 class="text-sm font-semibold text-bronze-dark">Pengaturan Tampilan</h2>
-                  <p class="text-xs text-muted-foreground">Video dan teks berjalan pada layar TV ruang tunggu</p>
+                  <h2 class="text-sm font-semibold text-bronze-dark">Pengaturan Tampilan TV</h2>
+                  <p class="text-xs text-muted-foreground">Kelola playlist video offline dan teks pengumuman</p>
                 </div>
               </div>
-              <div class="flex flex-1 flex-col gap-4 border-t border-border/60 px-6 py-5">
-                <div class="flex flex-col gap-2">
-                  <label for="aturVideo" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Link Video YouTube</label>
-                  <input type="text" id="aturVideo" placeholder="https://www.youtube.com/watch?v=..." class="w-full rounded-xl bg-cream/70 px-4 py-3 text-sm font-medium text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
-                </div>
+              <div class="flex flex-1 flex-col gap-5 border-t border-border/60 px-6 py-5">
                 
+                <!-- Input Teks Berjalan -->
                 <div class="flex flex-col gap-2">
                   <label for="aturTeksBerjalan" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Teks Berjalan (Ticker)</label>
                   <textarea id="aturTeksBerjalan" rows="2" maxlength="240" placeholder="Contoh: Selamat datang di Kementerian Haji dan Umrah." class="w-full resize-none rounded-xl bg-cream/70 px-4 py-3 text-sm leading-relaxed text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50"></textarea>
-                  <p class="text-right text-[11px] text-muted-foreground"><span id="jumlahKarakterTicker">0</span>/240 karakter</p>
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] text-muted-foreground"><span id="jumlahKarakterTicker">0</span>/240 karakter</p>
+                    <button type="button" id="btnSimpanTicker" class="rounded-lg bg-gold/20 px-3 py-1 text-[11px] font-bold text-gold-dark hover:bg-gold/40 transition-colors">Simpan Teks</button>
+                  </div>
                 </div>
+
+                <div class="h-px w-full bg-border/60"></div>
                 
-                <button type="button" id="btnPerbaruiTampilan" class="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 text-xs font-semibold uppercase tracking-wider text-bronze-dark transition-colors hover:bg-gold-dark hover:text-cream">
-                  <i data-lucide="refresh-cw" class="h-4 w-4"></i> Perbarui Tampilan
-                </button>
+                <!-- Area Manajemen Playlist -->
+                <div class="flex flex-col gap-3">
+                  <label class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Playlist Video Offline (MP4)</label>
+                  
+                  <!-- Daftar Playlist -->
+                  <div class="flex flex-col gap-2 rounded-xl border border-border bg-cream/30 p-3 min-h-[5rem] max-h-[12rem] overflow-y-auto" id="wadahPlaylist">
+                    <p class="text-[11px] font-medium text-muted-foreground text-center py-4" id="playlistKosong">Belum ada video di playlist.</p>
+                    <ul id="daftarPlaylist" class="flex flex-col gap-2"></ul>
+                  </div>
+
+                  <!-- Input Tambah Video Baru -->
+                  <div class="flex gap-2">
+                    <input type="text" id="inputNamaVideo" placeholder="Contoh: video-profil.mp4" class="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
+                    <button type="button" id="btnTambahVideo" class="shrink-0 rounded-xl bg-bronze-dark px-4 py-2.5 text-xs font-bold text-cream hover:bg-bronze transition-colors shadow-sm"><i data-lucide="plus" class="h-4 w-4"></i></button>
+                  </div>
+                  
+                  <div class="flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-blue-800">
+                    <i data-lucide="info" class="h-4 w-4 shrink-0 mt-0.5"></i>
+                    <p class="text-[10px] leading-relaxed">
+                      Pastikan Anda sudah meletakkan/mengunggah file video tersebut ke dalam folder GitHub Anda. Ketikkan nama filenya persis lengkap dengan ekstensi (contoh: <strong>.mp4</strong>).
+                    </p>
+                  </div>
+                </div>
+
               </div>
             </div>
 
@@ -530,7 +552,7 @@
   </div>
 
   <!-- MODAL -->
-  <div id="overlayKonfirmasiBiometrik" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6">
+  <div id="overlayKonfirmasiBiometrik" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6 backdrop-blur-sm">
     <div class="w-full max-w-md rounded-2xl border-4 border-gold bg-white p-8 text-center shadow-2xl">
       <h3 class="text-xl font-bold text-bronze-dark">Teruskan ke Ruang Biometrik?</h3>
       <p id="modalBiometrikSub" class="mt-1 text-sm font-medium text-muted-foreground">Rombongan —</p>
@@ -541,12 +563,12 @@
       </div>
       <div class="mt-8 flex gap-3">
         <button type="button" id="btnBatalKonfirmasiBiometrik" class="flex-1 rounded-xl border-2 border-border bg-cream py-3.5 text-sm font-bold text-bronze-dark">Batal</button>
-        <button type="button" id="btnOkKonfirmasiBiometrik" class="flex-1 rounded-xl bg-gold py-3.5 text-sm font-bold text-bronze-dark">OK, Teruskan</button>
+        <button type="button" id="btnOkKonfirmasiBiometrik" class="flex-1 rounded-xl bg-gold py-3.5 text-sm font-bold text-bronze-dark shadow-md hover:brightness-105">OK, Teruskan</button>
       </div>
     </div>
   </div>
 
-  <div id="overlayKeluarBiometrik" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6">
+  <div id="overlayKeluarBiometrik" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6 backdrop-blur-sm">
     <div class="w-full max-w-md rounded-2xl border-4 border-gold bg-white p-8 text-center shadow-2xl">
       <h3 class="text-xl font-bold text-bronze-dark">Berapa orang yang keluar ruangan?</h3>
       <p class="mt-1 text-sm font-medium text-muted-foreground">Kapasitas akan berkurang sesuai jumlah ini</p>
@@ -557,20 +579,20 @@
       </div>
       <div class="mt-8 flex gap-3">
         <button type="button" id="btnBatalKeluar" class="flex-1 rounded-xl border-2 border-border bg-cream py-3.5 text-sm font-bold text-bronze-dark">Batal</button>
-        <button type="button" id="btnOkKeluar" class="flex-1 rounded-xl bg-bronze py-3.5 text-sm font-bold text-gold">OK, Keluarkan</button>
+        <button type="button" id="btnOkKeluar" class="flex-1 rounded-xl bg-bronze py-3.5 text-sm font-bold text-gold shadow-md hover:bg-bronze-dark">OK, Keluarkan</button>
       </div>
     </div>
   </div>
 
-  <div id="overlayAlert" class="fixed inset-0 z-30 hidden items-center justify-center bg-bronze-dark/60 p-6">
+  <div id="overlayAlert" class="fixed inset-0 z-50 hidden items-center justify-center bg-bronze-dark/60 p-6 backdrop-blur-sm">
     <div class="w-full max-w-md rounded-2xl border-4 border-gold bg-white p-8 text-center shadow-2xl">
       <h3 id="alertJudul" class="text-xl font-bold text-bronze-dark">Pemberitahuan</h3>
       <p id="alertPesan" class="mt-2 whitespace-pre-line text-sm font-medium text-muted-foreground"></p>
-      <button type="button" id="btnTutupAlert" class="mt-8 rounded-xl bg-gold px-10 py-3.5 text-sm font-bold text-bronze-dark">Mengerti</button>
+      <button type="button" id="btnTutupAlert" class="mt-8 w-full rounded-xl bg-gold py-3.5 text-sm font-bold text-bronze-dark shadow-md hover:brightness-105">Mengerti</button>
     </div>
   </div>
 
-  <div id="overlayResetAntrean" class="fixed inset-0 z-40 hidden items-center justify-center bg-bronze-dark/70 p-6">
+  <div id="overlayResetAntrean" class="fixed inset-0 z-40 hidden items-center justify-center bg-bronze-dark/70 p-6 backdrop-blur-sm">
     <div class="w-full max-w-md rounded-2xl border-4 border-red-700 bg-white p-8 text-center shadow-2xl">
       <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100"><i data-lucide="triangle-alert" class="h-7 w-7 text-red-700"></i></div>
       <h3 class="mt-4 text-xl font-bold text-red-700">Reset Antrean Hari Ini?</h3>
@@ -579,7 +601,7 @@
       <p id="pesanErrorReset" class="mt-2 hidden text-xs font-semibold text-red-700">Ketikkan "RESET" (huruf besar) untuk melanjutkan.</p>
       <div class="mt-6 flex gap-3">
         <button type="button" id="btnBatalResetAntrean" class="flex-1 rounded-xl border-2 border-border bg-cream py-3.5 text-sm font-bold text-bronze-dark">Batal</button>
-        <button type="button" id="btnKonfirmasiResetAntrean" class="flex-1 rounded-xl bg-red-700 py-3.5 text-sm font-bold text-white hover:bg-red-800">Ya, Reset Sekarang</button>
+        <button type="button" id="btnKonfirmasiResetAntrean" class="flex-1 rounded-xl bg-red-700 py-3.5 text-sm font-bold text-white shadow-md hover:bg-red-800">Ya, Reset Sekarang</button>
       </div>
     </div>
   </div>
@@ -1166,47 +1188,121 @@ if (elAudio.volume) {
   });
 }
 
-const elTampilan = {
+// =========================================================================
+// SISTEM MANAJEMEN TAMPILAN & PLAYLIST VIDEO OFFLINE
+// =========================================================================
+let playlistVideo = [];
+
+const elPlaylist = {
+  wadah: document.getElementById('wadahPlaylist'),
+  kosong: document.getElementById('playlistKosong'),
+  daftar: document.getElementById('daftarPlaylist'),
+  input: document.getElementById('inputNamaVideo'),
+  btnTambah: document.getElementById('btnTambahVideo'),
   ticker: document.getElementById('aturTeksBerjalan'),
-  video: document.getElementById('aturVideo'),
   counter: document.getElementById('jumlahKarakterTicker'),
-  btnUpdate: document.getElementById('btnPerbaruiTampilan')
+  btnSimpanTicker: document.getElementById('btnSimpanTicker')
 };
 
-if (elTampilan.ticker) {
-  function perbaruiTampilanTicker() { const teks = elTampilan.ticker.value; elTampilan.counter.textContent = teks.length; }
-  
-  // Ambil Data Tampilan (Ticker & Video)
-  get(ref(db, 'pengaturan/tampilan')).then((snap) => { 
-    if (snap.exists()) {
-      const data = snap.val();
-      if(data.teks_berjalan) elTampilan.ticker.value = data.teks_berjalan; 
-      if(data.video_url) elTampilan.video.value = data.video_url;
-    } else {
-      // Coba ambil dari path lama jika baru di-update
-      get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => {
-        if(s.exists()) elTampilan.ticker.value = s.val();
-      });
-    }
-    perbaruiTampilanTicker(); 
-  }).catch((err) => { console.error(err); perbaruiTampilanTicker(); });
-  
-  elTampilan.ticker.addEventListener('input', perbaruiTampilanTicker);
-  
-  elTampilan.btnUpdate.addEventListener('click', async () => {
-    try { 
-      await set(ref(db, 'pengaturan/tampilan'), {
-        teks_berjalan: elTampilan.ticker.value,
-        video_url: elTampilan.video.value
-      });
-      // Sinkronkan ke path lama agar TV yang belum refresh tidak rusak
-      await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elTampilan.ticker.value);
-      await set(ref(db, 'pengaturan/video_url'), elTampilan.video.value);
-      
-      tampilkanAlert('Berhasil', 'Pengaturan Tampilan pada layar TV telah diperbarui.'); 
-    } catch (err) { console.error(err); tampilkanAlert('Gagal', 'Tidak dapat memperbarui pengaturan tampilan. Cek koneksi Firebase.'); }
-  });
+// 1. Render UI Daftar Playlist
+function renderPlaylist() {
+  if (playlistVideo.length === 0) {
+    elPlaylist.kosong.style.display = 'block';
+    elPlaylist.daftar.innerHTML = '';
+  } else {
+    elPlaylist.kosong.style.display = 'none';
+    elPlaylist.daftar.innerHTML = playlistVideo.map((vid, idx) => `
+      <li class="flex items-center justify-between rounded-lg bg-white px-3 py-2.5 shadow-sm border border-border">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bronze/10 text-[10px] font-bold text-bronze-dark">${idx + 1}</span>
+          <i data-lucide="file-video" class="h-4 w-4 shrink-0 text-gold-dark"></i>
+          <span class="truncate text-sm font-semibold text-bronze-dark">${vid}</span>
+        </div>
+        <button type="button" onclick="window.hapusVideo(${idx})" class="shrink-0 rounded-md p-1.5 text-red-500 hover:bg-red-50 transition-colors">
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+        </button>
+      </li>
+    `).join('');
+    lucide.createIcons();
+  }
 }
+
+// 2. Fungsi Menghapus Video
+window.hapusVideo = async function(idx) {
+  const videoDihapus = playlistVideo[idx];
+  playlistVideo.splice(idx, 1);
+  renderPlaylist();
+  try {
+    await set(ref(db, 'pengaturan/playlist_video'), playlistVideo);
+  } catch (e) {
+    console.error(e);
+    tampilkanAlert('Gagal', 'Tidak dapat menghapus video. Cek koneksi internet Anda.');
+  }
+};
+
+// 3. Fungsi Menambah Video Baru
+elPlaylist.btnTambah.addEventListener('click', async () => {
+  const namaFile = elPlaylist.input.value.trim();
+  if (!namaFile) return;
+  
+  if (!namaFile.toLowerCase().endsWith('.mp4') && !namaFile.toLowerCase().endsWith('.webm')) {
+    tampilkanAlert('Format Tidak Didukung', 'Mohon pastikan nama file yang Anda ketik diakhiri dengan ekstensi video (misalnya: .mp4 atau .webm)');
+    return;
+  }
+  
+  playlistVideo.push(namaFile);
+  elPlaylist.input.value = '';
+  renderPlaylist();
+  
+  try {
+    await set(ref(db, 'pengaturan/playlist_video'), playlistVideo);
+  } catch (e) {
+    console.error(e);
+    tampilkanAlert('Gagal', 'Tidak dapat menambahkan video ke playlist. Cek koneksi internet Anda.');
+  }
+});
+
+// Fitur Enter untuk input video
+elPlaylist.input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    elPlaylist.btnTambah.click();
+  }
+});
+
+// 4. Dengarkan Perubahan Playlist dari Firebase
+onValue(ref(db, 'pengaturan/playlist_video'), (snap) => {
+  if (snap.exists()) {
+    playlistVideo = snap.val() || [];
+  } else {
+    playlistVideo = [];
+  }
+  renderPlaylist();
+});
+
+// 5. Manajemen Ticker Teks Berjalan
+function perbaruiTampilanTicker() { 
+  const teks = elPlaylist.ticker.value; 
+  elPlaylist.counter.textContent = teks.length; 
+}
+elPlaylist.ticker.addEventListener('input', perbaruiTampilanTicker);
+
+// Ambil Ticker saat ini dari Firebase
+get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => {
+  if(s.exists()) elPlaylist.ticker.value = s.val();
+  perbaruiTampilanTicker();
+});
+
+// Simpan Ticker baru ke Firebase
+elPlaylist.btnSimpanTicker.addEventListener('click', async () => {
+  try { 
+    await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elPlaylist.ticker.value);
+    tampilkanAlert('Berhasil', 'Teks berjalan (Ticker) pada layar TV telah diperbarui.'); 
+  } catch (err) { 
+    console.error(err); 
+    tampilkanAlert('Gagal', 'Tidak dapat memperbarui teks berjalan. Cek koneksi Firebase.'); 
+  }
+});
 
 const elLoket = { checkboxes: Array.from(document.querySelectorAll('[id^="aturLoket"]')), jumlahAktif: document.getElementById('jumlahLoketAktif') };
 function perbaruiJumlahLoketAktif() { const aktif = elLoket.checkboxes.filter((cb) => cb.checked).length; if (elLoket.jumlahAktif) elLoket.jumlahAktif.textContent = aktif; }
