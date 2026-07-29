@@ -42,12 +42,12 @@
   html,body{ width: 100%; height: 100%; margin:0; overflow:hidden; }
   body{ font-variant-numeric: tabular-nums; }
 
-  /* Animasi Kilat untuk Panggilan Aktif (Dikembalikan ke gaya 3D) */
-  @keyframes card-pulse{
-    0%,100%{ border-color:#e8c547; box-shadow:0 0 0 1px #d4af37, 0 0 34px -8px rgba(232,197,71,0.45); }
-    50%{ border-color:#f5eee0; box-shadow:0 0 0 3px #e8c547, 0 0 60px 0px rgba(232,197,71,0.7); }
+  /* Animasi Kilat untuk Panggilan Aktif */
+  @keyframes card-pulse {
+    0%, 100% { box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 0 0 1px #d4af37, 0 0 30px rgba(212,175,55,0.2); }
+    50% { box-shadow: inset 0 0 80px rgba(232,197,71,0.2), 0 0 0 3px #e8c547, 0 0 60px rgba(232,197,71,0.6); }
   }
-  .card-active { animation: card-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; background: var(--bg-active); }
+  .card-active { animation: card-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; }
   
   .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: var(--bg-selesai) !important; border-color: #22c55e !important; opacity: 0.95; }
   
@@ -69,10 +69,9 @@
 </head>
 <body id="tvBody" class="relative flex w-full flex-col overflow-hidden bg-bronze font-sans text-cream" style="height: 100vh;">
 
-  <!-- EFEK DEKORASI LATAR BELAKANG TV (Grid Premium) -->
-  <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-30">
-    <div class="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.15)_1px,transparent_1px)]" style="background-size: 4rem 4rem;"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#2b1b10_80%)]"></div>
+  <!-- EFEK DEKORASI LATAR BELAKANG TV (Halus & Elegan) -->
+  <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-20">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#1b1008_80%)]"></div>
   </div>
 
   <!-- OVERLAY AKTIVASI -->
@@ -83,10 +82,10 @@
     </button>
   </div>
 
-  <!-- HEADER FULL WIDTH -->
-  <header class="relative z-10 shrink-0 flex items-center justify-between gap-3 border-b-2 border-gold/30 bg-black/40 px-6 py-3 lg:py-4 shadow-md md:px-8 backdrop-blur-sm">
+  <!-- HEADER -->
+  <header class="relative z-10 shrink-0 flex items-center justify-between gap-3 border-b border-gold/20 bg-black/30 px-6 py-3 lg:py-4 shadow-md md:px-8 backdrop-blur-sm">
     <div class="flex items-center gap-3 lg:gap-4 min-w-0">
-      <img src="logo.png" alt="Logo" class="h-10 w-10 lg:h-14 lg:w-14 rounded-full border-2 border-gold object-cover shadow-md shrink-0">
+      <img src="logo.png" alt="Logo" class="h-10 w-10 lg:h-14 lg:w-14 rounded-full border border-gold/70 object-cover shadow-md shrink-0">
       <div class="text-left min-w-0">
         <h1 class="font-sans text-lg md:text-xl lg:text-3xl font-extrabold uppercase leading-none tracking-widest text-gold truncate">
           SIMANTRI <span class="hidden sm:inline text-cream/60">&mdash; RUANG TUNGGU</span>
@@ -105,54 +104,52 @@
   <!-- MAIN KONTEN -->
   <main class="relative z-10 flex-1 flex flex-col min-h-0 gap-3 p-3 lg:gap-4 lg:p-4">
     
-    <!-- BARIS TENGAH: Kiri (49%) Kanan (51%) -->
     <div class="flex-1 flex gap-3 lg:gap-4 min-h-0 w-full">
       
-      <!-- ========================================== -->
-      <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) - DESAIN 3D KACA -->
-      <!-- ========================================== -->
-      <div id="boxHighlight" class="w-[49%] relative flex flex-col items-center justify-center rounded-[2rem] bg-[linear-gradient(145deg,#3d2817,#1b1008)] border-t border-t-white/10 border-x border-x-black/30 border-b-[8px] border-b-[#0c0704] p-4 lg:p-6 text-center shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_2px_5px_rgba(255,255,255,0.05)] transition-all duration-500 overflow-hidden shrink-0">
+      <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) - DESAIN HOLOGRAM DIGITAL -->
+      <div id="boxHighlight" class="w-[49%] relative flex flex-col items-center justify-center rounded-[2rem] bg-gradient-to-br from-[#1b1008] via-[#23150d] to-[#1b1008] border border-gold/30 p-4 lg:p-6 text-center shadow-[inset_0_0_60px_rgba(212,175,55,0.05),0_15px_30px_rgba(0,0,0,0.6)] transition-all duration-500 overflow-hidden shrink-0">
         
-        <!-- Efek Kaca Memantul -->
-        <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none"></div>
+        <!-- Akses Cahaya (Glow) di Pojok -->
+        <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full bg-gold-light/10 blur-[60px] pointer-events-none"></div>
+        <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-gold-deep/10 blur-[60px] pointer-events-none"></div>
+
+        <!-- Garis Aksen Kiri -->
+        <div class="absolute left-0 top-1/4 bottom-1/4 w-1.5 rounded-r-full bg-gradient-to-b from-transparent via-gold/80 to-transparent"></div>
+
         <!-- Watermark Ikon Raksasa -->
-        <i data-lucide="megaphone" class="absolute -bottom-10 -right-10 h-64 w-64 text-white opacity-[0.03] -rotate-12 pointer-events-none"></i>
+        <i data-lucide="megaphone" class="absolute -bottom-10 -right-10 h-72 w-72 text-gold opacity-[0.04] -rotate-12 pointer-events-none"></i>
 
         <p class="relative z-10 font-sans text-[10px] md:text-xs lg:text-sm font-bold uppercase tracking-[0.3em] text-gold/80 shrink-0">Panggilan Ke</p>
-        <h2 id="highlightLoket" class="relative z-10 mt-2 font-sans text-2xl lg:text-4xl xl:text-[2.5rem] font-extrabold uppercase tracking-widest text-gold leading-tight shrink-0 w-full px-2 break-words whitespace-normal text-center drop-shadow-md">—</h2>
         
-        <div class="relative z-10 my-4 lg:my-8 h-1 w-3/4 shrink-0 rounded-full bg-gradient-to-r from-transparent via-gold/50 to-transparent"></div>
+        <h2 id="highlightLoket" class="relative z-10 mt-2 font-sans text-2xl lg:text-4xl xl:text-[2.5rem] font-extrabold uppercase tracking-widest text-gold leading-tight shrink-0 w-full px-2 break-words whitespace-normal text-center drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">—</h2>
+        
+        <div class="relative z-10 my-4 lg:my-8 h-[2px] w-3/4 shrink-0 bg-gradient-to-r from-transparent via-gold/40 to-transparent"></div>
         
         <p class="relative z-10 font-sans text-[9px] md:text-xs lg:text-sm font-semibold uppercase tracking-[0.4em] text-cream/60 shrink-0">Nomor Antrean</p>
-        <p id="highlightNomor" class="relative z-10 mt-2 font-mono text-5xl md:text-6xl lg:text-7xl xl:text-[8rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_25px_rgba(232,197,71,0.5)] shrink-0">---</p>
+        
+        <p id="highlightNomor" class="relative z-10 mt-2 font-mono text-5xl md:text-6xl lg:text-7xl xl:text-[8rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] shrink-0">---</p>
       </div>
 
-      <!-- ========================================== -->
-      <!-- KOTAK KANAN (VIDEO PLAYER) - DESAIN 3D -->
-      <!-- ========================================== -->
-      <div class="w-[51%] h-full relative overflow-hidden rounded-[2rem] bg-[linear-gradient(145deg,#2b1b10,#000000)] border-t border-t-white/10 border-x border-x-black/30 border-b-[8px] border-b-[#000000] shadow-[0_20px_40px_rgba(0,0,0,0.6)] shrink-0">
-        <div id="ytplayer" class="absolute inset-0 h-full w-full pointer-events-none rounded-t-[1.5rem] rounded-b-[1.2rem] overflow-hidden"></div>
+      <!-- KOTAK KANAN (VIDEO PLAYER) -->
+      <div class="w-[51%] h-full relative overflow-hidden rounded-[2rem] bg-[#110a05] border border-gold/20 shadow-[0_15px_30px_rgba(0,0,0,0.6)] shrink-0">
+        <div id="ytplayer" class="absolute inset-0 h-full w-full pointer-events-none rounded-[1.8rem] overflow-hidden"></div>
         
-        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black text-cream/30 z-10 rounded-t-[1.5rem] rounded-b-[1.2rem]">
+        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black text-cream/30 z-10 rounded-[1.8rem]">
           <i data-lucide="video" class="h-10 w-10 mb-2 opacity-50 lg:h-14 lg:w-14"></i>
           <p class="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">Video Belum Diatur</p>
         </div>
       </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- BARIS BAWAH: Grid 5 Loket (20vh) -->
-    <!-- ========================================== -->
+    <!-- BARIS BAWAH: Grid 5 Loket -->
     <section aria-label="Nomor antrean per loket" class="shrink-0 grid h-[20vh] min-h-[8rem] grid-cols-5 gap-3 lg:gap-4">
       <!-- Kartu di-generate JS -->
     </section>
   </main>
 
   <template id="templateKartuLoket">
-    <article class="relative flex h-full flex-col items-center justify-between rounded-xl lg:rounded-2xl bg-[linear-gradient(145deg,#3d2817,#1b1008)] border-t border-t-white/10 border-x border-x-black/30 border-b-[6px] border-b-[#0c0704] px-2 py-2 text-center shadow-lg transition-all duration-500 min-h-0 overflow-hidden">
+    <article class="relative flex h-full flex-col items-center justify-between rounded-xl lg:rounded-2xl bg-[#23150d] border border-gold/10 px-2 py-2 text-center shadow-lg transition-all duration-500 min-h-0 overflow-hidden">
       
-      <div class="absolute inset-x-0 top-0 h-[40%] bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none"></div>
-
       <header class="relative z-10 w-full border-b border-gold/20 pb-1.5 shrink-0">
         <h2 class="nama-loket font-sans text-[9px] font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-[13px] break-words whitespace-normal text-center drop-shadow-sm"></h2>
       </header>
@@ -168,7 +165,7 @@
         </div>
       </div>
 
-      <footer class="relative z-10 w-full border-t border-gold/20 pt-1 shrink-0 bg-black/10 rounded-b-lg">
+      <footer class="relative z-10 w-full border-t border-gold/20 pt-1 shrink-0 bg-black/20 rounded-b-lg">
         <p class="label-status font-sans text-[8px] font-bold uppercase tracking-[0.25em] text-cream/45 lg:text-[9px]">TERSEDIA</p>
       </footer>
     </article>
