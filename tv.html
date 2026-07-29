@@ -109,14 +109,11 @@
       <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) - DESAIN HOLOGRAM DIGITAL -->
       <div id="boxHighlight" class="w-[49%] relative flex flex-col items-center justify-center rounded-[2rem] bg-gradient-to-br from-[#1b1008] via-[#23150d] to-[#1b1008] border border-gold/30 p-4 lg:p-6 text-center shadow-[inset_0_0_60px_rgba(212,175,55,0.05),0_15px_30px_rgba(0,0,0,0.6)] transition-all duration-500 overflow-hidden shrink-0">
         
-        <!-- Akses Cahaya (Glow) di Pojok -->
         <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full bg-gold-light/10 blur-[60px] pointer-events-none"></div>
         <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-gold-deep/10 blur-[60px] pointer-events-none"></div>
 
-        <!-- Garis Aksen Kiri -->
         <div class="absolute left-0 top-1/4 bottom-1/4 w-1.5 rounded-r-full bg-gradient-to-b from-transparent via-gold/80 to-transparent"></div>
 
-        <!-- Watermark Ikon Raksasa -->
         <i data-lucide="megaphone" class="absolute -bottom-10 -right-10 h-72 w-72 text-gold opacity-[0.04] -rotate-12 pointer-events-none"></i>
 
         <p class="relative z-10 font-sans text-[10px] md:text-xs lg:text-sm font-bold uppercase tracking-[0.3em] text-gold/80 shrink-0">Panggilan Ke</p>
@@ -262,7 +259,7 @@ function perbaruiJam(){
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 /* =========================================================================
-   YOUTUBE IFRAME API
+   YOUTUBE IFRAME API (Dengan Pemaksaan Volume Play)
    ========================================================================= */
 let ytPlayer;
 let isYtReady = false;
@@ -305,8 +302,15 @@ function onPlayerReady(event) {
 }
 
 function onPlayerStateChange(event) {
+  // Jika video selesai, putar ulang
   if (event.data === YT.PlayerState.ENDED) {
     ytPlayer.playVideo(); 
+  }
+  
+  // PERBAIKAN FATAL: Paksakan Unmute setiap kali video mulai berputar!
+  if (event.data === YT.PlayerState.PLAYING && suaraDiizinkan) {
+    ytPlayer.unMute();
+    ytPlayer.setVolume(VOLUME_NORMAL);
   }
 }
 
@@ -385,9 +389,6 @@ onValue(ref(db, 'pengaturan/video_url'), (snap) => {
     document.getElementById('ytplayer').style.display = 'block';
     if (isYtReady) {
       ytPlayer.loadVideoById(ytID);
-      if(suaraDiizinkan){
-          setTimeout(() => { ytPlayer.unMute(); ytPlayer.setVolume(VOLUME_NORMAL); ytPlayer.playVideo(); }, 1000);
-      }
     } else {
       pendingVideoId = ytID;
     }
