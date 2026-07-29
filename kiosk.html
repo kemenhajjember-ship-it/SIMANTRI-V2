@@ -21,7 +21,7 @@
           'gold-light': '#e8c547',
           'gold-deep': '#a8842a',
           cream: '#f5eee0',
-          'cream-light': '#faf7f2',
+          'cream-light': '#faf7f2', /* Background utama panel */
         },
         fontFamily: {
           sans: ['"Plus Jakarta Sans"', 'sans-serif'],
@@ -65,19 +65,17 @@
     overflow: hidden; 
 
     /* === PERBAIKAN FATAL UNTUK MONITOR TOUCHSCREEN === */
-    user-select: none; /* Mencegah teks terblok yang mematikan fungsi klik */
+    user-select: none; 
     -webkit-user-select: none;
-    touch-action: manipulation; /* Mematikan delay zoom/swipe, sentuhan murni jadi klik */
-    -webkit-touch-callout: none; /* Mematikan popup tahan layar (klik kanan) */
+    touch-action: manipulation; 
+    -webkit-touch-callout: none; 
   }
 
-  /* Memastikan semua tombol juga dipaksa responsif terhadap sentuhan */
   button {
     touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent; /* Menghilangkan kedip biru saat disentuh di beberapa OS */
+    -webkit-tap-highlight-color: transparent; 
   }
 
-  /* Grid Layanan Tahan Banting */
   .kiosk-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -96,7 +94,7 @@
     background-image: linear-gradient(90deg, transparent, rgba(212,175,55,.85), transparent);
   }
 
-  /* Watermark */
+  /* Watermark Samping */
   .watermark-img {
     position: absolute; 
     top: 0; right: 0; bottom: 0; left: 0;
@@ -159,12 +157,25 @@
   <div class="absolute top-0 right-0 bottom-0 left-0 z-0 bg-[radial-gradient(ellipse_60%_55%_at_50%_45%,rgba(212,175,55,.14),transparent_70%)] pointer-events-none"></div>
 
   <!-- ==================== PANGGUNG FULL-SCREEN (ABSOLUTE ANCHORING) ==================== -->
-  <main id="kioskPanel" class="absolute top-6 right-6 bottom-6 left-6 z-20 flex flex-col overflow-hidden rounded-[2.25rem] border border-gold/35 bg-cream-light/97 text-bronze-deep shadow-[0_2.5rem_7.5rem_-1.25rem_rgba(0,0,0,.85),0_0_0_1px_rgba(255,255,255,.35)_inset] ring-1 ring-bronze-deep/10">
+  <main id="kioskPanel" class="absolute top-6 right-6 bottom-6 left-6 z-20 flex flex-col overflow-hidden rounded-[2.25rem] border border-gold/35 bg-cream-light text-bronze-deep shadow-[0_2.5rem_7.5rem_-1.25rem_rgba(0,0,0,.85),0_0_0_1px_rgba(255,255,255,.35)_inset] ring-1 ring-bronze-deep/10">
 
-    <div class="h-[0.375rem] w-full shrink-0 bg-[linear-gradient(90deg,#a8842a,#e8c547_35%,#d4af37_50%,#e8c547_65%,#a8842a)]"></div>
+    <!-- =============================================================
+         EFEK DEKORASI LATAR BELAKANG PUTIH (Grid Premium & Pusat Cahaya)
+         ============================================================= -->
+    <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-65">
+      <!-- Grid Emas Super Tipis -->
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.15)_1px,transparent_1px)]" style="background-size: 4rem 4rem;"></div>
+      <!-- Vignette (Memudarkan grid di bagian tepi layar agar menyatu dengan warna asli krem) -->
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#faf7f2_80%)]"></div>
+      <!-- Cahaya Pendar Bulat (Ambient Glow) tepat di belakang tombol -->
+      <div class="absolute h-[60vh] w-[60vh] rounded-full bg-gold-light/15 blur-[90px]"></div>
+    </div>
+
+    <!-- Aksen emas di tepi atas panel -->
+    <div class="relative z-10 h-[0.375rem] w-full shrink-0 bg-[linear-gradient(90deg,#a8842a,#e8c547_35%,#d4af37_50%,#e8c547_65%,#a8842a)]"></div>
 
     <!-- HEADER -->
-    <header class="kiosk-header flex shrink-0 items-center gap-6 border-b border-bronze-deep/10 bg-gradient-to-b from-cream/90 to-cream-light/0 px-10 py-5">
+    <header class="kiosk-header relative z-10 flex shrink-0 items-center gap-6 border-b border-bronze-deep/10 bg-gradient-to-b from-cream/90 to-transparent px-10 py-5">
       <div class="shrink-0 rounded-full border-2 border-gold/70 bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(61,40,23,.55)]">
         <img src="logo.png" alt="Logo Instansi" class="block h-16 w-16 rounded-full object-cover">
       </div>
@@ -173,10 +184,10 @@
         <p class="truncate font-serif text-xs font-bold uppercase tracking-[0.28em] text-gold-deep">
           Kementerian Haji dan Umrah Kabupaten Jember
         </p>
-        <p class="text-[2.125rem] font-extrabold leading-tight tracking-[0.14em] text-bronze-deep">
+        <p class="text-[2.125rem] font-extrabold leading-tight tracking-[0.14em] text-bronze-deep drop-shadow-sm">
           SIMANTRI
         </p>
-        <p class="text-[0.8125rem] font-semibold tracking-[0.2em] text-bronze/70">
+        <p class="text-[0.8125rem] font-semibold tracking-[0.2em] text-bronze/80">
           Sistem Manajemen Antrean
         </p>
       </div>
@@ -193,7 +204,7 @@
     </header>
 
     <!-- KONTEN UTAMA -->
-    <section class="flex min-h-0 flex-1 flex-col px-10 py-6">
+    <section class="relative z-10 flex min-h-0 flex-1 flex-col px-10 py-6">
 
       <div class="flex shrink-0 items-center justify-center gap-5">
         <span class="hairline-gold h-px w-28"></span>
@@ -202,7 +213,7 @@
         </h1>
         <span class="hairline-gold h-px w-28"></span>
       </div>
-      <p class="mt-2 shrink-0 text-center text-sm font-medium text-bronze/65">
+      <p class="mt-2 shrink-0 text-center text-sm font-medium text-bronze/75">
         Sentuh salah satu kartu di bawah untuk mengambil nomor antrean
       </p>
 
@@ -213,21 +224,21 @@
         <button type="button" id="btnAmbilVerifikasi" 
           class="group relative flex h-full w-full min-h-0 min-w-0 flex-col items-center justify-center gap-5 overflow-hidden rounded-[2.25rem] bg-[linear-gradient(145deg,#3d2817,#1b1008)] p-6 text-center border-t border-t-white/10 border-x border-x-black/30 border-b-[10px] border-b-[#0c0704] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_2px_5px_rgba(255,255,255,0.05)] transition-all duration-150 active:translate-y-[8px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.05)] disabled:pointer-events-none disabled:opacity-45">
           
-          <span class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(232,197,71,.18),transparent_70%)]"></span>
+          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none"></div>
+          <i data-lucide="circle-check" class="absolute -bottom-10 -right-10 h-64 w-64 text-white opacity-[0.03] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.05] pointer-events-none"></i>
 
-          <!-- Ikon dengan Pendaran (Glow) -->
-          <span class="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-gold/45 bg-gradient-to-br from-gold/20 to-transparent shadow-[0_0_35px_rgba(212,175,55,0.2)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(212,175,55,0.4)]">
+          <span class="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-gold/45 bg-gradient-to-br from-gold/20 to-transparent shadow-[0_0_35px_rgba(212,175,55,0.2)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(212,175,55,0.4)]">
             <i data-lucide="circle-check" stroke-width="1.5" class="h-12 w-12 text-gold-light"></i>
           </span>
 
-          <span class="relative block min-w-0">
+          <span class="relative z-10 block min-w-0">
             <span class="block text-[2rem] font-extrabold leading-none tracking-[0.18em] text-cream-light drop-shadow-md">VERIFIKASI</span>
             <span class="mt-3 block text-base font-medium leading-relaxed text-cream/75">
               Verifikasi Dokumen &amp; Pendaftaran Jemaah
             </span>
           </span>
 
-          <span class="relative inline-flex items-center gap-2 rounded-full border border-gold/40 bg-bronze-ink/60 px-5 py-2 text-[0.8rem] font-bold tracking-wider text-gold-light shadow-inner">
+          <span class="relative z-10 inline-flex items-center gap-2 rounded-full border border-gold/40 bg-bronze-ink/60 px-5 py-2 text-[0.8rem] font-bold tracking-wider text-gold-light shadow-inner">
             KODE A <span class="h-1 w-1 rounded-full bg-gold/60"></span> LOKET 1 &amp; 3
           </span>
         </button>
@@ -236,19 +247,21 @@
         <button type="button" id="btnAmbilInformasi" 
           class="group relative flex h-full w-full min-h-0 min-w-0 flex-col items-center justify-center gap-5 overflow-hidden rounded-[2.25rem] bg-[linear-gradient(145deg,#f2d877,#d4af37_45%,#a8842a)] p-6 text-center border-t border-t-white/60 border-x border-x-bronze-deep/30 border-b-[10px] border-b-[#826115] shadow-[0_20px_40px_rgba(0,0,0,0.35),inset_0_2px_5px_rgba(255,255,255,0.5)] transition-all duration-150 active:translate-y-[8px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.5)] disabled:pointer-events-none disabled:opacity-45">
           
-          <!-- Ikon dengan Pendaran (Glow) Putih -->
-          <span class="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-white/50 bg-gradient-to-br from-white/40 to-white/10 shadow-[0_0_35px_rgba(255,255,255,0.4)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(255,255,255,0.6)]">
+          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.25] to-transparent pointer-events-none"></div>
+          <i data-lucide="info" class="absolute -bottom-10 -right-10 h-64 w-64 text-bronze-deep opacity-[0.06] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.09] pointer-events-none"></i>
+
+          <span class="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-white/50 bg-gradient-to-br from-white/40 to-white/10 shadow-[0_0_35px_rgba(255,255,255,0.4)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(255,255,255,0.6)]">
             <i data-lucide="info" stroke-width="1.5" class="h-12 w-12 text-bronze-deep"></i>
           </span>
 
-          <span class="relative block min-w-0">
+          <span class="relative z-10 block min-w-0">
             <span class="block text-[2rem] font-extrabold leading-none tracking-[0.18em] text-bronze-deep drop-shadow-[0_2px_4px_rgba(255,255,255,0.4)]">INFORMASI</span>
             <span class="mt-3 block text-base font-semibold leading-relaxed text-bronze-deep/80">
               Tanya Jadwal, Status &amp; Layanan Umum
             </span>
           </span>
 
-          <span class="relative inline-flex items-center gap-2 rounded-full border border-bronze-deep/25 bg-bronze-deep/10 px-5 py-2 text-[0.8rem] font-bold tracking-wider text-bronze-deep shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]">
+          <span class="relative z-10 inline-flex items-center gap-2 rounded-full border border-bronze-deep/25 bg-bronze-deep/10 px-5 py-2 text-[0.8rem] font-bold tracking-wider text-bronze-deep shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]">
             KODE B <span class="h-1 w-1 rounded-full bg-bronze-deep/50"></span> LOKET 2 &amp; 4
           </span>
         </button>
@@ -257,19 +270,19 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-bronze-deep/10 bg-cream/70 px-10 py-4">
-      <p class="flex items-center gap-3 text-sm font-semibold tracking-wide text-bronze/70">
+    <footer class="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-bronze-deep/10 bg-cream/80 px-10 py-4">
+      <p class="flex items-center gap-3 text-sm font-semibold tracking-wide text-bronze/75">
         <i data-lucide="shield-check" class="h-5 w-5 text-gold-deep"></i>
         Layanan resmi &middot; Mohon simpan struk antrean Anda
       </p>
-      <span id="statusFirebaseFooter" class="flex items-center gap-2.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-sm font-bold tracking-wide text-gold-deep">
+      <span id="statusFirebaseFooter" class="flex items-center gap-2.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-sm font-bold tracking-wide text-gold-deep backdrop-blur-sm">
         <i data-lucide="loader-circle" class="h-5 w-5 animate-spin text-gold-deep"></i> Menghubungkan...
       </span>
     </footer>
 
   </main>
 
-  <!-- ==================== MODAL ROMBONGAN (DI LUAR MAIN AGAR FULL SCREEN) ==================== -->
+  <!-- ==================== MODAL ROMBONGAN (FIXED TOP LAYER) ==================== -->
   <div id="overlayRombongan" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-auto bg-bronze-ink/92 px-10 py-10 text-center backdrop-blur-md">
     <div class="flex w-full max-w-[48rem] flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-10 py-8 shadow-[0_2.5rem_6.25rem_-1.875rem_rgba(0,0,0,.9)]">
       <p id="modalKategoriBadge" class="rounded-full border border-gold/50 bg-gold/12 px-6 py-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-light">Kategori</p>
@@ -293,7 +306,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL TIKET (DI LUAR MAIN AGAR FULL SCREEN) ==================== -->
+  <!-- ==================== MODAL TIKET (FIXED TOP LAYER) ==================== -->
   <div id="overlayTiket" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-auto bg-bronze-ink/95 px-10 py-10 text-center backdrop-blur-md">
     <div class="flex w-full max-w-[56rem] flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-10 py-7 shadow-[0_2.5rem_6.25rem_-1.875rem_rgba(0,0,0,.9)]">
       <p id="ticket-title" class="font-serif text-base font-bold uppercase tracking-[0.24em] text-gold-light">Nomor antrean Anda</p>
