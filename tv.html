@@ -38,7 +38,8 @@
     --bg-active: linear-gradient(145deg, #4a3320 0%, #2b1b10 100%);
     --bg-selesai: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%);
   }
-  html,body{ height:100%; margin:0; overflow:hidden; }
+  /* Modifikasi CSS agar background bisa menutupi seluruh layar TV */
+  html,body{ width: 100%; height: 100%; margin:0; overflow:hidden; }
   body{ font-variant-numeric: tabular-nums; }
 
   /* Animasi Kilat untuk Panggilan Aktif */
@@ -59,7 +60,8 @@
   .ticker-track{ display:flex; width:max-content; white-space:nowrap; animation: ticker-scroll 32s linear infinite; }
 </style>
 </head>
-<body class="flex h-screen w-full flex-col overflow-hidden bg-bronze font-sans text-cream">
+<!-- Tambahkan ID ke body untuk dipanggil full screen -->
+<body id="tvBody" class="flex w-full flex-col overflow-hidden bg-bronze font-sans text-cream" style="height: 100vh;">
 
   <!-- OVERLAY AKTIVASI -->
   <div id="overlayAktifkan" class="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-black/95">
@@ -91,7 +93,7 @@
   <!-- MAIN KONTEN -->
   <main class="flex-1 flex flex-col min-h-0 gap-3 p-3 lg:gap-4 lg:p-4">
     
-    <!-- BARIS TENGAH: Kiri (50%) Kanan (50%) -->
+    <!-- BARIS TENGAH: Kiri (49%) Kanan (51%) -->
     <div class="flex-1 flex gap-3 lg:gap-4 min-h-0 w-full">
       
       <!-- ========================================== -->
@@ -202,6 +204,7 @@ const el = {
   highlightLoket: document.getElementById('highlightLoket'),
   highlightNomor: document.getElementById('highlightNomor'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
+  tvBody: document.getElementById('tvBody') // Referensi untuk full screen
 };
 
 const kartuLoket = {};
@@ -247,14 +250,14 @@ let ytPlayer;
 let isYtReady = false;
 let pendingVideoId = null;
 
-const VOLUME_NORMAL = 85; 
-const VOLUME_MENGECIL = 10; 
-
 // Menyuntikkan script YouTube API ke dalam HTML
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 const firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+const VOLUME_NORMAL = 85; 
+const VOLUME_MENGECIL = 10; 
 
 // Fungsi pembaca kesiapan pemutar
 window.onYouTubeIframeAPIReady = function() {
@@ -302,7 +305,7 @@ function pulihkanSuaraVideo() {
 }
 
 /* =========================================================================
-   SISTEM SUARA & KLIK AKTIVASI
+   SISTEM SUARA & KLIK AKTIVASI (DENGAN REQUEST FULL SCREEN)
    ========================================================================= */
 let suaraDiizinkan = false;
 let konteksAudio = null;
@@ -318,9 +321,23 @@ function ambilKonteksAudio(){
   return konteksAudio;
 }
 
+// Fungsi untuk memaksa Full Screen
+function bukaFullScreen() {
+  if (el.tvBody.requestFullscreen) {
+    el.tvBody.requestFullscreen();
+  } else if (el.tvBody.webkitRequestFullscreen) { /* Safari */
+    el.tvBody.webkitRequestFullscreen();
+  } else if (el.tvBody.msRequestFullscreen) { /* IE11 */
+    el.tvBody.msRequestFullscreen();
+  }
+}
+
 el.btnAktifkan.addEventListener('click', () => {
   suaraDiizinkan = true;
   
+  // Minta Full Screen saat di klik
+  bukaFullScreen();
+
   // Menggunakan manipulasi class Tailwind yang aman
   el.overlay.classList.add('hidden');
   el.overlay.classList.remove('flex');
