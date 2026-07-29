@@ -127,13 +127,15 @@
         <p id="highlightNomor" class="relative z-10 mt-2 font-mono text-5xl md:text-6xl lg:text-7xl xl:text-[8rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] shrink-0">---</p>
       </div>
 
-      <!-- KOTAK KANAN (VIDEO PLAYER) -->
+      <!-- PERUBAHAN: KOTAK KANAN (PEMUTAR VIDEO OFFLINE / MP4) -->
       <div class="w-[51%] h-full relative overflow-hidden rounded-[2rem] bg-[#110a05] border border-gold/20 shadow-[0_15px_30px_rgba(0,0,0,0.6)] shrink-0">
-        <div id="ytplayer" class="absolute inset-0 h-full w-full pointer-events-none rounded-[1.8rem] overflow-hidden"></div>
+        
+        <!-- Elemen Video HTML5 Bawaan -->
+        <video id="localVideoPlayer" class="absolute inset-0 h-full w-full object-cover rounded-[1.8rem] hidden" playsinline muted></video>
         
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black text-cream/30 z-10 rounded-[1.8rem]">
-          <i data-lucide="video" class="h-10 w-10 mb-2 opacity-50 lg:h-14 lg:w-14"></i>
-          <p class="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">Video Belum Diatur</p>
+          <i data-lucide="video-off" class="h-10 w-10 mb-2 opacity-50 lg:h-14 lg:w-14"></i>
+          <p class="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">Playlist Kosong</p>
         </div>
       </div>
     </div>
@@ -219,7 +221,8 @@ const el = {
   highlightLoket: document.getElementById('highlightLoket'),
   highlightNomor: document.getElementById('highlightNomor'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
-  tvBody: document.getElementById('tvBody') 
+  tvBody: document.getElementById('tvBody'),
+  videoPlayer: document.getElementById('localVideoPlayer') // Pemutar Baru
 };
 
 const kartuLoket = {};
@@ -259,70 +262,68 @@ function perbaruiJam(){
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 /* =========================================================================
-   YOUTUBE IFRAME API (Dengan Pemaksaan Volume Play)
+   PERUBAHAN: SISTEM PEMUTAR VIDEO PLAYLIST OFFLINE (HTML5)
    ========================================================================= */
-let ytPlayer;
-let isYtReady = false;
-let pendingVideoId = null;
+let playlistVideo = [];
+let indeksVideoSekarang = 0;
+const VOLUME_NORMAL = 0.85; // 85% untuk HTML5 audio 
+const VOLUME_MENGECIL = 0.10; // 10% saat ada panggilan
 
-const tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-const firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-const VOLUME_NORMAL = 85; 
-const VOLUME_MENGECIL = 10; 
-
-window.onYouTubeIframeAPIReady = function() {
-  ytPlayer = new YT.Player('ytplayer', {
-    height: '100%',
-    width: '100%',
-    playerVars: {
-      'autoplay': 1,
-      'controls': 0,
-      'modestbranding': 1,
-      'rel': 0,
-      'mute': 1,
-      'playsinline': 1,
-      'cc_load_policy': 0, 
-      'iv_load_policy': 3  
-    },
-    events: {
-      'onReady': onPlayerReady,
-      'onStateChange': onPlayerStateChange
-    }
-  });
-};
-
-function onPlayerReady(event) {
-  isYtReady = true;
-  if (pendingVideoId) {
-    ytPlayer.loadVideoById(pendingVideoId);
-  }
-}
-
-function onPlayerStateChange(event) {
-  // Jika video selesai, putar ulang
-  if (event.data === YT.PlayerState.ENDED) {
-    ytPlayer.playVideo(); 
+// Fungsi memutar video dalam urutan playlist
+function putarVideoSekarang() {
+  if (playlistVideo.length === 0) {
+    el.videoPlayer.style.display = 'none';
+    el.videoPlaceholder.style.display = 'flex';
+    el.videoPlayer.pause();
+    return;
   }
   
-  // PERBAIKAN FATAL: Paksakan Unmute setiap kali video mulai berputar!
-  if (event.data === YT.PlayerState.PLAYING && suaraDiizinkan) {
-    ytPlayer.unMute();
-    ytPlayer.setVolume(VOLUME_NORMAL);
+  el.videoPlaceholder.style.display = 'none';
+  el.videoPlayer.style.display = 'block';
+  
+  // Masukkan nama file (karena berada di folder yang sama di GitHub, cukup panggil namanya)
+  el.videoPlayer.src = playlistVideo[indeksVideoSekarang];
+  
+  // Jika sudah diklik aktifkan, pastikan suaranya unmuted
+  if (suaraDiizinkan) {
+    el.videoPlayer.muted = false;
   }
+  
+  el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user untuk play video:", e));
 }
 
+// Saat satu video selesai diputar, lanjut ke video berikutnya
+el.videoPlayer.addEventListener('ended', () => {
+  if (playlistVideo.length > 0) {
+    indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
+    putarVideoSekarang();
+  }
+});
+
+// Pantau perubahan playlist dari Dasbor Admin
+onValue(ref(db, 'pengaturan/playlist_video'), (snap) => {
+  const dataBaru = snap.exists() ? snap.val() : [];
+  
+  // Cek apakah ada perubahan daftar
+  const daftarLama = JSON.stringify(playlistVideo);
+  const daftarBaru = JSON.stringify(dataBaru);
+  
+  if (daftarLama !== daftarBaru) {
+    playlistVideo = dataBaru;
+    indeksVideoSekarang = 0; // Mulai dari awal jika diupdate
+    putarVideoSekarang();
+  }
+});
+
 function redamSuaraVideo() {
-  if (ytPlayer && isYtReady && typeof ytPlayer.setVolume === 'function') {
-    ytPlayer.setVolume(VOLUME_MENGECIL);
+  if (el.videoPlayer) {
+    el.videoPlayer.volume = VOLUME_MENGECIL;
   }
 }
 
 function pulihkanSuaraVideo() {
-  if (ytPlayer && isYtReady && typeof ytPlayer.setVolume === 'function') {
-    ytPlayer.setVolume(VOLUME_NORMAL);
+  if (el.videoPlayer) {
+    el.videoPlayer.volume = VOLUME_NORMAL;
   }
 }
 
@@ -367,35 +368,11 @@ el.btnAktifkan.addEventListener('click', () => {
     responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
   }
   
-  if (ytPlayer && isYtReady) {
-    ytPlayer.unMute();
-    ytPlayer.setVolume(VOLUME_NORMAL);
-    ytPlayer.playVideo();
-  }
-});
-
-function extractYouTubeID(url) {
-  const regExp = /(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|live\/|shorts\/))([\w-]{11})/;
-  const match = url.match(regExp);
-  return match ? match[1] : false;
-}
-
-onValue(ref(db, 'pengaturan/video_url'), (snap) => {
-  const urlMentah = snap.exists() ? snap.val() : '';
-  const ytID = extractYouTubeID(urlMentah);
-  
-  if (ytID) {
-    el.videoPlaceholder.style.display = 'none';
-    document.getElementById('ytplayer').style.display = 'block';
-    if (isYtReady) {
-      ytPlayer.loadVideoById(ytID);
-    } else {
-      pendingVideoId = ytID;
-    }
-  } else {
-    document.getElementById('ytplayer').style.display = 'none';
-    el.videoPlaceholder.style.display = 'flex';
-    if (isYtReady) ytPlayer.stopVideo();
+  // Paksakan Pemutar Video Lokal untuk Nyala dan Bersuara
+  if (playlistVideo.length > 0) {
+    el.videoPlayer.muted = false;
+    el.videoPlayer.volume = VOLUME_NORMAL;
+    el.videoPlayer.play().catch(e => console.log(e));
   }
 });
 
@@ -520,9 +497,7 @@ onValue(ref(db, 'panggilan_aktif'), (snapshot) => {
 
 onValue(ref(db, 'pengaturan/ticker/teks_berjalan'), (snap) => {
   const teksAsli = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean.';
-  
   const teksPanjang = `${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; `;
-  
   el.tickerTeks1.innerHTML = teksPanjang;
   el.tickerTeks2.innerHTML = teksPanjang;
 });
