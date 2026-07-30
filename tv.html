@@ -36,19 +36,6 @@
   .font-sans { font-family: 'Manrope', sans-serif; }
   .hover-bg-gold:hover { background-color: #d4af37 !important; transform: scale(1.05); }
   .active-scale:active { transform: scale(0.95); }
-
-  /* ======================================================= */
-  /* PELUMPUH KONTROL NATIVE TV SAMSUNG & PICTURE-IN-PICTURE */
-  /* ======================================================= */
-  video::-webkit-media-controls,
-  video::-webkit-media-controls-enclosure,
-  video::-webkit-media-controls-panel,
-  video::-webkit-media-controls-overlay-play-button,
-  video::-internal-media-controls {
-      display: none !important;
-      opacity: 0 !important;
-      -webkit-appearance: none !important;
-  }
 </style>
 </head>
 <body id="tvBody" class="relative flex w-full flex-col overflow-hidden" style="height: 100vh;">
@@ -80,7 +67,8 @@
       </div>
     </div>
     <div class="text-right shrink-0">
-      <p id="tvJam" class="font-mono font-extrabold leading-none drop-shadow-md" style="font-size: 2.2rem; letter-spacing: -0.05em; color: #e8c547;">00:00:00</p>
+      <!-- PERBAIKAN: Spasi Angka Jam Dilebarkan (letter-spacing: 0.08em) -->
+      <p id="tvJam" class="font-mono font-extrabold leading-none drop-shadow-md" style="font-size: 2.2rem; letter-spacing: 0.08em; color: #e8c547;">00:00:00</p>
       <p id="tvTanggal" class="mt-1 font-sans font-bold uppercase" style="font-size: 0.75rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.7);"></p>
     </div>
   </header>
@@ -88,10 +76,12 @@
   <!-- MAIN KONTEN -->
   <main class="relative z-10 flex-1 flex flex-col min-h-0 p-3 lg:p-4" style="gap: 1rem;">
     
-    <div class="flex-1 flex min-h-0 w-full" style="gap: 1rem;">
+    <!-- PERBAIKAN: Jarak Antar Kotak Dilebarkan (gap: 2.5rem) -->
+    <div class="flex-1 flex min-h-0 w-full" style="gap: 2.5rem;">
       
       <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) -->
-      <div id="boxHighlight" class="relative flex flex-col items-center justify-center p-4 lg:p-6 text-center transition-all duration-500 overflow-hidden shrink-0" style="width: 49%; border-radius: 2rem; background: linear-gradient(to bottom right, #1b1008, #23150d, #1b1008); border: 1px solid rgba(232,197,71,0.3); box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 15px 30px rgba(0,0,0,0.6);">
+      <!-- PERBAIKAN: Lebar disesuaikan (flex: 0 0 45%) agar tidak tabrakan -->
+      <div id="boxHighlight" class="relative flex flex-col items-center justify-center p-4 lg:p-6 text-center transition-all duration-500 overflow-hidden shrink-0" style="flex: 0 0 45%; border-radius: 2rem; background: linear-gradient(to bottom right, #1b1008, #23150d, #1b1008); border: 1px solid rgba(232,197,71,0.3); box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 15px 30px rgba(0,0,0,0.6);">
         <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(232,197,71,0.1); filter: blur(60px);"></div>
         <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(212,175,55,0.1); filter: blur(60px);"></div>
         
@@ -103,26 +93,28 @@
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
-      <div class="h-full relative shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
+      <!-- PERBAIKAN: Sisa lebar diisi penuh (flex: 1) -->
+      <div class="h-full relative shrink-0" style="flex: 1; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
         <!-- WADAH PELINDUNG -->
-        <div style="position: absolute; inset: 0; border-radius: 1.8rem; overflow: hidden; pointer-events: none; z-index: 1;">
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 1.8rem; overflow: hidden; pointer-events: none; z-index: 1;">
+            <!-- PERBAIKAN: Paksa lebar/tinggi 100% dan Object-Fit mutlak agar selalu melar penuh -->
             <video id="localVideoPlayer" 
                    preload="auto" 
                    playsinline 
                    webkit-playsinline 
                    disablePictureInPicture 
-                   style="width: 100%; height: 100%; object-fit: cover; background-color: #000; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;">
+                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; -webkit-object-fit: cover; background-color: #000; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;">
             </video>
         </div>
 
-        <!-- Indikator Loading (Z-Index 3) -->
-        <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: 1.8rem; pointer-events: none;">
+        <!-- Indikator Loading -->
+        <div id="indikatorLoading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: 1.8rem; pointer-events: none;">
           <i data-lucide="loader" class="h-10 w-10 animate-spin" style="color: #e8c547; margin-bottom: 8px;"></i>
           <p style="color: #e8c547; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.1em;">MEMUAT VIDEO...</p>
         </div>
 
-        <!-- Wadah Placeholder Kosong/Error (Z-Index 4) -->
+        <!-- Wadah Placeholder Kosong -->
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-4 p-4 text-center" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3); pointer-events: none;">
           <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
@@ -241,7 +233,7 @@ perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 
 /* =========================================================================
-   SISTEM VIDEO: RESTART BERSIH SETELAH KLIK AKTIFKAN
+   SISTEM VIDEO OFFLINE
    ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
@@ -277,10 +269,7 @@ function putarVideoSekarang() {
   if(namaFileUtuh.startsWith('http')) { urlTV = namaFileUtuh; }
 
   el.videoPlayer.src = urlTV;
-  
-  // Biarkan Mute saat belum diklik (Mode Layar Belakang)
   el.videoPlayer.muted = !suaraDiizinkan; 
-  
   el.videoPlayer.load();
   
   setTimeout(() => {
@@ -326,12 +315,23 @@ db.ref('pengaturan/playlist_video').on('value', (snap) => {
   }
 });
 
-function redamSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; }
-function pulihkanSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_NORMAL; }
+function redamSuaraVideo() { 
+  if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; 
+}
 
+// PERBAIKAN: Memaksa video untuk melanjutkan pemutaran (Play) setelah panggilan selesai
+function pulihkanSuaraVideo() { 
+  if (el.videoPlayer) {
+    el.videoPlayer.volume = VOLUME_NORMAL; 
+    let p = el.videoPlayer.play();
+    if (p !== undefined) {
+      p.catch(e => console.log("Gagal auto-resume:", e));
+    }
+  }
+}
 
 /* =========================================================================
-   KLIK AKTIFKAN: RESTART VIDEO DARI AWAL DENGAN SUARA (MENCEGAH CRASH)
+   KLIK AKTIFKAN
    ========================================================================= */
 let suaraDiizinkan = false;
 let konteksAudio = null;
@@ -350,17 +350,10 @@ el.btnAktifkan.addEventListener('click', () => {
   if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
   
   if (playlistVideo.length > 0) {
-    // 1. Hentikan paksa video bisu yang sedang jalan di belakang
     el.videoPlayer.pause();
-    
-    // 2. Berikan izin suara
     el.videoPlayer.muted = false;
     el.videoPlayer.volume = VOLUME_NORMAL;
-    
-    // 3. Paksa TV merakit ulang videonya dari awal agar tidak error Pipeline
     el.videoPlayer.load();
-    
-    // 4. Mainkan dengan aman
     let p = el.videoPlayer.play();
     if(p !== undefined) {
        p.then(() => { el.videoPlayer.style.opacity = '1'; el.indikatorLoading.style.display = 'none'; })
@@ -370,7 +363,7 @@ el.btnAktifkan.addEventListener('click', () => {
 });
 
 /* =========================================================================
-   SISA LOGIKA (PANGGILAN, LOKET, DLL) TETAP AMAN DI BAWAH INI
+   SISA LOGIKA
    ========================================================================= */
 KONFIGURASI_LOKET.forEach(loket => {
   db.ref(`status_loket/${loket.id}`).on('value', (snap) => {
