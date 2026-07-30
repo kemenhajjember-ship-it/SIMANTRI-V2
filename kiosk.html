@@ -21,15 +21,11 @@
           'gold-light': '#e8c547',
           'gold-deep': '#a8842a',
           cream: '#f5eee0',
-          'cream-light': '#faf7f2', /* Background utama panel */
+          'cream-light': '#faf7f2', 
         },
         fontFamily: {
           sans: ['"Plus Jakarta Sans"', 'sans-serif'],
           serif: ['"Lora"', 'serif'],
-        },
-        opacity: {
-          8: '0.08', 12: '0.12', 15: '0.15', 22: '0.22', 35: '0.35',
-          45: '0.45', 55: '0.55', 65: '0.65', 85: '0.85', 92: '0.92', 97: '0.97',
         },
       },
     },
@@ -42,20 +38,17 @@
 
 <style>
   /* =========================================================================
-     ============  MESIN SKALA FLUID & KIOSK TOUCH-LOCK  =====================
+     ============  PERBAIKAN SKALA LAYAR KHUSUS MONITOR LG/SAMSUNG  ==========
      ========================================================================= */
   html {
-    font-size: clamp(10px, min(1.25vw, 2.22vh), 22px);
+    font-size: 14px; /* Ukuran dasar sangat aman */
     width: 100%; height: 100%;
   }
 
-  @media (min-aspect-ratio: 21/9){
-    html{ font-size: clamp(10px, 2.1vh, 24px); }
-  }
-
-  @media (orientation: portrait){
-    html{ font-size: clamp(11px, min(3.1vw, 1.45vh), 20px); }
-  }
+  /* Menggunakan ukuran Fix agar TV tidak salah hitung */
+  @media (min-width: 1024px) { html { font-size: 16px; } }
+  @media (min-width: 1366px) { html { font-size: 18px; } }
+  @media (min-width: 1920px) { html { font-size: 22px; } }
 
   html, body { 
     width: 100%; 
@@ -64,7 +57,7 @@
     padding: 0;
     overflow: hidden; 
 
-    /* === PERBAIKAN FATAL UNTUK MONITOR TOUCHSCREEN === */
+    /* === MENCEGAH TEKS TER-BLOK SAAT DISENTUH === */
     user-select: none; 
     -webkit-user-select: none;
     touch-action: manipulation; 
@@ -80,14 +73,6 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     min-height: 0;
-  }
-  @media (orientation: portrait) and (max-width: 820px){
-    .kiosk-grid{ grid-template-columns: 1fr; grid-auto-rows: 1fr; }
-  }
-
-  @media (max-width: 640px){
-    .kiosk-header{ flex-wrap: wrap; row-gap: 0.75rem; }
-    .kiosk-clock{ border-left:0; padding-left:0; align-items:flex-start; text-align:left; }
   }
 
   .hairline-gold {
@@ -156,22 +141,15 @@
 
   <div class="absolute top-0 right-0 bottom-0 left-0 z-0 bg-[radial-gradient(ellipse_60%_55%_at_50%_45%,rgba(212,175,55,.14),transparent_70%)] pointer-events-none"></div>
 
-  <!-- ==================== PANGGUNG FULL-SCREEN (ABSOLUTE ANCHORING) ==================== -->
+  <!-- ==================== PANGGUNG FULL-SCREEN ==================== -->
   <main id="kioskPanel" class="absolute top-6 right-6 bottom-6 left-6 z-20 flex flex-col overflow-hidden rounded-[2.25rem] border border-gold/35 bg-cream-light text-bronze-deep shadow-[0_2.5rem_7.5rem_-1.25rem_rgba(0,0,0,.85),0_0_0_1px_rgba(255,255,255,.35)_inset] ring-1 ring-bronze-deep/10">
 
-    <!-- =============================================================
-         EFEK DEKORASI LATAR BELAKANG PUTIH (Grid Premium & Pusat Cahaya)
-         ============================================================= -->
     <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-65">
-      <!-- Grid Emas Super Tipis -->
       <div class="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.15)_1px,transparent_1px)]" style="background-size: 4rem 4rem;"></div>
-      <!-- Vignette (Memudarkan grid di bagian tepi layar agar menyatu dengan warna asli krem) -->
       <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#faf7f2_80%)]"></div>
-      <!-- Cahaya Pendar Bulat (Ambient Glow) tepat di belakang tombol -->
       <div class="absolute h-[60vh] w-[60vh] rounded-full bg-gold-light/15 blur-[90px]"></div>
     </div>
 
-    <!-- Aksen emas di tepi atas panel -->
     <div class="relative z-10 h-[0.375rem] w-full shrink-0 bg-[linear-gradient(90deg,#a8842a,#e8c547_35%,#d4af37_50%,#e8c547_65%,#a8842a)]"></div>
 
     <!-- HEADER -->
@@ -192,7 +170,6 @@
         </p>
       </div>
 
-      <!-- Jam -->
       <div class="kiosk-clock flex shrink-0 flex-col items-end border-l border-bronze-deep/10 pl-6 text-right">
         <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-bronze/60">Waktu Setempat</span>
         <span class="mt-1 flex items-baseline gap-2">
@@ -217,17 +194,15 @@
         Sentuh salah satu kartu di bawah untuk mengambil nomor antrean
       </p>
 
-      <!-- PILIHAN LAYANAN (DENGAN EFEK 3D TACTILE BUTTON) -->
       <div class="kiosk-grid mt-5 flex-1 gap-8">
-
-        <!-- Tombol A — 3D DEEP BRONZE -->
+        <!-- Tombol A -->
         <button type="button" id="btnAmbilVerifikasi" 
           class="group relative flex h-full w-full min-h-0 min-w-0 flex-col items-center justify-center gap-5 overflow-hidden rounded-[2.25rem] bg-[linear-gradient(145deg,#3d2817,#1b1008)] p-6 text-center border-t border-t-white/10 border-x border-x-black/30 border-b-[10px] border-b-[#0c0704] shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_2px_5px_rgba(255,255,255,0.05)] transition-all duration-150 active:translate-y-[8px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.05)] disabled:pointer-events-none disabled:opacity-45">
           
           <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none"></div>
-          <i data-lucide="circle-check" class="absolute -bottom-10 -right-10 h-64 w-64 text-white opacity-[0.03] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.05] pointer-events-none"></i>
+          <i data-lucide="circle-check" class="absolute -bottom-10 -right-10 h-64 w-64 text-white opacity-[0.03] -rotate-12 pointer-events-none"></i>
 
-          <span class="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-gold/45 bg-gradient-to-br from-gold/20 to-transparent shadow-[0_0_35px_rgba(212,175,55,0.2)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(212,175,55,0.4)]">
+          <span class="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-gold/45 bg-gradient-to-br from-gold/20 to-transparent shadow-[0_0_35px_rgba(212,175,55,0.2)]">
             <i data-lucide="circle-check" stroke-width="1.5" class="h-12 w-12 text-gold-light"></i>
           </span>
 
@@ -243,14 +218,14 @@
           </span>
         </button>
 
-        <!-- Tombol B — 3D GOLD PREMIUM -->
+        <!-- Tombol B -->
         <button type="button" id="btnAmbilInformasi" 
           class="group relative flex h-full w-full min-h-0 min-w-0 flex-col items-center justify-center gap-5 overflow-hidden rounded-[2.25rem] bg-[linear-gradient(145deg,#f2d877,#d4af37_45%,#a8842a)] p-6 text-center border-t border-t-white/60 border-x border-x-bronze-deep/30 border-b-[10px] border-b-[#826115] shadow-[0_20px_40px_rgba(0,0,0,0.35),inset_0_2px_5px_rgba(255,255,255,0.5)] transition-all duration-150 active:translate-y-[8px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.5)] disabled:pointer-events-none disabled:opacity-45">
           
           <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.25] to-transparent pointer-events-none"></div>
-          <i data-lucide="info" class="absolute -bottom-10 -right-10 h-64 w-64 text-bronze-deep opacity-[0.06] -rotate-12 transition-transform duration-500 group-hover:scale-110 group-hover:opacity-[0.09] pointer-events-none"></i>
+          <i data-lucide="info" class="absolute -bottom-10 -right-10 h-64 w-64 text-bronze-deep opacity-[0.06] -rotate-12 pointer-events-none"></i>
 
-          <span class="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-white/50 bg-gradient-to-br from-white/40 to-white/10 shadow-[0_0_35px_rgba(255,255,255,0.4)] transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(255,255,255,0.6)]">
+          <span class="relative z-10 flex h-24 w-24 shrink-0 items-center justify-center rounded-full border border-white/50 bg-gradient-to-br from-white/40 to-white/10 shadow-[0_0_35px_rgba(255,255,255,0.4)]">
             <i data-lucide="info" stroke-width="1.5" class="h-12 w-12 text-bronze-deep"></i>
           </span>
 
@@ -279,10 +254,9 @@
         <i data-lucide="loader-circle" class="h-5 w-5 animate-spin text-gold-deep"></i> Menghubungkan...
       </span>
     </footer>
-
   </main>
 
-  <!-- ==================== MODAL ROMBONGAN (FIXED TOP LAYER) ==================== -->
+  <!-- ==================== MODAL ROMBONGAN ==================== -->
   <div id="overlayRombongan" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-auto bg-bronze-ink/92 px-10 py-10 text-center backdrop-blur-md">
     <div class="flex w-full max-w-[48rem] flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-10 py-8 shadow-[0_2.5rem_6.25rem_-1.875rem_rgba(0,0,0,.9)]">
       <p id="modalKategoriBadge" class="rounded-full border border-gold/50 bg-gold/12 px-6 py-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-light">Kategori</p>
@@ -292,21 +266,21 @@
       </h2>
 
       <div class="mt-6 flex items-center justify-center gap-10">
-        <button type="button" id="btnKurangRombongan" class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-3xl font-bold leading-none text-gold-light transition-all hover:bg-cream/20 active:scale-90 disabled:opacity-25">−</button>
+        <button type="button" id="btnKurangRombongan" class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-3xl font-bold leading-none text-gold-light transition-all active:scale-90 disabled:opacity-25">−</button>
         <div id="angkaRombongan" class="w-28 font-mono text-7xl font-black leading-none text-cream-light">1</div>
-        <button type="button" id="btnTambahRombongan" class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-3xl font-bold leading-none text-gold-light transition-all hover:bg-cream/20 active:scale-90 disabled:opacity-25">+</button>
+        <button type="button" id="btnTambahRombongan" class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-3xl font-bold leading-none text-gold-light transition-all active:scale-90 disabled:opacity-25">+</button>
       </div>
 
       <p class="mt-4 text-sm font-medium tracking-wide text-cream/55">Maksimal 8 orang per rombongan</p>
 
       <div class="mt-7 flex w-full max-w-[36rem] flex-wrap gap-5">
-        <button type="button" id="btnBatalRombongan" class="min-w-[10rem] flex-1 rounded-2xl border border-cream/25 bg-cream/10 py-4 text-lg font-bold tracking-wide text-cream-light transition-all hover:bg-cream/20 active:scale-95">Batal</button>
-        <button type="button" id="btnKonfirmasiRombongan" class="min-w-[12rem] flex-1 rounded-2xl bg-[linear-gradient(135deg,#e8c547,#d4af37)] py-4 text-lg font-extrabold tracking-wide text-bronze-deep shadow-[0_1rem_2.5rem_-0.875rem_rgba(212,175,55,.8)] transition-all hover:brightness-105 active:scale-95">Lanjutkan &amp; Cetak</button>
+        <button type="button" id="btnBatalRombongan" class="min-w-[10rem] flex-1 rounded-2xl border border-cream/25 bg-cream/10 py-4 text-lg font-bold tracking-wide text-cream-light transition-all active:scale-95">Batal</button>
+        <button type="button" id="btnKonfirmasiRombongan" class="min-w-[12rem] flex-1 rounded-2xl bg-[linear-gradient(135deg,#e8c547,#d4af37)] py-4 text-lg font-extrabold tracking-wide text-bronze-deep shadow-[0_1rem_2.5rem_-0.875rem_rgba(212,175,55,.8)] transition-all active:scale-95">Lanjutkan &amp; Cetak</button>
       </div>
     </div>
   </div>
 
-  <!-- ==================== MODAL TIKET (FIXED TOP LAYER) ==================== -->
+  <!-- ==================== MODAL TIKET ==================== -->
   <div id="overlayTiket" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-auto bg-bronze-ink/95 px-10 py-10 text-center backdrop-blur-md">
     <div class="flex w-full max-w-[56rem] flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-10 py-7 shadow-[0_2.5rem_6.25rem_-1.875rem_rgba(0,0,0,.9)]">
       <p id="ticket-title" class="font-serif text-base font-bold uppercase tracking-[0.24em] text-gold-light">Nomor antrean Anda</p>
@@ -334,9 +308,7 @@
     </div>
   </div>
 
-  <!-- =========================================================================
-       AREA STRUK CETAK (TIKET FISIK)
-       ========================================================================= -->
+  <!-- AREA STRUK -->
   <div id="areaStruk">
     <div class="struk-kop-instansi">
       Kementerian Haji dan Umrah RI<br>
@@ -360,9 +332,37 @@ import {
   getDatabase, ref, push, set, runTransaction, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-try {
-  lucide.createIcons();
-} catch (e) { console.error("Lucide Error:", e); }
+try { lucide.createIcons(); } catch (e) { console.error("Lucide Error:", e); }
+
+/* =========================================================================
+   FITUR SEMBUNYIKAN KURSOR SAAT DISENTUH (TOUCH MODE)
+   ========================================================================= */
+let kursorTersembunyi = false;
+
+document.addEventListener('touchstart', function() {
+  if (!kursorTersembunyi) {
+    let styleEl = document.getElementById('hideCursorStyle');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'hideCursorStyle';
+      styleEl.innerHTML = '* { cursor: none !important; }';
+      document.head.appendChild(styleEl);
+    }
+    kursorTersembunyi = true;
+  }
+}, {passive: true});
+
+document.addEventListener('mousemove', function(e) {
+  // Hanya kembalikan kursor jika mouse benar-benar digeser (Bukan false trigger sentuhan)
+  if (e.movementX === 0 && e.movementY === 0) return;
+  
+  if (kursorTersembunyi) {
+    const styleEl = document.getElementById('hideCursorStyle');
+    if (styleEl) styleEl.remove();
+    kursorTersembunyi = false;
+  }
+}, {passive: true});
+/* ========================================================================= */
 
 const el = {
   btnV: document.getElementById('btnAmbilVerifikasi'),
@@ -443,7 +443,6 @@ function bukaModalRombongan(kategori){
   }
 }
 
-// Event listener standard untuk klik
 if(el.btnV) el.btnV.addEventListener('click', () => bukaModalRombongan('A'));
 if(el.btnI) el.btnI.addEventListener('click', () => bukaModalRombongan('B'));
 
