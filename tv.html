@@ -98,11 +98,11 @@
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
       <div class="h-full relative overflow-hidden shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
-        <!-- Video Element - Source akan diinjeksi via JavaScript -->
         <video id="localVideoPlayer" autoplay preload="auto" class="absolute inset-0 h-full w-full object-cover hidden" playsinline muted style="border-radius: 1.8rem;"></video>
         
-        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
-          <p class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
+        <!-- Wadah Radar Error dan Placeholder -->
+        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
+          <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
       </div>
     </div>
@@ -187,6 +187,7 @@ const el = {
   highlightLoket: document.getElementById('highlightLoket'),
   highlightNomor: document.getElementById('highlightNomor'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
+  teksPlaceholderVideo: document.getElementById('teksPlaceholderVideo'),
   tvBody: document.getElementById('tvBody'),
   videoPlayer: document.getElementById('localVideoPlayer') 
 };
@@ -226,15 +227,24 @@ function perbaruiJam(){
 }
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
+
+/* =========================================================================
+   PERBAIKAN TOTAL SISTEM VIDEO (ALAMAT ABSOLUT & RADAR ERROR)
+   ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
+let batasTungguError = null;
 const VOLUME_NORMAL = 0.85; 
 const VOLUME_MENGECIL = 0.10; 
 
 function putarVideoSekarang() {
+  clearTimeout(batasTungguError);
+
   if (playlistVideo.length === 0) {
     el.videoPlayer.style.display = 'none';
     el.videoPlaceholder.style.display = 'flex';
+    el.teksPlaceholderVideo.innerHTML = 'Playlist Kosong';
+    el.teksPlaceholderVideo.style.color = 'rgba(245,238,224,0.3)';
     el.videoPlayer.pause();
     return;
   }
@@ -242,8 +252,12 @@ function putarVideoSekarang() {
   el.videoPlaceholder.style.display = 'none';
   el.videoPlayer.style.display = 'block';
   
-  // PERBAIKAN: Gunakan innerHTML tag <source> agar TV mengenali format MP4
-  el.videoPlayer.innerHTML = '<source src="' + playlistVideo[indeksVideoSekarang] + '" type="video/mp4">';
+  // 1. MEMBUAT URL MUTLAK (Mencegah TV tersesat)
+  let namaFileUtuh = playlistVideo[indeksVideoSekarang].trim();
+  // encodeURIComponent memastikan spasi/simbol aneh diubah menjadi format web yang benar
+  let urlTV = "https://kemenhajjember-ship-it.github.io/SIMANTRI-V2/" + encodeURIComponent(namaFileUtuh);
+  
+  el.videoPlayer.src = urlTV;
   el.videoPlayer.load();
   
   if (suaraDiizinkan) { el.videoPlayer.muted = false; }
@@ -252,6 +266,37 @@ function putarVideoSekarang() {
     el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user:", e));
   }, 250);
 }
+
+// 2. RADAR ERROR: Mencetak masalah ke layar TV agar kita tahu apa yang salah
+el.videoPlayer.addEventListener('error', function(e) {
+  let pesanDetail = "Kesalahan Tidak Diketahui";
+  if (el.videoPlayer.error) {
+    switch (el.videoPlayer.error.code) {
+      case 1: pesanDetail = "Proses Dibatalkan oleh TV"; break;
+      case 2: pesanDetail = "Masalah Jaringan (Gagal Download)"; break;
+      case 3: pesanDetail = "Format Video Tidak Didukung oleh Samsung (Gunakan codec H.264 asli)"; break;
+      case 4: pesanDetail = "Video Tidak Ditemukan di GitHub (404) / Tunggu GitHub Update 3 Menit"; break;
+    }
+  }
+
+  el.videoPlayer.style.display = 'none';
+  el.videoPlaceholder.style.display = 'flex';
+  
+  // Menampilkan tulisan merah di kotak video
+  el.teksPlaceholderVideo.innerHTML = `
+    <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">GAGAL MEMUTAR VIDEO:</span><br>
+    <span style="color: #f5eee0; font-size: 1rem;">${playlistVideo[indeksVideoSekarang]}</span><br>
+    <span style="color: #fbbf24; font-size: 0.85rem; font-weight: normal; margin-top: 8px; display: block;">${pesanDetail}</span>
+  `;
+
+  // Lewati ke video selanjutnya secara otomatis setelah 6 detik
+  batasTungguError = setTimeout(() => {
+    if (playlistVideo.length > 0) {
+      indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
+      putarVideoSekarang();
+    }
+  }, 6000);
+});
 
 el.videoPlayer.addEventListener('ended', () => {
   if (playlistVideo.length > 0) {
@@ -275,6 +320,9 @@ db.ref('pengaturan/playlist_video').on('value', (snap) => {
 function redamSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; }
 function pulihkanSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_NORMAL; }
 
+/* =========================================================================
+   SISA LOGIKA (PANGGILAN, LOKET, DLL) TETAP AMAN DI BAWAH INI
+   ========================================================================= */
 let suaraDiizinkan = false;
 let konteksAudio = null;
 
