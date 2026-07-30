@@ -335,11 +335,19 @@ import {
 try { lucide.createIcons(); } catch (e) { console.error("Lucide Error:", e); }
 
 /* =========================================================================
-   FITUR SEMBUNYIKAN KURSOR SAAT DISENTUH (TOUCH MODE)
+   FITUR SEMBUNYIKAN KURSOR SAAT DISENTUH (ANTI-GHOST TOUCH)
    ========================================================================= */
 let kursorTersembunyi = false;
+let abaikanMouse = false;
+let timerAbaikan = null;
 
 document.addEventListener('touchstart', function() {
+  // Tandai bahwa ini murni sentuhan jari
+  abaikanMouse = true;
+  clearTimeout(timerAbaikan);
+  // Abaikan event mouse palsu selama 1 detik setelah layar disentuh
+  timerAbaikan = setTimeout(() => { abaikanMouse = false; }, 1000);
+
   if (!kursorTersembunyi) {
     let styleEl = document.getElementById('hideCursorStyle');
     if (!styleEl) {
@@ -353,13 +361,16 @@ document.addEventListener('touchstart', function() {
 }, {passive: true});
 
 document.addEventListener('mousemove', function(e) {
-  // Hanya kembalikan kursor jika mouse benar-benar digeser (Bukan false trigger sentuhan)
-  if (e.movementX === 0 && e.movementY === 0) return;
+  // Jika event mouse ini berasal dari efek samping sentuhan jari, abaikan!
+  if (abaikanMouse) return;
   
-  if (kursorTersembunyi) {
-    const styleEl = document.getElementById('hideCursorStyle');
-    if (styleEl) styleEl.remove();
-    kursorTersembunyi = false;
+  // Hanya kembalikan kursor jika mouse fisik benar-benar digeser
+  if (Math.abs(e.movementX) > 0 || Math.abs(e.movementY) > 0) {
+    if (kursorTersembunyi) {
+      const styleEl = document.getElementById('hideCursorStyle');
+      if (styleEl) styleEl.remove();
+      kursorTersembunyi = false;
+    }
   }
 }, {passive: true});
 /* ========================================================================= */
