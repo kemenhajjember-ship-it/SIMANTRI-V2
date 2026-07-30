@@ -468,7 +468,6 @@
               </div>
             </div>
             
-            <!-- PERUBAHAN BESAR: SISTEM MANAJEMEN PLAYLIST VIDEO -->
             <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)]">
               <div class="flex items-start gap-3 px-6 py-5">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="monitor-play" class="h-5 w-5"></i></span>
@@ -479,7 +478,6 @@
               </div>
               <div class="flex flex-1 flex-col gap-5 border-t border-border/60 px-6 py-5">
                 
-                <!-- Input Teks Berjalan -->
                 <div class="flex flex-col gap-2">
                   <label for="aturTeksBerjalan" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Teks Berjalan (Ticker)</label>
                   <textarea id="aturTeksBerjalan" rows="2" maxlength="240" placeholder="Contoh: Selamat datang di Kementerian Haji dan Umrah." class="w-full resize-none rounded-xl bg-cream/70 px-4 py-3 text-sm leading-relaxed text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50"></textarea>
@@ -491,17 +489,14 @@
 
                 <div class="h-px w-full bg-border/60"></div>
                 
-                <!-- Area Manajemen Playlist -->
                 <div class="flex flex-col gap-3">
                   <label class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Playlist Video Offline (MP4)</label>
                   
-                  <!-- Daftar Playlist -->
                   <div class="flex flex-col gap-2 rounded-xl border border-border bg-cream/30 p-3 min-h-[5rem] max-h-[12rem] overflow-y-auto" id="wadahPlaylist">
                     <p class="text-[11px] font-medium text-muted-foreground text-center py-4" id="playlistKosong">Belum ada video di playlist.</p>
                     <ul id="daftarPlaylist" class="flex flex-col gap-2"></ul>
                   </div>
 
-                  <!-- Input Tambah Video Baru -->
                   <div class="flex gap-2">
                     <input type="text" id="inputNamaVideo" placeholder="Contoh: video-profil.mp4" class="w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-bronze-dark placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
                     <button type="button" id="btnTambahVideo" class="shrink-0 rounded-xl bg-bronze-dark px-4 py-2.5 text-xs font-bold text-cream hover:bg-bronze transition-colors shadow-sm"><i data-lucide="plus" class="h-4 w-4"></i></button>
@@ -622,6 +617,35 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// =========================================================================
+// PERBAIKAN 2: AUTO-RESET ANTREAN DI AWAL HARI
+// =========================================================================
+const TANGGAL_HARI_INI = new Date().toLocaleDateString('id-ID');
+const refTanggal = ref(db, 'pengaturan/tanggal_terakhir');
+
+get(refTanggal).then(async (snap) => {
+  if (!snap.exists()) {
+    set(refTanggal, TANGGAL_HARI_INI);
+  } else if (snap.val() !== TANGGAL_HARI_INI) {
+    try {
+      await Promise.all([ 
+        remove(ref(db, 'counter_nomor')), 
+        remove(ref(db, 'antrean_menunggu')), 
+        remove(ref(db, 'antrean_biometrik')), 
+        remove(ref(db, 'status_loket')), 
+        remove(ref(db, 'panggilan_aktif')), 
+        set(ref(db, 'kapasitas_biometrik/saat_ini'), 0),
+        set(refTanggal, TANGGAL_HARI_INI)
+      ]);
+      await catatAktivitas('SISTEM', 'Reset', 'Sistem mereset antrean otomatis karena berganti hari.');
+      tampilkanAlert('Hari Baru Dimulai', 'Antrean hari kemarin telah direset secara otomatis. Sistem siap digunakan untuk pelayanan hari ini.');
+    } catch(e) {
+      console.error("Gagal Auto-Reset", e);
+    }
+  }
+});
+// =========================================================================
+
 const KONFIGURASI_PERAN = {
   loket1: { nama: "Loket 1", kategori: "A", bisaTeruskanBiometrik: true },
   loket2: { nama: "Loket 2", kategori: "B", bisaTeruskanBiometrik: false },
@@ -715,9 +739,21 @@ function tampilkanAlert(judul, pesan){
 }
 el.btnTutupAlert.addEventListener('click', () => { el.overlayAlert.classList.add('hidden'); el.overlayAlert.classList.remove('flex'); });
 
+// =========================================================================
+// PERBAIKAN 1: SINTAKS LOG PENCATATAN AKTIVITAS YANG LEBIH AMAN
+// =========================================================================
 async function catatAktivitas(nomor, aksi, catatan){
-  const logRef = push(ref(db, 'log_aktivitas'));
-  await set(logRef, { nomor, aksi, catatan, waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), timestamp: serverTimestamp() });
+  try {
+    await push(ref(db, 'log_aktivitas'), { 
+      nomor: nomor, 
+      aksi: aksi, 
+      catatan: catatan, 
+      waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), 
+      timestamp: serverTimestamp() 
+    });
+  } catch(e) {
+    console.error("Gagal mencatat log", e);
+  }
 }
 
 const IKON_AKSI = { Selesai:'check', Biometrik:'fingerprint', Panggil:'phone-call' };
@@ -875,14 +911,17 @@ el.btnPanggilSelanjutnya.addEventListener('click', async () => {
     const payloadPanggilan = { nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang || 1, sedangDilayani: true, timestamp: serverTimestamp() };
     await set(ref(db, 'panggilan_aktif'), payloadPanggilan);
     await set(ref(db, `status_loket/${peranAktif}`), payloadPanggilan);
+    
     nomorSedangDilayani = { nomor: tiket.nomor, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang || 1 };
     el.nomorSedangDilayaniEl.textContent = tiket.nomor;
     el.infoWaktuPanggil.textContent = `Dipanggil ${new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' })}`;
     aturKunciLoket(true);
-    catatAktivitas(tiket.nomor, 'Panggil', `Dipanggil ke ${konfig.nama}`);
+    
+    await catatAktivitas(tiket.nomor, 'Panggil', `Dipanggil ke ${konfig.nama}`);
   } catch (err) {
     console.error(err);
     tampilkanAlert('Gagal', 'Tidak dapat memanggil antrean. Cek konfigurasi Firebase.');
+  } finally {
     el.btnPanggilSelanjutnya.disabled = false;
   }
 });
@@ -893,10 +932,10 @@ el.btnUlangiPengumuman.addEventListener('click', async () => {
   await set(ref(db, 'panggilan_aktif'), { nomor: nomorSedangDilayani.nomor, loket: konfig.nama, kategori: konfig.kategori, timestamp: serverTimestamp() });
 });
 
-el.btnSelesaiTanpaBiometrik.addEventListener('click', () => {
+el.btnSelesaiTanpaBiometrik.addEventListener('click', async () => {
   el.pesanLoket.textContent = `Layanan untuk ${nomorSedangDilayani?.nomor || '-'} telah selesai.`;
   statSelesai++; el.statSelesai.textContent = statSelesai;
-  catatAktivitas(nomorSedangDilayani?.nomor || '-', 'Selesai', 'Layanan selesai tanpa biometrik');
+  await catatAktivitas(nomorSedangDilayani?.nomor || '-', 'Selesai', 'Layanan selesai tanpa biometrik');
   resetSetelahSelesai();
 });
 
@@ -922,16 +961,32 @@ el.btnBatalKonfirmasiBiometrik.addEventListener('click', () => { el.overlayKonfi
 el.btnOkKonfirmasiBiometrik.addEventListener('click', async () => {
   if (!nomorSedangDilayani || !peranAktif) return;
   const konfig = KONFIGURASI_PERAN[peranAktif];
+  el.btnOkKonfirmasiBiometrik.disabled = true;
+  el.btnOkKonfirmasiBiometrik.textContent = 'Memproses...';
+  
   try {
-    const entriBaruRef = push(ref(db, 'antrean_biometrik'));
-    await set(entriBaruRef, { nomorAsal: nomorSedangDilayani.nomor, asalLoket: konfig.nama, jumlahOrang: angkaModalBiometrik, timestamp: serverTimestamp() });
-    el.overlayKonfirmasiBiometrik.classList.add('hidden'); el.overlayKonfirmasiBiometrik.classList.remove('flex');
+    // SINTAKS PUSH YANG LEBIH AMAN (Bebas Error)
+    await push(ref(db, 'antrean_biometrik'), { 
+      nomorAsal: nomorSedangDilayani.nomor, 
+      asalLoket: konfig.nama, 
+      jumlahOrang: angkaModalBiometrik, 
+      timestamp: serverTimestamp() 
+    });
+    
+    el.overlayKonfirmasiBiometrik.classList.add('hidden'); 
+    el.overlayKonfirmasiBiometrik.classList.remove('flex');
     el.pesanLoket.textContent = `Rombongan ${nomorSedangDilayani.nomor} (${angkaModalBiometrik} orang) diteruskan ke Ruang Biometrik.`;
-    statBiometrik++; el.statBiometrik.textContent = statBiometrik;
-    catatAktivitas(nomorSedangDilayani.nomor, 'Biometrik', `Diteruskan ke Ruang Biometrik (${angkaModalBiometrik} orang)`);
+    statBiometrik++; 
+    el.statBiometrik.textContent = statBiometrik;
+    
+    await catatAktivitas(nomorSedangDilayani.nomor, 'Biometrik', `Diteruskan ke Ruang Biometrik (${angkaModalBiometrik} orang)`);
     resetSetelahSelesai();
   } catch (err) {
-    console.error(err); tampilkanAlert('Gagal', 'Tidak dapat meneruskan ke Biometrik.');
+    console.error(err); 
+    tampilkanAlert('Gagal', 'Tidak dapat meneruskan ke Biometrik. Cek koneksi Anda.');
+  } finally {
+    el.btnOkKonfirmasiBiometrik.disabled = false;
+    el.btnOkKonfirmasiBiometrik.textContent = 'OK, Teruskan';
   }
 });
 
@@ -963,7 +1018,7 @@ el.btnPanggilBiometrik.addEventListener('click', async () => {
     nomorBiometrikAktif = rombongan.nomorAsal;
     el.biometrikNomorTampil.textContent = `${rombongan.nomorAsal} (${rombongan.jumlahOrang} org)`;
     el.btnPanggilUlangBiometrik.disabled = false;
-    catatAktivitas(rombongan.nomorAsal, 'Panggil', `Dipanggil ke Ruang Biometrik (${rombongan.jumlahOrang} orang)`);
+    await catatAktivitas(rombongan.nomorAsal, 'Panggil', `Dipanggil ke Ruang Biometrik (${rombongan.jumlahOrang} orang)`);
   } catch (err) { console.error(err); el.pesanBiometrik.textContent = 'Gagal memanggil rombongan.'; } finally { el.btnPanggilBiometrik.disabled = false; }
 });
 
@@ -1188,9 +1243,6 @@ if (elAudio.volume) {
   });
 }
 
-// =========================================================================
-// SISTEM MANAJEMEN TAMPILAN & PLAYLIST VIDEO OFFLINE
-// =========================================================================
 let playlistVideo = [];
 
 const elPlaylist = {
@@ -1204,7 +1256,6 @@ const elPlaylist = {
   btnSimpanTicker: document.getElementById('btnSimpanTicker')
 };
 
-// 1. Render UI Daftar Playlist
 function renderPlaylist() {
   if (playlistVideo.length === 0) {
     elPlaylist.kosong.style.display = 'block';
@@ -1227,9 +1278,7 @@ function renderPlaylist() {
   }
 }
 
-// 2. Fungsi Menghapus Video
 window.hapusVideo = async function(idx) {
-  const videoDihapus = playlistVideo[idx];
   playlistVideo.splice(idx, 1);
   renderPlaylist();
   try {
@@ -1240,7 +1289,6 @@ window.hapusVideo = async function(idx) {
   }
 };
 
-// 3. Fungsi Menambah Video Baru
 elPlaylist.btnTambah.addEventListener('click', async () => {
   const namaFile = elPlaylist.input.value.trim();
   if (!namaFile) return;
@@ -1262,7 +1310,6 @@ elPlaylist.btnTambah.addEventListener('click', async () => {
   }
 });
 
-// Fitur Enter untuk input video
 elPlaylist.input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -1270,7 +1317,6 @@ elPlaylist.input.addEventListener('keydown', (e) => {
   }
 });
 
-// 4. Dengarkan Perubahan Playlist dari Firebase
 onValue(ref(db, 'pengaturan/playlist_video'), (snap) => {
   if (snap.exists()) {
     playlistVideo = snap.val() || [];
@@ -1280,20 +1326,17 @@ onValue(ref(db, 'pengaturan/playlist_video'), (snap) => {
   renderPlaylist();
 });
 
-// 5. Manajemen Ticker Teks Berjalan
 function perbaruiTampilanTicker() { 
   const teks = elPlaylist.ticker.value; 
   elPlaylist.counter.textContent = teks.length; 
 }
 elPlaylist.ticker.addEventListener('input', perbaruiTampilanTicker);
 
-// Ambil Ticker saat ini dari Firebase
 get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => {
   if(s.exists()) elPlaylist.ticker.value = s.val();
   perbaruiTampilanTicker();
 });
 
-// Simpan Ticker baru ke Firebase
 elPlaylist.btnSimpanTicker.addEventListener('click', async () => {
   try { 
     await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elPlaylist.ticker.value);
