@@ -5,43 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMANTRI — Layar Ruang Tunggu</title>
 
-<!-- LIBRARY SUARA PREMIUM -->
-<script src="https://code.responsivevoice.org/responsivevoice.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          bronze: '#2b1b10',
-          'bronze-raised': '#3d2817',
-          'bronze-ink': '#1b1008',
-          gold: '#e8c547',
-          'gold-deep': '#d4af37',
-          cream: '#f5eee0',
-          border: '#6b4e2a',
-        },
-        fontFamily: {
-          sans: ['Manrope', 'sans-serif'],
-          mono: ['"Courier New"', 'monospace'],
-        },
-      },
-    },
-  };
-</script>
+<!-- MENGGUNAKAN CSS STATIS MURNI UNTUK TV (ANTI-ERROR) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
-<!-- ICON -->
+<script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-  :root {
-    --glow-gold: rgba(232, 197, 71, 0.55);
-    --bg-active: linear-gradient(145deg, #4a3320 0%, #2b1b10 100%);
-    --bg-selesai: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%);
-  }
-  html,body{ width: 100%; height: 100%; margin:0; overflow:hidden; }
-  body{ font-variant-numeric: tabular-nums; }
-
   /* Animasi Kilat untuk Panggilan Aktif */
   @keyframes card-pulse {
     0%, 100% { box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 0 0 1px #d4af37, 0 0 30px rgba(212,175,55,0.2); }
@@ -49,7 +19,7 @@
   }
   .card-active { animation: card-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; }
   
-  .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: var(--bg-selesai) !important; border-color: #22c55e !important; opacity: 0.95; }
+  .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%) !important; border-color: #22c55e !important; opacity: 0.95; }
   
   @keyframes pop-bounce { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
   .animate-pop { animation: pop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
@@ -65,121 +35,126 @@
     white-space:nowrap; 
     animation: ticker-scroll 25s linear infinite; 
   }
+
+  /* Kunci Gaya Global */
+  body { font-variant-numeric: tabular-nums; font-family: 'Manrope', sans-serif; background-color: #2b1b10; color: #f5eee0; }
+  .font-mono { font-family: 'Courier New', monospace; }
+  .font-sans { font-family: 'Manrope', sans-serif; }
+  .hover-bg-gold:hover { background-color: #d4af37 !important; transform: scale(1.05); }
+  .active-scale:active { transform: scale(0.95); }
 </style>
 </head>
-<body id="tvBody" class="relative flex w-full flex-col overflow-hidden bg-bronze font-sans text-cream" style="height: 100vh;">
+<body id="tvBody" class="relative flex w-full flex-col overflow-hidden" style="height: 100vh;">
 
-  <!-- EFEK DEKORASI LATAR BELAKANG TV (Halus & Elegan) -->
+  <!-- EFEK DEKORASI LATAR BELAKANG TV -->
   <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-20">
-    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#1b1008_80%)]"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, transparent 30%, #1b1008 80%);"></div>
   </div>
 
   <!-- OVERLAY AKTIVASI -->
-  <div id="overlayAktifkan" class="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-black/95">
-    <p class="font-sans text-3xl font-extrabold uppercase tracking-[0.1em] text-gold">SIMANTRI — Layar Ruang Tunggu</p>
-    <button id="btnAktifkan" type="button" class="animate-bounce rounded-full bg-gold px-12 py-5 text-xl font-extrabold text-bronze shadow-[0_0_40px_rgba(232,197,71,0.4)] transition-transform active:scale-95 hover:scale-105 hover:bg-gold-deep">
+  <div id="overlayAktifkan" class="fixed inset-0 flex flex-col items-center justify-center" style="z-index: 100; gap: 1.5rem; background-color: rgba(0,0,0,0.95);">
+    <p class="font-sans text-3xl font-extrabold uppercase" style="letter-spacing: 0.1em; color: #e8c547;">SIMANTRI — Layar Ruang Tunggu</p>
+    <button id="btnAktifkan" type="button" class="animate-bounce rounded-full px-12 py-5 text-xl font-extrabold transition-transform hover-bg-gold active-scale" style="background-color: #e8c547; color: #2b1b10; box-shadow: 0 0 40px rgba(232,197,71,0.4);">
       🔊 Klik Untuk Mengaktifkan Layar &amp; Suara
     </button>
   </div>
 
   <!-- HEADER -->
-  <header class="relative z-10 shrink-0 flex items-center justify-between gap-3 border-b border-gold/20 bg-black/30 px-6 py-3 lg:py-4 shadow-md md:px-8 backdrop-blur-sm">
-    <div class="flex items-center gap-3 lg:gap-4 min-w-0">
-      <img src="logo.png" alt="Logo" class="h-10 w-10 lg:h-14 lg:w-14 rounded-full border border-gold/70 object-cover shadow-md shrink-0">
+  <header class="relative z-10 flex items-center justify-between px-6 py-3 shadow-md md:px-8" style="border-bottom: 1px solid rgba(232,197,71,0.2); background-color: rgba(0,0,0,0.3); backdrop-filter: blur(4px); flex-shrink: 0;">
+    <div class="flex items-center gap-3 min-w-0" style="gap: 1rem;">
+      <img src="logo.png" alt="Logo" class="h-10 w-10 lg:h-14 lg:w-14 rounded-full object-cover shadow-md shrink-0" style="border: 1px solid rgba(232,197,71,0.7);">
       <div class="text-left min-w-0">
-        <h1 class="font-sans text-lg md:text-xl lg:text-3xl font-extrabold uppercase leading-none tracking-widest text-gold truncate">
-          SIMANTRI <span class="hidden sm:inline text-cream/60">&mdash; RUANG TUNGGU</span>
+        <h1 class="font-sans text-lg md:text-xl lg:text-3xl font-extrabold uppercase leading-none truncate" style="letter-spacing: 0.1em; color: #e8c547;">
+          SIMANTRI <span class="hidden sm:inline" style="color: rgba(245,238,224,0.6);">&mdash; RUANG TUNGGU</span>
         </h1>
-        <p class="mt-1 font-sans text-[8px] lg:text-[11px] xl:text-xs font-semibold uppercase tracking-[0.15em] text-cream/70 truncate">
+        <p class="mt-1 font-sans font-semibold uppercase truncate" style="font-size: 11px; letter-spacing: 0.15em; color: rgba(245,238,224,0.7);">
           Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
         </p>
       </div>
     </div>
     <div class="text-right shrink-0">
-      <p id="tvJam" class="font-mono text-2xl md:text-3xl lg:text-4xl font-extrabold leading-none tracking-tight text-gold drop-shadow-md">00:00:00</p>
-      <p id="tvTanggal" class="mt-1 font-sans text-[8px] lg:text-[10px] xl:text-xs font-bold uppercase tracking-[0.2em] text-cream/70"></p>
+      <p id="tvJam" class="font-mono text-2xl md:text-3xl lg:text-4xl font-extrabold leading-none drop-shadow-md" style="letter-spacing: -0.05em; color: #e8c547;">00:00:00</p>
+      <p id="tvTanggal" class="mt-1 font-sans font-bold uppercase" style="font-size: 10px; letter-spacing: 0.2em; color: rgba(245,238,224,0.7);"></p>
     </div>
   </header>
 
   <!-- MAIN KONTEN -->
-  <main class="relative z-10 flex-1 flex flex-col min-h-0 gap-3 p-3 lg:gap-4 lg:p-4">
+  <main class="relative z-10 flex-1 flex flex-col min-h-0 p-3 lg:p-4" style="gap: 1rem;">
     
-    <div class="flex-1 flex gap-3 lg:gap-4 min-h-0 w-full">
+    <div class="flex-1 flex min-h-0 w-full" style="gap: 1rem;">
       
-      <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) - DESAIN HOLOGRAM DIGITAL -->
-      <div id="boxHighlight" class="w-[49%] relative flex flex-col items-center justify-center rounded-[2rem] bg-gradient-to-br from-[#1b1008] via-[#23150d] to-[#1b1008] border border-gold/30 p-4 lg:p-6 text-center shadow-[inset_0_0_60px_rgba(212,175,55,0.05),0_15px_30px_rgba(0,0,0,0.6)] transition-all duration-500 overflow-hidden shrink-0">
+      <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) -->
+      <div id="boxHighlight" class="relative flex flex-col items-center justify-center p-4 lg:p-6 text-center transition-all duration-500 overflow-hidden shrink-0" style="width: 49%; border-radius: 2rem; background: linear-gradient(to bottom right, #1b1008, #23150d, #1b1008); border: 1px solid rgba(232,197,71,0.3); box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 15px 30px rgba(0,0,0,0.6);">
         
-        <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full bg-gold-light/10 blur-[60px] pointer-events-none"></div>
-        <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-gold-deep/10 blur-[60px] pointer-events-none"></div>
+        <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(232,197,71,0.1); filter: blur(60px);"></div>
+        <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(212,175,55,0.1); filter: blur(60px);"></div>
+        <div class="absolute left-0 top-1/4 bottom-1/4 rounded-r-full" style="width: 6px; background: linear-gradient(to bottom, transparent, rgba(232,197,71,0.8), transparent);"></div>
 
-        <div class="absolute left-0 top-1/4 bottom-1/4 w-1.5 rounded-r-full bg-gradient-to-b from-transparent via-gold/80 to-transparent"></div>
+        <i data-lucide="megaphone" class="absolute -bottom-10 -right-10 h-72 w-72 pointer-events-none" style="color: #e8c547; opacity: 0.04; transform: rotate(-12deg);"></i>
 
-        <i data-lucide="megaphone" class="absolute -bottom-10 -right-10 h-72 w-72 text-gold opacity-[0.04] -rotate-12 pointer-events-none"></i>
-
-        <p class="relative z-10 font-sans text-[10px] md:text-xs lg:text-sm font-bold uppercase tracking-[0.3em] text-gold/80 shrink-0">Panggilan Ke</p>
+        <p class="relative z-10 font-sans font-bold uppercase shrink-0" style="font-size: 12px; letter-spacing: 0.3em; color: rgba(232,197,71,0.8);">Panggilan Ke</p>
         
-        <h2 id="highlightLoket" class="relative z-10 mt-2 font-sans text-2xl lg:text-4xl xl:text-[2.5rem] font-extrabold uppercase tracking-widest text-gold leading-tight shrink-0 w-full px-2 break-words whitespace-normal text-center drop-shadow-[0_0_15px_rgba(212,175,55,0.4)]">—</h2>
+        <h2 id="highlightLoket" class="relative z-10 mt-2 font-sans font-extrabold uppercase leading-tight shrink-0 w-full px-2 break-words whitespace-normal text-center" style="font-size: 2.5rem; letter-spacing: 0.1em; color: #e8c547; filter: drop-shadow(0 0 15px rgba(212,175,55,0.4));">—</h2>
         
-        <div class="relative z-10 my-4 lg:my-8 h-[2px] w-3/4 shrink-0 bg-gradient-to-r from-transparent via-gold/40 to-transparent"></div>
+        <div class="relative z-10 my-4 lg:my-8 shrink-0" style="height: 2px; width: 75%; background: linear-gradient(to right, transparent, rgba(232,197,71,0.4), transparent);"></div>
         
-        <p class="relative z-10 font-sans text-[9px] md:text-xs lg:text-sm font-semibold uppercase tracking-[0.4em] text-cream/60 shrink-0">Nomor Antrean</p>
+        <p class="relative z-10 font-sans font-semibold uppercase shrink-0" style="font-size: 12px; letter-spacing: 0.4em; color: rgba(245,238,224,0.6);">Nomor Antrean</p>
         
-        <p id="highlightNomor" class="relative z-10 mt-2 font-mono text-5xl md:text-6xl lg:text-7xl xl:text-[8rem] font-black leading-none tracking-tighter text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] shrink-0">---</p>
+        <p id="highlightNomor" class="relative z-10 mt-2 font-mono font-black leading-none text-white shrink-0" style="font-size: 8rem; letter-spacing: -0.05em; filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));">---</p>
       </div>
 
-      <!-- PERUBAHAN: KOTAK KANAN (PEMUTAR VIDEO OFFLINE / MP4) -->
-      <div class="w-[51%] h-full relative overflow-hidden rounded-[2rem] bg-[#110a05] border border-gold/20 shadow-[0_15px_30px_rgba(0,0,0,0.6)] shrink-0">
+      <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
+      <div class="h-full relative overflow-hidden shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
-        <!-- Elemen Video HTML5 Bawaan -->
-        <video id="localVideoPlayer" class="absolute inset-0 h-full w-full object-cover rounded-[1.8rem] hidden" playsinline muted></video>
+        <video id="localVideoPlayer" class="absolute inset-0 h-full w-full object-cover hidden" playsinline muted style="border-radius: 1.8rem;"></video>
         
-        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center bg-black text-cream/30 z-10 rounded-[1.8rem]">
-          <i data-lucide="video-off" class="h-10 w-10 mb-2 opacity-50 lg:h-14 lg:w-14"></i>
-          <p class="font-sans text-[10px] lg:text-xs font-semibold tracking-widest uppercase">Playlist Kosong</p>
+        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
+          <i data-lucide="video-off" class="h-10 w-10 mb-2 lg:h-14 lg:w-14" style="opacity: 0.5;"></i>
+          <p class="font-sans font-semibold uppercase" style="font-size: 10px; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
       </div>
     </div>
 
     <!-- BARIS BAWAH: Grid 5 Loket -->
-    <section aria-label="Nomor antrean per loket" class="shrink-0 grid h-[20vh] min-h-[8rem] grid-cols-5 gap-3 lg:gap-4">
+    <section aria-label="Nomor antrean per loket" class="shrink-0 grid" style="grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1rem; height: 20vh; min-height: 8rem;">
       <!-- Kartu di-generate JS -->
     </section>
   </main>
 
   <template id="templateKartuLoket">
-    <article class="relative flex h-full flex-col items-center justify-between rounded-xl lg:rounded-2xl bg-[#23150d] border border-gold/10 px-2 py-2 text-center shadow-lg transition-all duration-500 min-h-0 overflow-hidden">
+    <article class="relative flex h-full flex-col items-center justify-between px-2 py-2 text-center shadow-lg transition-all duration-500 overflow-hidden" style="border-radius: 1rem; background-color: #23150d; border: 1px solid rgba(232,197,71,0.1); min-height: 0;">
       
-      <header class="relative z-10 w-full border-b border-gold/20 pb-1.5 shrink-0">
-        <h2 class="nama-loket font-sans text-[9px] font-extrabold uppercase leading-tight tracking-[0.2em] text-cream lg:text-[13px] break-words whitespace-normal text-center drop-shadow-sm"></h2>
+      <header class="relative z-10 w-full pb-1 shrink-0" style="border-bottom: 1px solid rgba(232,197,71,0.2);">
+        <h2 class="nama-loket font-sans font-extrabold uppercase leading-tight break-words whitespace-normal text-center" style="font-size: 11px; letter-spacing: 0.2em; color: #f5eee0; text-shadow: 0 1px 2px rgba(0,0,0,0.5);"></h2>
       </header>
       
-      <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center gap-0.5 min-h-0">
-        <p class="label-seri font-sans text-[8px] font-bold uppercase leading-none tracking-[0.3em] text-gold/80 lg:text-[10px]"></p>
-        <p class="nomor-tampil font-mono text-2xl font-bold leading-none tracking-tight text-gold-deep lg:text-4xl drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]"></p>
+      <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center min-h-0" style="gap: 0.125rem;">
+        <p class="label-seri font-sans font-bold uppercase leading-none" style="font-size: 9px; letter-spacing: 0.3em; color: rgba(232,197,71,0.8);"></p>
+        <p class="nomor-tampil font-mono font-bold leading-none" style="font-size: 2.25rem; letter-spacing: -0.025em; color: rgba(245,238,224,0.2); filter: drop-shadow(0 0 10px rgba(212,175,55,0.3));"></p>
       </div>
 
       <div class="relative z-10 container-selesai hidden flex-1 flex-col items-center justify-center min-h-0">
-        <div class="lingkaran-ikon rounded-full bg-green-500/20 p-2 opacity-0 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-          <i data-lucide="check-circle-2" class="h-6 w-6 text-green-500 lg:h-10 lg:w-10"></i>
+        <div class="lingkaran-ikon rounded-full p-2 opacity-0" style="background-color: rgba(34,197,94,0.2); box-shadow: 0 0 15px rgba(34,197,94,0.3);">
+          <i data-lucide="check-circle-2" class="h-8 w-8" style="color: #22c55e;"></i>
         </div>
       </div>
 
-      <footer class="relative z-10 w-full border-t border-gold/20 pt-1 shrink-0 bg-black/20 rounded-b-lg">
-        <p class="label-status font-sans text-[8px] font-bold uppercase tracking-[0.25em] text-cream/45 lg:text-[9px]">TERSEDIA</p>
+      <footer class="relative z-10 w-full pt-1 shrink-0" style="border-top: 1px solid rgba(232,197,71,0.2); background-color: rgba(0,0,0,0.2); border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
+        <p class="label-status font-sans font-bold uppercase" style="font-size: 9px; letter-spacing: 0.25em; color: rgba(245,238,224,0.45);">TERSEDIA</p>
       </footer>
     </article>
   </template>
 
   <!-- TICKER PENGUMUMAN DI DASAR -->
-  <footer class="relative z-10 shrink-0 flex items-center gap-3 bg-gold px-4 py-1.5 shadow-[0_-5px_15px_rgba(0,0,0,0.4)] md:px-6">
-    <div class="flex items-center gap-2 shrink-0 rounded-lg bg-bronze-dark px-3 py-1 shadow-inner bg-bronze-ink">
-      <i data-lucide="megaphone" class="h-4 w-4 text-gold animate-pulse"></i>
-      <p class="font-sans text-[9px] font-extrabold uppercase tracking-[0.2em] text-gold lg:text-[11px]">INFO</p>
+  <footer class="relative z-10 shrink-0 flex items-center px-4 py-1.5 md:px-6" style="gap: 0.75rem; background-color: #e8c547; box-shadow: 0 -5px 15px rgba(0,0,0,0.4);">
+    <div class="flex items-center shrink-0 rounded-lg px-3 py-1" style="gap: 0.5rem; background-color: #1b1008; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+      <i data-lucide="megaphone" class="h-4 w-4 animate-pulse" style="color: #e8c547;"></i>
+      <p class="font-sans font-extrabold uppercase" style="font-size: 10px; letter-spacing: 0.2em; color: #e8c547;">INFO</p>
     </div>
     <div class="relative flex-1 overflow-hidden">
       <div class="ticker-track" id="tickerTrack">
-        <span class="shrink-0 font-sans text-xs font-bold uppercase tracking-[0.1em] text-bronze-ink lg:text-sm" id="tickerTeks1">Memuat antrean…</span>
-        <span class="shrink-0 font-sans text-xs font-bold uppercase tracking-[0.1em] text-bronze-ink lg:text-sm" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
+        <span class="shrink-0 font-sans font-bold uppercase" style="font-size: 14px; letter-spacing: 0.1em; color: #1b1008;" id="tickerTeks1">Memuat antrean…</span>
+        <span class="shrink-0 font-sans font-bold uppercase" style="font-size: 14px; letter-spacing: 0.1em; color: #1b1008; padding-left: 2rem;" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
       </div>
     </div>
   </footer>
@@ -222,7 +197,7 @@ const el = {
   highlightNomor: document.getElementById('highlightNomor'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
   tvBody: document.getElementById('tvBody'),
-  videoPlayer: document.getElementById('localVideoPlayer') // Pemutar Baru
+  videoPlayer: document.getElementById('localVideoPlayer') 
 };
 
 const kartuLoket = {};
@@ -234,7 +209,7 @@ KONFIGURASI_LOKET.forEach(loket => {
   
   node.querySelector('.label-seri').textContent = loket.seri ? `Seri ${loket.seri}` : 'Rombongan';
   node.querySelector('.nomor-tampil').textContent = '---';
-  node.querySelector('.nomor-tampil').classList.add('text-cream/20');
+  node.querySelector('.nomor-tampil').style.color = 'rgba(245,238,224,0.2)';
   
   el.grid.appendChild(node);
   
@@ -261,15 +236,11 @@ function perbaruiJam(){
 }
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
-/* =========================================================================
-   PERUBAHAN: SISTEM PEMUTAR VIDEO PLAYLIST OFFLINE (HTML5)
-   ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
-const VOLUME_NORMAL = 0.85; // 85% untuk HTML5 audio 
-const VOLUME_MENGECIL = 0.10; // 10% saat ada panggilan
+const VOLUME_NORMAL = 0.85; 
+const VOLUME_MENGECIL = 0.10; 
 
-// Fungsi memutar video dalam urutan playlist
 function putarVideoSekarang() {
   if (playlistVideo.length === 0) {
     el.videoPlayer.style.display = 'none';
@@ -280,19 +251,12 @@ function putarVideoSekarang() {
   
   el.videoPlaceholder.style.display = 'none';
   el.videoPlayer.style.display = 'block';
-  
-  // Masukkan nama file (karena berada di folder yang sama di GitHub, cukup panggil namanya)
   el.videoPlayer.src = playlistVideo[indeksVideoSekarang];
   
-  // Jika sudah diklik aktifkan, pastikan suaranya unmuted
-  if (suaraDiizinkan) {
-    el.videoPlayer.muted = false;
-  }
-  
+  if (suaraDiizinkan) { el.videoPlayer.muted = false; }
   el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user untuk play video:", e));
 }
 
-// Saat satu video selesai diputar, lanjut ke video berikutnya
 el.videoPlayer.addEventListener('ended', () => {
   if (playlistVideo.length > 0) {
     indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
@@ -300,36 +264,21 @@ el.videoPlayer.addEventListener('ended', () => {
   }
 });
 
-// Pantau perubahan playlist dari Dasbor Admin
 onValue(ref(db, 'pengaturan/playlist_video'), (snap) => {
   const dataBaru = snap.exists() ? snap.val() : [];
-  
-  // Cek apakah ada perubahan daftar
   const daftarLama = JSON.stringify(playlistVideo);
   const daftarBaru = JSON.stringify(dataBaru);
   
   if (daftarLama !== daftarBaru) {
     playlistVideo = dataBaru;
-    indeksVideoSekarang = 0; // Mulai dari awal jika diupdate
+    indeksVideoSekarang = 0; 
     putarVideoSekarang();
   }
 });
 
-function redamSuaraVideo() {
-  if (el.videoPlayer) {
-    el.videoPlayer.volume = VOLUME_MENGECIL;
-  }
-}
+function redamSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; }
+function pulihkanSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_NORMAL; }
 
-function pulihkanSuaraVideo() {
-  if (el.videoPlayer) {
-    el.videoPlayer.volume = VOLUME_NORMAL;
-  }
-}
-
-/* =========================================================================
-   SISTEM SUARA & KLIK AKTIVASI
-   ========================================================================= */
 let suaraDiizinkan = false;
 let konteksAudio = null;
 
@@ -338,9 +287,7 @@ function ambilKonteksAudio(){
     const AC = window.AudioContext || window.webkitAudioContext;
     konteksAudio = new AC();
   }
-  if (konteksAudio.state === 'suspended') {
-    konteksAudio.resume();
-  }
+  if (konteksAudio.state === 'suspended') konteksAudio.resume();
   return konteksAudio;
 }
 
@@ -356,19 +303,11 @@ function bukaFullScreen() {
 
 el.btnAktifkan.addEventListener('click', () => {
   suaraDiizinkan = true;
-  
   bukaFullScreen();
-
-  el.overlay.classList.add('hidden');
-  el.overlay.classList.remove('flex');
-  
+  el.overlay.style.display = 'none';
   ambilKonteksAudio();
+  if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
   
-  if (typeof responsiveVoice !== 'undefined') {
-    responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
-  }
-  
-  // Paksakan Pemutar Video Lokal untuk Nyala dan Bersuara
   if (playlistVideo.length > 0) {
     el.videoPlayer.muted = false;
     el.videoPlayer.volume = VOLUME_NORMAL;
@@ -376,9 +315,6 @@ el.btnAktifkan.addEventListener('click', () => {
   }
 });
 
-/* =========================================================================
-   SINKRONISASI STATUS GRID BAWAH
-   ========================================================================= */
 KONFIGURASI_LOKET.forEach(loket => {
   onValue(ref(db, `status_loket/${loket.id}`), (snap) => {
     const kartu = kartuLoket[loket.id];
@@ -401,33 +337,32 @@ KONFIGURASI_LOKET.forEach(loket => {
       kartu.sedangDilayani = true;
       kartu.artikel.classList.remove('card-selesai');
       kartu.containerIsi.classList.remove('hidden');
-      kartu.containerIsi.classList.add('flex');
+      kartu.containerIsi.style.display = 'flex';
       kartu.containerSelesai.classList.add('hidden');
-      kartu.containerSelesai.classList.remove('flex');
+      kartu.containerSelesai.style.display = 'none';
       
       kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
       kartu.nomorTampil.textContent = data.nomor;
-      kartu.nomorTampil.classList.remove('text-cream/20');
+      kartu.nomorTampil.style.color = '#d4af37';
       kartu.nomorTampil.style.transform = 'scale(1)'; 
       kartu.labelStatus.textContent = 'SEDANG DILAYANI';
-      kartu.labelStatus.className = 'label-status font-sans text-[8px] font-bold uppercase tracking-[0.2em] text-cream/80 lg:text-[10px]';
+      kartu.labelStatus.style.color = 'rgba(245,238,224,0.8)';
     }
   });
 });
 
 function jalankanAnimasiSelesai(kartu) {
   kartu.sedangDilayani = false;
-  kartu.containerIsi.classList.remove('flex');
-  kartu.containerIsi.classList.add('hidden');
+  kartu.containerIsi.style.display = 'none';
   kartu.containerSelesai.classList.remove('hidden');
-  kartu.containerSelesai.classList.add('flex');
+  kartu.containerSelesai.style.display = 'flex';
   
   kartu.ikonSelesai.classList.remove('animate-pop');
   void kartu.ikonSelesai.offsetWidth; 
   kartu.ikonSelesai.classList.add('animate-pop');
   
   kartu.labelStatus.textContent = 'SELESAI LAYANAN';
-  kartu.labelStatus.className = 'label-status font-sans text-[8px] font-bold uppercase tracking-[0.2em] text-green-400 lg:text-[10px]';
+  kartu.labelStatus.style.color = '#4ade80';
   kartu.artikel.classList.add('card-selesai');
   
   setTimeout(() => { if(!kartu.sedangDilayani) resetTampilanKosong(kartu); }, 3500);
@@ -436,22 +371,19 @@ function jalankanAnimasiSelesai(kartu) {
 function resetTampilanKosong(kartu) {
   kartu.sedangDilayani = false;
   kartu.artikel.classList.remove('card-selesai');
-  kartu.containerSelesai.classList.remove('flex');
+  kartu.containerSelesai.style.display = 'none';
   kartu.containerSelesai.classList.add('hidden');
   kartu.containerIsi.classList.remove('hidden');
-  kartu.containerIsi.classList.add('flex');
+  kartu.containerIsi.style.display = 'flex';
   
   kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
   kartu.nomorTampil.textContent = '---'; 
   kartu.nomorTampil.style.transform = 'scale(1)';
-  kartu.nomorTampil.classList.add('text-cream/20');
+  kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
   kartu.labelStatus.textContent = 'TERSEDIA';
-  kartu.labelStatus.className = 'label-status font-sans text-[8px] font-bold uppercase tracking-[0.25em] text-cream/45 lg:text-[10px]';
+  kartu.labelStatus.style.color = 'rgba(245,238,224,0.45)';
 }
 
-/* =========================================================================
-   ANIMASI PANGGILAN & SISTEM BEL
-   ========================================================================= */
 const PETA_NAMA_KE_ID = {
   'Loket 1': 'loket1', 'Loket 2': 'loket2', 'Loket 3': 'loket3', 'Loket 4': 'loket4',
   'Ruang Biometrik': 'biometrik',
@@ -508,23 +440,22 @@ function terapkanStatusTutupLoket(loketId, aktif){
   kartu.tutup = !aktif;
 
   if (aktif) {
-    kartu.artikel.classList.remove('opacity-40');
-    kartu.nomorTampil.classList.remove('text-cream/15');
+    kartu.artikel.style.opacity = '1';
+    kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
     return;
   }
 
   kartu.artikel.classList.remove('card-active', 'card-selesai');
-  kartu.artikel.classList.add('opacity-40');
-  kartu.containerSelesai.classList.add('hidden');
-  kartu.containerIsi.classList.remove('hidden');
-  kartu.containerIsi.classList.add('flex');
+  kartu.artikel.style.opacity = '0.4';
+  kartu.containerSelesai.style.display = 'none';
+  kartu.containerIsi.style.display = 'flex';
   
   kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : '—';
   kartu.nomorTampil.textContent = '---';
   kartu.nomorTampil.style.transform = 'scale(1)';
-  kartu.nomorTampil.classList.add('text-cream/15');
+  kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
   kartu.labelStatus.textContent = 'TUTUP / OFFLINE';
-  kartu.labelStatus.className = 'label-status font-sans text-[8px] font-bold uppercase tracking-[0.2em] text-red-400 lg:text-[10px]';
+  kartu.labelStatus.style.color = '#f87171';
 }
 
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
