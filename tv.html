@@ -8,7 +8,6 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 
-<!-- PERBAIKAN: MENGGUNAKAN FIREBASE VERSI COMPAT (ANTI-ERROR DI SMART TV) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -16,7 +15,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-  /* PERBAIKAN: SKALA RELATIF (ANTI-ZOOM ERROR) */
   html { font-size: 1.2vw; }
 
   @keyframes card-pulse {
@@ -98,9 +96,10 @@
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
+      <!-- PERBAIKAN: Menambahkan properti "autoplay" dan "preload" agar TV mengerti -->
       <div class="h-full relative overflow-hidden shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
-        <video id="localVideoPlayer" class="absolute inset-0 h-full w-full object-cover hidden" playsinline muted style="border-radius: 1.8rem;"></video>
+        <video id="localVideoPlayer" autoplay preload="auto" class="absolute inset-0 h-full w-full object-cover hidden" playsinline muted style="border-radius: 1.8rem;"></video>
         
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
           <p class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
@@ -151,7 +150,6 @@
     </div>
   </footer>
 
-<!-- MENGGUNAKAN TAG SCRIPT BIASA (BUKAN MODULE) AGAR BISA DIBACA OLEH TV SANGAT LAMA -->
 <script>
 try { lucide.createIcons(); } catch(e){}
 
@@ -244,10 +242,19 @@ function putarVideoSekarang() {
   
   el.videoPlaceholder.style.display = 'none';
   el.videoPlayer.style.display = 'block';
+  
+  // Mengubah sumber video
   el.videoPlayer.src = playlistVideo[indeksVideoSekarang];
   
+  // PERBAIKAN: Memaksa TV memuat ulang mesin videonya sebelum diputar
+  el.videoPlayer.load();
+  
   if (suaraDiizinkan) { el.videoPlayer.muted = false; }
-  el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user:", e));
+  
+  // Memberi sedikit jeda agar TV sempat memproses load()
+  setTimeout(() => {
+    el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user:", e));
+  }, 150);
 }
 
 el.videoPlayer.addEventListener('ended', () => {
