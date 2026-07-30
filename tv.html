@@ -79,28 +79,41 @@
       
       <!-- KOTAK KIRI (HIGHLIGHT PANGGILAN) -->
       <div id="boxHighlight" class="relative flex flex-col items-center justify-center p-4 lg:p-6 text-center transition-all duration-500 overflow-hidden shrink-0" style="width: 49%; border-radius: 2rem; background: linear-gradient(to bottom right, #1b1008, #23150d, #1b1008); border: 1px solid rgba(232,197,71,0.3); box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 15px 30px rgba(0,0,0,0.6);">
-        
         <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(232,197,71,0.1); filter: blur(60px);"></div>
         <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(212,175,55,0.1); filter: blur(60px);"></div>
-        <div class="absolute left-0 top-1/4 bottom-1/4 rounded-r-full" style="width: 6px; background: linear-gradient(to bottom, transparent, rgba(232,197,71,0.8), transparent);"></div>
-
+        
         <p class="relative z-10 font-sans font-bold uppercase shrink-0" style="font-size: 0.9rem; letter-spacing: 0.3em; color: rgba(232,197,71,0.8);">Panggilan Ke</p>
-        
         <h2 id="highlightLoket" class="relative z-10 mt-2 font-sans font-extrabold uppercase leading-tight shrink-0 w-full px-2 break-words whitespace-normal text-center" style="font-size: 3rem; letter-spacing: 0.1em; color: #e8c547; filter: drop-shadow(0 0 15px rgba(212,175,55,0.4));">—</h2>
-        
         <div class="relative z-10 my-4 lg:my-8 shrink-0" style="height: 2px; width: 75%; background: linear-gradient(to right, transparent, rgba(232,197,71,0.4), transparent);"></div>
-        
         <p class="relative z-10 font-sans font-semibold uppercase shrink-0" style="font-size: 0.9rem; letter-spacing: 0.4em; color: rgba(245,238,224,0.6);">Nomor Antrean</p>
-        
         <p id="highlightNomor" class="relative z-10 mt-2 font-mono font-black leading-none text-white shrink-0" style="font-size: 8.5rem; letter-spacing: -0.05em; filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));">---</p>
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
       <div class="h-full relative overflow-hidden shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
-        <video id="localVideoPlayer" autoplay preload="auto" class="absolute inset-0 h-full w-full object-cover hidden" playsinline muted style="border-radius: 1.8rem;"></video>
+        <!-- ======================================================= -->
+        <!-- VIDEO ELEMENT ANTI-BAJAK TV SAMSUNG -->
+        <!-- ======================================================= -->
+        <video id="localVideoPlayer" 
+               autoplay 
+               preload="auto" 
+               muted 
+               playsinline 
+               webkit-playsinline 
+               disablePictureInPicture 
+               disableRemotePlayback
+               controlsList="nodownload nofullscreen noremoteplayback"
+               style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background-color: #000; border-radius: 1.8rem; display: none; z-index: 1; pointer-events: none;">
+        </video>
         
-        <!-- Wadah Radar Error dan Placeholder -->
+        <!-- Indikator Loading -->
+        <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 5; background-color: rgba(0,0,0,0.6);">
+          <i data-lucide="loader" class="h-10 w-10 animate-spin" style="color: #e8c547; margin-bottom: 8px;"></i>
+          <p style="color: #e8c547; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.1em;">MEMUAT VIDEO...</p>
+        </div>
+
+        <!-- Wadah Placeholder Kosong/Error -->
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
           <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
@@ -115,22 +128,18 @@
 
   <template id="templateKartuLoket">
     <article class="relative flex h-full flex-col items-center justify-between px-2 py-2 text-center shadow-lg transition-all duration-500 overflow-hidden" style="border-radius: 1rem; background-color: #23150d; border: 1px solid rgba(232,197,71,0.1); min-height: 0;">
-      
       <header class="relative z-10 w-full pb-1 shrink-0" style="border-bottom: 1px solid rgba(232,197,71,0.2);">
         <h2 class="nama-loket font-sans font-extrabold uppercase leading-tight break-words whitespace-normal text-center" style="font-size: 0.9rem; letter-spacing: 0.2em; color: #f5eee0; text-shadow: 0 1px 2px rgba(0,0,0,0.5);"></h2>
       </header>
-      
       <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center min-h-0" style="gap: 0.25rem;">
         <p class="label-seri font-sans font-bold uppercase leading-none" style="font-size: 0.75rem; letter-spacing: 0.3em; color: rgba(232,197,71,0.8);"></p>
         <p class="nomor-tampil font-mono font-bold leading-none" style="font-size: 2.8rem; letter-spacing: -0.025em; color: rgba(245,238,224,0.2); filter: drop-shadow(0 0 10px rgba(212,175,55,0.3));"></p>
       </div>
-
       <div class="relative z-10 container-selesai hidden flex-1 flex-col items-center justify-center min-h-0">
         <div class="lingkaran-ikon rounded-full p-2 opacity-0" style="background-color: rgba(34,197,94,0.2); box-shadow: 0 0 15px rgba(34,197,94,0.3);">
           <span style="color: #22c55e; font-size: 2rem;">✓</span>
         </div>
       </div>
-
       <footer class="relative z-10 w-full pt-1 shrink-0" style="border-top: 1px solid rgba(232,197,71,0.2); background-color: rgba(0,0,0,0.2); border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
         <p class="label-status font-sans font-bold uppercase" style="font-size: 0.75rem; letter-spacing: 0.25em; color: rgba(245,238,224,0.45);">TERSEDIA</p>
       </footer>
@@ -167,10 +176,10 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const KONFIGURASI_LOKET = [
-  { id: 'loket1',    nama: 'Loket 1',         seri: 'A' },
-  { id: 'loket2',    nama: 'Loket 2',         seri: 'B' },
-  { id: 'loket3',    nama: 'Loket 3',         seri: 'A' },
-  { id: 'loket4',    nama: 'Loket 4',         seri: 'B' },
+  { id: 'loket1', nama: 'Loket 1', seri: 'A' },
+  { id: 'loket2', nama: 'Loket 2', seri: 'B' },
+  { id: 'loket3', nama: 'Loket 3', seri: 'A' },
+  { id: 'loket4', nama: 'Loket 4', seri: 'B' },
   { id: 'biometrik', nama: 'Ruang Biometrik', seri: null },
 ];
 
@@ -188,6 +197,7 @@ const el = {
   highlightNomor: document.getElementById('highlightNomor'),
   videoPlaceholder: document.getElementById('videoPlaceholder'),
   teksPlaceholderVideo: document.getElementById('teksPlaceholderVideo'),
+  indikatorLoading: document.getElementById('indikatorLoading'),
   tvBody: document.getElementById('tvBody'),
   videoPlayer: document.getElementById('localVideoPlayer') 
 };
@@ -198,25 +208,18 @@ KONFIGURASI_LOKET.forEach(loket => {
   const artikel = node.querySelector('article');
   artikel.dataset.loketId = loket.id;
   node.querySelector('.nama-loket').textContent = loket.nama;
-  
   node.querySelector('.label-seri').textContent = loket.seri ? `Seri ${loket.seri}` : 'Rombongan';
   node.querySelector('.nomor-tampil').textContent = '---';
   node.querySelector('.nomor-tampil').style.color = 'rgba(245,238,224,0.2)';
   
   el.grid.appendChild(node);
-  
   const artikelReal = el.grid.querySelector(`[data-loket-id="${loket.id}"]`);
   kartuLoket[loket.id] = {
-    artikel: artikelReal,
-    containerIsi: artikelReal.querySelector('.container-isi'),
+    artikel: artikelReal, containerIsi: artikelReal.querySelector('.container-isi'),
     containerSelesai: artikelReal.querySelector('.container-selesai'),
-    ikonSelesai: artikelReal.querySelector('.lingkaran-ikon'),
-    labelSeri: artikelReal.querySelector('.label-seri'),
-    nomorTampil: artikelReal.querySelector('.nomor-tampil'),
-    labelStatus: artikelReal.querySelector('.label-status'),
-    seri: loket.seri,
-    tutup: false,
-    sedangDilayani: false
+    ikonSelesai: artikelReal.querySelector('.lingkaran-ikon'), labelSeri: artikelReal.querySelector('.label-seri'),
+    nomorTampil: artikelReal.querySelector('.nomor-tampil'), labelStatus: artikelReal.querySelector('.label-status'),
+    seri: loket.seri, tutup: false, sedangDilayani: false
   };
 });
 
@@ -229,19 +232,27 @@ perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 
 /* =========================================================================
-   PERBAIKAN TOTAL SISTEM VIDEO (ALAMAT ABSOLUT & RADAR ERROR)
+   SISTEM VIDEO: ANTI-MACET (WATCHDOG TIMER) + DIRECT SRC
    ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
-let batasTungguError = null;
+let timerAntiMacet = null;
 const VOLUME_NORMAL = 0.85; 
 const VOLUME_MENGECIL = 0.10; 
 
+function lanjutKeVideoBerikutnya() {
+  if (playlistVideo.length > 0) {
+    indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
+    putarVideoSekarang();
+  }
+}
+
 function putarVideoSekarang() {
-  clearTimeout(batasTungguError);
+  clearTimeout(timerAntiMacet);
 
   if (playlistVideo.length === 0) {
     el.videoPlayer.style.display = 'none';
+    el.indikatorLoading.style.display = 'none';
     el.videoPlaceholder.style.display = 'flex';
     el.teksPlaceholderVideo.innerHTML = 'Playlist Kosong';
     el.teksPlaceholderVideo.style.color = 'rgba(245,238,224,0.3)';
@@ -251,58 +262,53 @@ function putarVideoSekarang() {
   
   el.videoPlaceholder.style.display = 'none';
   el.videoPlayer.style.display = 'block';
+  el.indikatorLoading.style.display = 'flex';
   
-  // 1. MEMBUAT URL MUTLAK (Mencegah TV tersesat)
   let namaFileUtuh = playlistVideo[indeksVideoSekarang].trim();
-  // encodeURIComponent memastikan spasi/simbol aneh diubah menjadi format web yang benar
   let urlTV = "https://kemenhajjember-ship-it.github.io/SIMANTRI-V2/" + encodeURIComponent(namaFileUtuh);
   
+  if(namaFileUtuh.startsWith('http')) { urlTV = namaFileUtuh; }
+
   el.videoPlayer.src = urlTV;
   el.videoPlayer.load();
-  
   if (suaraDiizinkan) { el.videoPlayer.muted = false; }
   
-  setTimeout(() => {
-    el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user:", e));
-  }, 250);
+  let janjiPlay = el.videoPlayer.play();
+  if (janjiPlay !== undefined) {
+    janjiPlay.catch(e => { console.warn("Menunggu interaksi / Gagal Play:", e); });
+  }
+
+  timerAntiMacet = setTimeout(() => {
+    if (el.videoPlayer.currentTime === 0 || el.videoPlayer.paused) {
+      el.videoPlayer.style.display = 'none';
+      el.indikatorLoading.style.display = 'none';
+      el.videoPlaceholder.style.display = 'flex';
+      el.teksPlaceholderVideo.innerHTML = `
+        <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">WAKTU HABIS (TV MACET):</span><br>
+        <span style="color: #f5eee0; font-size: 1rem;">Mencoba melewati video ini...</span>
+      `;
+      setTimeout(lanjutKeVideoBerikutnya, 3000);
+    }
+  }, 10000);
 }
 
-// 2. RADAR ERROR: Mencetak masalah ke layar TV agar kita tahu apa yang salah
-el.videoPlayer.addEventListener('error', function(e) {
-  let pesanDetail = "Kesalahan Tidak Diketahui";
-  if (el.videoPlayer.error) {
-    switch (el.videoPlayer.error.code) {
-      case 1: pesanDetail = "Proses Dibatalkan oleh TV"; break;
-      case 2: pesanDetail = "Masalah Jaringan (Gagal Download)"; break;
-      case 3: pesanDetail = "Format Video Tidak Didukung oleh Samsung (Gunakan codec H.264 asli)"; break;
-      case 4: pesanDetail = "Video Tidak Ditemukan di GitHub (404) / Tunggu GitHub Update 3 Menit"; break;
-    }
-  }
-
-  el.videoPlayer.style.display = 'none';
-  el.videoPlaceholder.style.display = 'flex';
-  
-  // Menampilkan tulisan merah di kotak video
-  el.teksPlaceholderVideo.innerHTML = `
-    <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">GAGAL MEMUTAR VIDEO:</span><br>
-    <span style="color: #f5eee0; font-size: 1rem;">${playlistVideo[indeksVideoSekarang]}</span><br>
-    <span style="color: #fbbf24; font-size: 0.85rem; font-weight: normal; margin-top: 8px; display: block;">${pesanDetail}</span>
-  `;
-
-  // Lewati ke video selanjutnya secara otomatis setelah 6 detik
-  batasTungguError = setTimeout(() => {
-    if (playlistVideo.length > 0) {
-      indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
-      putarVideoSekarang();
-    }
-  }, 6000);
+el.videoPlayer.addEventListener('playing', function() {
+  clearTimeout(timerAntiMacet);
+  el.indikatorLoading.style.display = 'none'; 
 });
 
-el.videoPlayer.addEventListener('ended', () => {
-  if (playlistVideo.length > 0) {
-    indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
-    putarVideoSekarang();
-  }
+el.videoPlayer.addEventListener('ended', lanjutKeVideoBerikutnya);
+
+el.videoPlayer.addEventListener('error', function(e) {
+  clearTimeout(timerAntiMacet);
+  el.videoPlayer.style.display = 'none';
+  el.indikatorLoading.style.display = 'none';
+  el.videoPlaceholder.style.display = 'flex';
+  el.teksPlaceholderVideo.innerHTML = `
+    <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">GAGAL MEMUTAR VIDEO:</span><br>
+    <span style="color: #fbbf24; font-size: 0.85rem; display: block; margin-top: 8px;">Format file tidak didukung oleh TV ini.</span>
+  `;
+  setTimeout(lanjutKeVideoBerikutnya, 4000);
 });
 
 db.ref('pengaturan/playlist_video').on('value', (snap) => {
@@ -327,10 +333,7 @@ let suaraDiizinkan = false;
 let konteksAudio = null;
 
 function ambilKonteksAudio(){
-  if (!konteksAudio) {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    konteksAudio = new AC();
-  }
+  if (!konteksAudio) { const AC = window.AudioContext || window.webkitAudioContext; konteksAudio = new AC(); }
   if (konteksAudio.state === 'suspended') konteksAudio.resume();
   return konteksAudio;
 }
@@ -338,10 +341,7 @@ function ambilKonteksAudio(){
 el.btnAktifkan.addEventListener('click', () => {
   try {
     suaraDiizinkan = true;
-    try {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      }
+    try { if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen(); }
     } catch(e) { console.warn("Fullscreen diblokir TV", e); }
     el.overlay.style.display = 'none';
     
@@ -351,45 +351,31 @@ el.btnAktifkan.addEventListener('click', () => {
     if (playlistVideo.length > 0) {
       el.videoPlayer.muted = false;
       el.videoPlayer.volume = VOLUME_NORMAL;
-      el.videoPlayer.play().catch(e => console.log(e));
+      let p = el.videoPlayer.play();
+      if(p !== undefined) p.catch(e => console.log(e));
     }
-  } catch(err) {
-    console.error("Gagal aktivasi:", err);
-  }
+  } catch(err) { console.error("Gagal aktivasi:", err); }
 });
 
 KONFIGURASI_LOKET.forEach(loket => {
   db.ref(`status_loket/${loket.id}`).on('value', (snap) => {
     const kartu = kartuLoket[loket.id];
     if (kartu.tutup) return; 
-
-    if (!snap.exists()) {
-      if(kartu.sedangDilayani) resetTampilanKosong(kartu); 
-      return;
-    }
+    if (!snap.exists()) { if(kartu.sedangDilayani) resetTampilanKosong(kartu); return; }
     
     const data = snap.val();
-    
     if (data.sedangDilayani === false) {
-      if (kartu.sedangDilayani === true) jalankanAnimasiSelesai(kartu);
-      else resetTampilanKosong(kartu);
+      if (kartu.sedangDilayani === true) jalankanAnimasiSelesai(kartu); else resetTampilanKosong(kartu);
       return;
     }
-
     if(data.sedangDilayani === true || data.sedangDilayani === undefined) {
       kartu.sedangDilayani = true;
       kartu.artikel.classList.remove('card-selesai');
-      kartu.containerIsi.classList.remove('hidden');
-      kartu.containerIsi.style.display = 'flex';
-      kartu.containerSelesai.classList.add('hidden');
-      kartu.containerSelesai.style.display = 'none';
-      
+      kartu.containerIsi.classList.remove('hidden'); kartu.containerIsi.style.display = 'flex';
+      kartu.containerSelesai.classList.add('hidden'); kartu.containerSelesai.style.display = 'none';
       kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
-      kartu.nomorTampil.textContent = data.nomor;
-      kartu.nomorTampil.style.color = '#d4af37';
-      kartu.nomorTampil.style.transform = 'scale(1)'; 
-      kartu.labelStatus.textContent = 'SEDANG DILAYANI';
-      kartu.labelStatus.style.color = 'rgba(245,238,224,0.8)';
+      kartu.nomorTampil.textContent = data.nomor; kartu.nomorTampil.style.color = '#d4af37'; kartu.nomorTampil.style.transform = 'scale(1)'; 
+      kartu.labelStatus.textContent = 'SEDANG DILAYANI'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.8)';
     }
   });
 });
@@ -397,39 +383,25 @@ KONFIGURASI_LOKET.forEach(loket => {
 function jalankanAnimasiSelesai(kartu) {
   kartu.sedangDilayani = false;
   kartu.containerIsi.style.display = 'none';
-  kartu.containerSelesai.classList.remove('hidden');
-  kartu.containerSelesai.style.display = 'flex';
-  
-  kartu.ikonSelesai.classList.remove('animate-pop');
-  void kartu.ikonSelesai.offsetWidth; 
-  kartu.ikonSelesai.classList.add('animate-pop');
-  
-  kartu.labelStatus.textContent = 'SELESAI LAYANAN';
-  kartu.labelStatus.style.color = '#4ade80';
+  kartu.containerSelesai.classList.remove('hidden'); kartu.containerSelesai.style.display = 'flex';
+  kartu.ikonSelesai.classList.remove('animate-pop'); void kartu.ikonSelesai.offsetWidth; kartu.ikonSelesai.classList.add('animate-pop');
+  kartu.labelStatus.textContent = 'SELESAI LAYANAN'; kartu.labelStatus.style.color = '#4ade80';
   kartu.artikel.classList.add('card-selesai');
-  
   setTimeout(() => { if(!kartu.sedangDilayani) resetTampilanKosong(kartu); }, 3500);
 }
 
 function resetTampilanKosong(kartu) {
   kartu.sedangDilayani = false;
   kartu.artikel.classList.remove('card-selesai');
-  kartu.containerSelesai.style.display = 'none';
-  kartu.containerSelesai.classList.add('hidden');
-  kartu.containerIsi.classList.remove('hidden');
-  kartu.containerIsi.style.display = 'flex';
-  
+  kartu.containerSelesai.style.display = 'none'; kartu.containerSelesai.classList.add('hidden');
+  kartu.containerIsi.classList.remove('hidden'); kartu.containerIsi.style.display = 'flex';
   kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : 'Rombongan';
-  kartu.nomorTampil.textContent = '---'; 
-  kartu.nomorTampil.style.transform = 'scale(1)';
-  kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
-  kartu.labelStatus.textContent = 'TERSEDIA';
-  kartu.labelStatus.style.color = 'rgba(245,238,224,0.45)';
+  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
+  kartu.labelStatus.textContent = 'TERSEDIA'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.45)';
 }
 
 const PETA_NAMA_KE_ID = {
-  'Loket 1': 'loket1', 'Loket 2': 'loket2', 'Loket 3': 'loket3', 'Loket 4': 'loket4',
-  'Ruang Biometrik': 'biometrik',
+  'Loket 1': 'loket1', 'Loket 2': 'loket2', 'Loket 3': 'loket3', 'Loket 4': 'loket4', 'Ruang Biometrik': 'biometrik',
 };
 
 let iniPembacaanPertama = true;
@@ -438,7 +410,6 @@ let idPanggilanTerakhir = null;
 db.ref('panggilan_aktif').on('value', (snapshot) => {
   if (!snapshot.exists()) return;
   const data = snapshot.val();
-
   const idPanggilan = `${data.nomor}-${data.timestamp}`;
   if (idPanggilan === idPanggilanTerakhir) return;
   idPanggilanTerakhir = idPanggilan;
@@ -446,26 +417,14 @@ db.ref('panggilan_aktif').on('value', (snapshot) => {
   el.highlightLoket.textContent = data.loket.toUpperCase();
   el.highlightNomor.textContent = data.nomor;
   
-  el.boxHighlight.classList.remove('card-active');
-  void el.boxHighlight.offsetWidth;
-  el.boxHighlight.classList.add('card-active');
-
+  el.boxHighlight.classList.remove('card-active'); void el.boxHighlight.offsetWidth; el.boxHighlight.classList.add('card-active');
   const loketId = PETA_NAMA_KE_ID[data.loket];
   if (loketId && kartuLoket[loketId] && !kartuLoket[loketId].tutup) {
     const artikel = kartuLoket[loketId].artikel;
-    kartuLoket[loketId].sedangDilayani = true;
-    artikel.classList.remove('card-selesai');
-    
-    artikel.classList.remove('card-active');
-    void artikel.offsetWidth; 
-    artikel.classList.add('card-active');
-    
-    setTimeout(() => {
-      artikel.classList.remove('card-active');
-      el.boxHighlight.classList.remove('card-active');
-    }, 8000); 
+    kartuLoket[loketId].sedangDilayani = true; artikel.classList.remove('card-selesai');
+    artikel.classList.remove('card-active'); void artikel.offsetWidth; artikel.classList.add('card-active');
+    setTimeout(() => { artikel.classList.remove('card-active'); el.boxHighlight.classList.remove('card-active'); }, 8000); 
   }
-
   if (iniPembacaanPertama) { iniPembacaanPertama = false; return; }
   if (suaraDiizinkan) mainkanPanggilan(data.nomor, data.loket);
 });
@@ -473,32 +432,19 @@ db.ref('panggilan_aktif').on('value', (snapshot) => {
 db.ref('pengaturan/ticker/teks_berjalan').on('value', (snap) => {
   const teksAsli = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean.';
   const teksPanjang = `${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; `;
-  el.tickerTeks1.innerHTML = teksPanjang;
-  el.tickerTeks2.innerHTML = teksPanjang;
+  el.tickerTeks1.innerHTML = teksPanjang; el.tickerTeks2.innerHTML = teksPanjang;
 });
 
 function terapkanStatusTutupLoket(loketId, aktif){
   const kartu = kartuLoket[loketId];
   if (!kartu) return;
   kartu.tutup = !aktif;
-
-  if (aktif) {
-    kartu.artikel.style.opacity = '1';
-    kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
-    return;
-  }
-
-  kartu.artikel.classList.remove('card-active', 'card-selesai');
-  kartu.artikel.style.opacity = '0.4';
-  kartu.containerSelesai.style.display = 'none';
-  kartu.containerIsi.style.display = 'flex';
-  
+  if (aktif) { kartu.artikel.style.opacity = '1'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)'; return; }
+  kartu.artikel.classList.remove('card-active', 'card-selesai'); kartu.artikel.style.opacity = '0.4';
+  kartu.containerSelesai.style.display = 'none'; kartu.containerIsi.style.display = 'flex';
   kartu.labelSeri.textContent = kartu.seri ? `Seri ${kartu.seri}` : '—';
-  kartu.nomorTampil.textContent = '---';
-  kartu.nomorTampil.style.transform = 'scale(1)';
-  kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
-  kartu.labelStatus.textContent = 'TUTUP / OFFLINE';
-  kartu.labelStatus.style.color = '#f87171';
+  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
+  kartu.labelStatus.textContent = 'TUTUP / OFFLINE'; kartu.labelStatus.style.color = '#f87171';
 }
 
 db.ref('pengaturan/loket_aktif').on('value', (snap) => {
@@ -511,50 +457,34 @@ db.ref('pengaturan/loket_aktif').on('value', (snap) => {
 });
 
 function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
-  const osc = konteks.createOscillator();
-  const gain = konteks.createGain();
+  const osc = konteks.createOscillator(); const gain = konteks.createGain();
   osc.type = 'sine'; osc.frequency.value = frekuensi;
   osc.connect(gain); gain.connect(konteks.destination);
-  gain.gain.setValueAtTime(0, waktuMulai);
-  gain.gain.linearRampToValueAtTime(0.35, waktuMulai + 0.03);
+  gain.gain.setValueAtTime(0, waktuMulai); gain.gain.linearRampToValueAtTime(0.35, waktuMulai + 0.03);
   gain.gain.exponentialRampToValueAtTime(0.0001, waktuMulai + durasi);
   osc.start(waktuMulai); osc.stop(waktuMulai + durasi);
 }
 
 function mainkanBel(){
   try {
-    const konteks = ambilKonteksAudio();
-    const sekarang = konteks.currentTime;
-    mainkanNada(880, sekarang, 0.35, konteks);
-    mainkanNada(659, sekarang + 0.32, 0.45, konteks);
+    const konteks = ambilKonteksAudio(); const sekarang = konteks.currentTime;
+    mainkanNada(880, sekarang, 0.35, konteks); mainkanNada(659, sekarang + 0.32, 0.45, konteks);
   } catch (e) { console.warn('Audio bel gagal dimainkan:', e); }
 }
 
 const PETA_ANGKA = { '0':'kosong','1':'satu','2':'dua','3':'tiga','4':'empat','5':'lima','6':'enam','7':'tujuh','8':'delapan','9':'sembilan' };
 function ejaNomorAntrean(nomor){
-  const bagian = String(nomor).split('-');
-  const prefixHuruf = bagian[0] || '';
-  const digitStr = bagian[1] || '';
+  const bagian = String(nomor).split('-'); const prefixHuruf = bagian[0] || ''; const digitStr = bagian[1] || '';
   const digitDieja = digitStr.split('').map(d => PETA_ANGKA[d] || d).join(', ');
   return `${prefixHuruf}, ${digitDieja}`;
 }
 
 function mainkanPanggilan(nomor, namaLoket){
-  redamSuaraVideo();
-  mainkanBel();
+  redamSuaraVideo(); mainkanBel();
   const teks = `Nomor Antrean. ${ejaNomorAntrean(nomor)}. Silakan menuju. ${namaLoket}.`;
-  
   setTimeout(() => {
-    if (typeof responsiveVoice !== 'undefined') {
-      responsiveVoice.speak(teks, "Indonesian Female", { 
-        pitch: 1.05, 
-        rate: 1.0, 
-        volume: 1.0,
-        onend: pulihkanSuaraVideo 
-      });
-    } else {
-      setTimeout(pulihkanSuaraVideo, 4000);
-    }
+    if (typeof responsiveVoice !== 'undefined') { responsiveVoice.speak(teks, "Indonesian Female", { pitch: 1.05, rate: 1.0, volume: 1.0, onend: pulihkanSuaraVideo }); } 
+    else { setTimeout(pulihkanSuaraVideo, 4000); }
   }, 1000); 
 }
 </script>
