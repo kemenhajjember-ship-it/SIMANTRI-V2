@@ -2,11 +2,21 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- ============================================================
+     META TAGS KIOSK & PWA (AGAR TAMPIL FULLSCREEN SEPERTI APLIKASI)
+     ============================================================ -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="display" content="standalone">
+<meta name="theme-color" content="#1b1008">
+
 <title>SIMANTRI — Kiosk Layanan Haji &amp; Umrah</title>
 
 <!-- ============================================================
-     TAILWIND CDN + KONFIGURASI TOKEN WARNA & OPACITY
+     TAILWIND CDN + KONFIGURASI TOKEN WARNA
      ============================================================ -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -68,6 +78,12 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent; 
   }
+
+  /* === KUNCI KURSOR LAYAR SENTUH (LEVEL CSS) === */
+  @media (pointer: coarse) {
+    *, button, a { cursor: none !important; }
+  }
+  .hilangkan-kursor, .hilangkan-kursor * { cursor: none !important; }
 
   .kiosk-grid {
     display: grid;
@@ -154,8 +170,10 @@
 
     <!-- HEADER -->
     <header class="kiosk-header relative z-10 flex shrink-0 items-center gap-6 border-b border-bronze-deep/10 bg-gradient-to-b from-cream/90 to-transparent px-10 py-5">
-      <div class="shrink-0 rounded-full border-2 border-gold/70 bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(61,40,23,.55)]">
-        <img src="logo.png" alt="Logo Instansi" class="block h-16 w-16 rounded-full object-cover">
+      
+      <!-- TOMBOL RAHASIA FULLSCREEN -->
+      <div id="btnRahasiaFullscreen" class="shrink-0 cursor-pointer rounded-full border-2 border-gold/70 bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(61,40,23,.55)] transition-transform active:scale-95" title="Ketuk 2x untuk Layar Penuh">
+        <img src="logo.png" alt="Logo Instansi" class="block h-16 w-16 rounded-full object-cover pointer-events-none">
       </div>
 
       <div class="min-w-0 flex-1">
@@ -335,40 +353,43 @@ import {
 try { lucide.createIcons(); } catch (e) { console.error("Lucide Error:", e); }
 
 /* =========================================================================
-   FITUR SEMBUNYIKAN KURSOR SAAT DISENTUH (ANTI-GHOST TOUCH)
+   FITUR FULLSCREEN RAHASIA (KLIK LOGO 2X)
+   ========================================================================= */
+const btnRahasia = document.getElementById('btnRahasiaFullscreen');
+if(btnRahasia) {
+  btnRahasia.addEventListener('dblclick', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        alert(`Gagal membuka mode layar penuh: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  });
+}
+
+/* =========================================================================
+   FITUR KUNCI KURSOR TINGKAT TINGGI (ANTI-GHOST TOUCH)
    ========================================================================= */
 let kursorTersembunyi = false;
-let abaikanMouse = false;
-let timerAbaikan = null;
+let jedaMouseAktif = null;
 
+// Saat layar disentuh: Hancurkan kursor dan abaikan mouse selama 2 detik
 document.addEventListener('touchstart', function() {
-  // Tandai bahwa ini murni sentuhan jari
-  abaikanMouse = true;
-  clearTimeout(timerAbaikan);
-  // Abaikan event mouse palsu selama 1 detik setelah layar disentuh
-  timerAbaikan = setTimeout(() => { abaikanMouse = false; }, 1000);
-
-  if (!kursorTersembunyi) {
-    let styleEl = document.getElementById('hideCursorStyle');
-    if (!styleEl) {
-      styleEl = document.createElement('style');
-      styleEl.id = 'hideCursorStyle';
-      styleEl.innerHTML = '* { cursor: none !important; }';
-      document.head.appendChild(styleEl);
-    }
-    kursorTersembunyi = true;
-  }
+  document.documentElement.classList.add('hilangkan-kursor');
+  kursorTersembunyi = true;
+  
+  clearTimeout(jedaMouseAktif);
+  jedaMouseAktif = setTimeout(() => { jedaMouseAktif = null; }, 2000);
 }, {passive: true});
 
+// Saat mouse digerakkan: Hanya munculkan jika mouse fisik digeser & bukan habis disentuh
 document.addEventListener('mousemove', function(e) {
-  // Jika event mouse ini berasal dari efek samping sentuhan jari, abaikan!
-  if (abaikanMouse) return;
+  if (jedaMouseAktif) return; 
   
-  // Hanya kembalikan kursor jika mouse fisik benar-benar digeser
-  if (Math.abs(e.movementX) > 0 || Math.abs(e.movementY) > 0) {
+  if (Math.abs(e.movementX) > 1 || Math.abs(e.movementY) > 1) {
     if (kursorTersembunyi) {
-      const styleEl = document.getElementById('hideCursorStyle');
-      if (styleEl) styleEl.remove();
+      document.documentElement.classList.remove('hilangkan-kursor');
       kursorTersembunyi = false;
     }
   }
