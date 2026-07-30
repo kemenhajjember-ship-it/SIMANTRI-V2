@@ -40,7 +40,7 @@
 </head>
 <body id="tvBody" class="relative flex w-full flex-col overflow-hidden" style="height: 100vh;">
 
-  <!-- EFEK DEKORASI LATAR BELAKANG TV -->
+  <!-- EFEK DEKORASI -->
   <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-20">
     <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, transparent 30%, #1b1008 80%);"></div>
   </div>
@@ -92,29 +92,23 @@
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
       <div class="h-full relative overflow-hidden shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
-        <!-- ======================================================= -->
-        <!-- VIDEO ELEMENT ANTI-BAJAK TV SAMSUNG -->
-        <!-- ======================================================= -->
+        <!-- VIDEO ELEMENT ANTI-BAJAK (Z-Index 1) -->
         <video id="localVideoPlayer" 
-               autoplay 
-               preload="auto" 
-               muted 
-               playsinline 
-               webkit-playsinline 
-               disablePictureInPicture 
-               disableRemotePlayback
-               controlsList="nodownload nofullscreen noremoteplayback"
-               style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background-color: #000; border-radius: 1.8rem; display: none; z-index: 1; pointer-events: none;">
+               autoplay preload="auto" muted playsinline webkit-playsinline disablePictureInPicture 
+               style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background-color: #000; border-radius: 1.8rem; z-index: 1; pointer-events: none; opacity: 0; transition: opacity 0.5s ease;">
         </video>
         
-        <!-- Indikator Loading -->
-        <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 5; background-color: rgba(0,0,0,0.6);">
+        <!-- TAMENG KACA TAK TERLIHAT (Z-Index 2) - Memblokir klik dan tombol putih TV Samsung -->
+        <div style="position: absolute; inset: 0; z-index: 2; background-color: transparent; pointer-events: auto; border-radius: 1.8rem;"></div>
+
+        <!-- Indikator Loading (Z-Index 3) -->
+        <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: 1.8rem;">
           <i data-lucide="loader" class="h-10 w-10 animate-spin" style="color: #e8c547; margin-bottom: 8px;"></i>
           <p style="color: #e8c547; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.1em;">MEMUAT VIDEO...</p>
         </div>
 
-        <!-- Wadah Placeholder Kosong/Error -->
-        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
+        <!-- Wadah Placeholder Kosong/Error (Z-Index 4) -->
+        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-4 p-4 text-center" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
           <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
       </div>
@@ -232,7 +226,7 @@ perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 
 /* =========================================================================
-   SISTEM VIDEO: ANTI-MACET (WATCHDOG TIMER) + DIRECT SRC
+   SISTEM VIDEO: TAMENG KACA + BYPASS AUTOPLAY TIZEN
    ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
@@ -251,71 +245,73 @@ function putarVideoSekarang() {
   clearTimeout(timerAntiMacet);
 
   if (playlistVideo.length === 0) {
-    el.videoPlayer.style.display = 'none';
+    el.videoPlayer.style.opacity = '0';
     el.indikatorLoading.style.display = 'none';
     el.videoPlaceholder.style.display = 'flex';
     el.teksPlaceholderVideo.innerHTML = 'Playlist Kosong';
-    el.teksPlaceholderVideo.style.color = 'rgba(245,238,224,0.3)';
     el.videoPlayer.pause();
     return;
   }
   
   el.videoPlaceholder.style.display = 'none';
-  el.videoPlayer.style.display = 'block';
   el.indikatorLoading.style.display = 'flex';
+  el.videoPlayer.style.opacity = '0'; // Sembunyikan perlahan sebelum diputar
   
   let namaFileUtuh = playlistVideo[indeksVideoSekarang].trim();
   let urlTV = "https://kemenhajjember-ship-it.github.io/SIMANTRI-V2/" + encodeURIComponent(namaFileUtuh);
-  
   if(namaFileUtuh.startsWith('http')) { urlTV = namaFileUtuh; }
 
   el.videoPlayer.src = urlTV;
   el.videoPlayer.load();
-  if (suaraDiizinkan) { el.videoPlayer.muted = false; }
+  if (suaraDiizinkan) { el.videoPlayer.muted = false; } else { el.videoPlayer.muted = true; }
   
-  let janjiPlay = el.videoPlayer.play();
-  if (janjiPlay !== undefined) {
-    janjiPlay.catch(e => { console.warn("Menunggu interaksi / Gagal Play:", e); });
-  }
+  // Trik memberi jeda agar TV tidak kaget
+  setTimeout(() => {
+    let janjiPlay = el.videoPlayer.play();
+    if (janjiPlay !== undefined) {
+      janjiPlay.then(() => {
+         // Jika berhasil diputar, tampilkan videonya
+         el.indikatorLoading.style.display = 'none';
+         el.videoPlayer.style.opacity = '1';
+      }).catch(e => { 
+         console.warn("TV Memblokir Autoplay, Memaksa Mute:", e); 
+         // Jika TV tetap memblokir karena suara, paksakan mute agar videonya tetap jalan!
+         el.videoPlayer.muted = true;
+         el.videoPlayer.play().then(() => {
+            el.indikatorLoading.style.display = 'none';
+            el.videoPlayer.style.opacity = '1';
+         }).catch(err => console.log(err));
+      });
+    }
+  }, 500);
 
+  // Timer Darurat Jika TV Macet
   timerAntiMacet = setTimeout(() => {
     if (el.videoPlayer.currentTime === 0 || el.videoPlayer.paused) {
-      el.videoPlayer.style.display = 'none';
+      el.videoPlayer.style.opacity = '0';
       el.indikatorLoading.style.display = 'none';
       el.videoPlaceholder.style.display = 'flex';
       el.teksPlaceholderVideo.innerHTML = `
-        <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">WAKTU HABIS (TV MACET):</span><br>
-        <span style="color: #f5eee0; font-size: 1rem;">Mencoba melewati video ini...</span>
+        <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">MENUNGGU TV...</span><br>
+        <span style="color: #f5eee0; font-size: 1rem;">Melewati video ini</span>
       `;
       setTimeout(lanjutKeVideoBerikutnya, 3000);
     }
-  }, 10000);
+  }, 12000);
 }
 
 el.videoPlayer.addEventListener('playing', function() {
   clearTimeout(timerAntiMacet);
   el.indikatorLoading.style.display = 'none'; 
+  el.videoPlayer.style.opacity = '1';
 });
 
 el.videoPlayer.addEventListener('ended', lanjutKeVideoBerikutnya);
-
-el.videoPlayer.addEventListener('error', function(e) {
-  clearTimeout(timerAntiMacet);
-  el.videoPlayer.style.display = 'none';
-  el.indikatorLoading.style.display = 'none';
-  el.videoPlaceholder.style.display = 'flex';
-  el.teksPlaceholderVideo.innerHTML = `
-    <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">GAGAL MEMUTAR VIDEO:</span><br>
-    <span style="color: #fbbf24; font-size: 0.85rem; display: block; margin-top: 8px;">Format file tidak didukung oleh TV ini.</span>
-  `;
-  setTimeout(lanjutKeVideoBerikutnya, 4000);
-});
 
 db.ref('pengaturan/playlist_video').on('value', (snap) => {
   const dataBaru = snap.exists() ? snap.val() : [];
   const daftarLama = JSON.stringify(playlistVideo);
   const daftarBaru = JSON.stringify(dataBaru);
-  
   if (daftarLama !== daftarBaru) {
     playlistVideo = dataBaru;
     indeksVideoSekarang = 0; 
@@ -325,6 +321,7 @@ db.ref('pengaturan/playlist_video').on('value', (snap) => {
 
 function redamSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; }
 function pulihkanSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_NORMAL; }
+
 
 /* =========================================================================
    SISA LOGIKA (PANGGILAN, LOKET, DLL) TETAP AMAN DI BAWAH INI
@@ -352,7 +349,10 @@ el.btnAktifkan.addEventListener('click', () => {
       el.videoPlayer.muted = false;
       el.videoPlayer.volume = VOLUME_NORMAL;
       let p = el.videoPlayer.play();
-      if(p !== undefined) p.catch(e => console.log(e));
+      if(p !== undefined) {
+         p.then(() => { el.videoPlayer.style.opacity = '1'; el.indikatorLoading.style.display = 'none'; })
+          .catch(e => console.log(e));
+      }
     }
   } catch(err) { console.error("Gagal aktivasi:", err); }
 });
