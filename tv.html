@@ -96,9 +96,9 @@
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
-      <!-- PERBAIKAN: Menambahkan properti "autoplay" dan "preload" agar TV mengerti -->
       <div class="h-full relative overflow-hidden shrink-0" style="width: 51%; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.2); box-shadow: 0 15px 30px rgba(0,0,0,0.6);">
         
+        <!-- Video Element - Source akan diinjeksi via JavaScript -->
         <video id="localVideoPlayer" autoplay preload="auto" class="absolute inset-0 h-full w-full object-cover hidden" playsinline muted style="border-radius: 1.8rem;"></video>
         
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-10" style="border-radius: 1.8rem; background-color: #000; color: rgba(245,238,224,0.3);">
@@ -163,7 +163,6 @@ const firebaseConfig = {
   appId: "1:507271630488:web:dcc347a35334c6f3a84aed"
 };
 
-// Inisialisasi Firebase Compat
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -243,18 +242,15 @@ function putarVideoSekarang() {
   el.videoPlaceholder.style.display = 'none';
   el.videoPlayer.style.display = 'block';
   
-  // Mengubah sumber video
-  el.videoPlayer.src = playlistVideo[indeksVideoSekarang];
-  
-  // PERBAIKAN: Memaksa TV memuat ulang mesin videonya sebelum diputar
+  // PERBAIKAN: Gunakan innerHTML tag <source> agar TV mengenali format MP4
+  el.videoPlayer.innerHTML = '<source src="' + playlistVideo[indeksVideoSekarang] + '" type="video/mp4">';
   el.videoPlayer.load();
   
   if (suaraDiizinkan) { el.videoPlayer.muted = false; }
   
-  // Memberi sedikit jeda agar TV sempat memproses load()
   setTimeout(() => {
     el.videoPlayer.play().catch(e => console.warn("Menunggu interaksi user:", e));
-  }, 150);
+  }, 250);
 }
 
 el.videoPlayer.addEventListener('ended', () => {
@@ -264,7 +260,6 @@ el.videoPlayer.addEventListener('ended', () => {
   }
 });
 
-// PENGGUNAAN COMPAT MODE UNTUK FIREBASE
 db.ref('pengaturan/playlist_video').on('value', (snap) => {
   const dataBaru = snap.exists() ? snap.val() : [];
   const daftarLama = JSON.stringify(playlistVideo);
@@ -295,18 +290,14 @@ function ambilKonteksAudio(){
 el.btnAktifkan.addEventListener('click', () => {
   try {
     suaraDiizinkan = true;
-    
-    // Cegah error fullscreen menghentikan script
     try {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
       }
     } catch(e) { console.warn("Fullscreen diblokir TV", e); }
-
     el.overlay.style.display = 'none';
     
     try { ambilKonteksAudio(); } catch(e) {}
-    
     if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
     
     if (playlistVideo.length > 0) {
