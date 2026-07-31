@@ -618,7 +618,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // =========================================================================
-// PERBAIKAN 2: AUTO-RESET ANTREAN DI AWAL HARI
+// AUTO-RESET ANTREAN DI AWAL HARI
 // =========================================================================
 const TANGGAL_HARI_INI = new Date().toLocaleDateString('id-ID');
 const refTanggal = ref(db, 'pengaturan/tanggal_terakhir');
@@ -644,7 +644,6 @@ get(refTanggal).then(async (snap) => {
     }
   }
 });
-// =========================================================================
 
 const KONFIGURASI_PERAN = {
   loket1: { nama: "Loket 1", kategori: "A", bisaTeruskanBiometrik: true },
@@ -740,7 +739,7 @@ function tampilkanAlert(judul, pesan){
 el.btnTutupAlert.addEventListener('click', () => { el.overlayAlert.classList.add('hidden'); el.overlayAlert.classList.remove('flex'); });
 
 // =========================================================================
-// PERBAIKAN 1: SINTAKS LOG PENCATATAN AKTIVITAS YANG LEBIH AMAN
+// PERBAIKAN PENCATATAN AKTIVITAS (LOKAL TIMESTAMP PRESISI)
 // =========================================================================
 async function catatAktivitas(nomor, aksi, catatan){
   try {
@@ -749,7 +748,7 @@ async function catatAktivitas(nomor, aksi, catatan){
       aksi: aksi, 
       catatan: catatan, 
       waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), 
-      timestamp: serverTimestamp() 
+      timestamp: Date.now() 
     });
   } catch(e) {
     console.error("Gagal mencatat log", e);
@@ -757,7 +756,7 @@ async function catatAktivitas(nomor, aksi, catatan){
 }
 
 const IKON_AKSI = { Selesai:'check', Biometrik:'fingerprint', Panggil:'phone-call' };
-onValue(query(ref(db, 'log_aktivitas'), limitToLast(8)), (snap) => {
+onValue(query(ref(db, 'log_aktivitas'), limitToLast(12)), (snap) => {
   const items = []; snap.forEach(child => items.unshift(child.val()));
   el.daftarAktivitas.innerHTML = items.length ? '' : '<li class="px-5 py-4 text-xs text-muted-foreground">Belum ada aktivitas.</li>';
   items.forEach(item => {
@@ -965,7 +964,6 @@ el.btnOkKonfirmasiBiometrik.addEventListener('click', async () => {
   el.btnOkKonfirmasiBiometrik.textContent = 'Memproses...';
   
   try {
-    // SINTAKS PUSH YANG LEBIH AMAN (Bebas Error)
     await push(ref(db, 'antrean_biometrik'), { 
       nomorAsal: nomorSedangDilayani.nomor, 
       asalLoket: konfig.nama, 
@@ -1108,22 +1106,26 @@ let logRiwayat = [];
 const LABEL_STATUS = { Panggil: { teks: 'Dipanggil', kelas: 'border-gold/50 bg-gold/15 text-gold-dark' }, Selesai: { teks: 'Selesai', kelas: 'border-emerald-600/30 bg-emerald-50 text-emerald-700' }, Biometrik: { teks: 'Diteruskan', kelas: 'border-bronze/30 bg-cream text-bronze' }, Reset: { teks: 'Sistem', kelas: 'border-red-600/30 bg-red-50 text-red-700' } };
 function jenisLayananDariNomor(nomor){ const kode = String(nomor || '').trim().charAt(0).toUpperCase(); return NAMA_KATEGORI[kode] ? `${NAMA_KATEGORI[kode]} · Kode ${kode}` : '—'; }
 function loketDariCatatan(catatan){ const cocok = String(catatan || '').match(/(Loket\s?\d|Ruang Biometrik)/i); return cocok ? cocok[0] : '—'; }
-function awalHari(selisihHari){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - selisihHari); return d.getTime(); }
+
+// PERBAIKAN SINKRONISASI TANGGAL FILTER
 function cocokPeriode(item, periode){
   if (periode === 'semua') return true;
-  const ts = typeof item.timestamp === 'number' ? item.timestamp : null;
-  if (ts === null) return periode === 'hari-ini';
-
+  
+  const ts = typeof item.timestamp === 'number' ? item.timestamp : Date.now();
   const dateItem = new Date(ts);
   const dateNow = new Date();
 
   if (periode === 'hari-ini') {
-    return dateItem.getDate() === dateNow.getDate() && dateItem.getMonth() === dateNow.getMonth() && dateItem.getFullYear() === dateNow.getFullYear();
+    return dateItem.getDate() === dateNow.getDate() && 
+           dateItem.getMonth() === dateNow.getMonth() && 
+           dateItem.getFullYear() === dateNow.getFullYear();
   }
   if (periode === 'kemarin') {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    return dateItem.getDate() === yesterday.getDate() && dateItem.getMonth() === yesterday.getMonth() && dateItem.getFullYear() === yesterday.getFullYear();
+    return dateItem.getDate() === yesterday.getDate() && 
+           dateItem.getMonth() === yesterday.getMonth() && 
+           dateItem.getFullYear() === yesterday.getFullYear();
   }
   return true;
 }
@@ -1198,7 +1200,7 @@ function renderLaporan(){
 }
 elLaporan.periode.addEventListener('change', renderLaporan);
 
-onValue(query(ref(db, 'log_aktivitas'), limitToLast(300)), (snap) => {
+onValue(query(ref(db, 'log_aktivitas'), limitToLast(500)), (snap) => {
   const items = []; snap.forEach(child => items.unshift(child.val()));
   logRiwayat = items; renderRiwayat(); renderLaporan();
 });
