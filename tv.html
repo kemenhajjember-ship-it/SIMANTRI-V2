@@ -101,7 +101,6 @@
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
-      <!-- PERBAIKAN BENTUK KOTAK LENGKUNG -->
       <div class="h-full relative shrink-0" style="flex: 1; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.6); overflow: hidden; transform: translateZ(0);">
         
         <!-- WADAH PELINDUNG -->
@@ -243,15 +242,27 @@ perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 
 /* =========================================================================
-   SISTEM VIDEO (ANTI KAGET & ANTI MACET MUTLAK)
+   SISTEM VIDEO 
    ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
 let timerAntiMacet = null;
-const VOLUME_NORMAL = 0.85; 
+
+// PERBAIKAN VOLUME: 
+// Volume normal diturunkan drastis agar pengguna mengeraskan suara dari Remote TV fisik.
+// Ini akan membuat suara TTS (yang 100%) terdengar sangat lantang menembus ruangan.
+const VOLUME_NORMAL = 0.35; 
 const VOLUME_MENGECIL = 0.10; 
 
+let statusPanggilanBerjalan = false;
+let antreanGantiVideo = false;
+
 function lanjutKeVideoBerikutnya() {
+  if (statusPanggilanBerjalan) {
+    antreanGantiVideo = true;
+    return;
+  }
+
   if (playlistVideo.length > 0) {
     indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
     putarVideoSekarang();
@@ -266,6 +277,7 @@ function putarVideoSekarang() {
     el.indikatorLoading.style.display = 'none';
     el.videoPlaceholder.style.display = 'flex';
     el.teksPlaceholderVideo.innerHTML = 'Playlist Kosong';
+    el.videoPlayer.pause();
     return;
   }
   
@@ -288,13 +300,19 @@ function putarVideoSekarang() {
     }
   }, 150);
 
-  // Deteksi darurat jika TV gagal merespons sama sekali (Hanya cek currentTime)
   timerAntiMacet = setTimeout(() => {
-    if (el.videoPlayer.currentTime === 0) {
+    if (el.videoPlayer.currentTime === 0 || el.videoPlayer.paused) {
+      el.videoPlayer.src = ""; 
+      el.videoPlayer.style.opacity = '0';
       el.indikatorLoading.style.display = 'none';
-      lanjutKeVideoBerikutnya();
+      el.videoPlaceholder.style.display = 'flex';
+      el.teksPlaceholderVideo.innerHTML = `
+        <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">KONEKSI LAMBAT</span><br>
+        <span style="color: #f5eee0; font-size: 1rem;">Melewati video ini...</span>
+      `;
+      setTimeout(lanjutKeVideoBerikutnya, 3000);
     }
-  }, 15000); 
+  }, 25000); 
 }
 
 el.videoPlayer.addEventListener('playing', function() {
@@ -303,10 +321,13 @@ el.videoPlayer.addEventListener('playing', function() {
   el.videoPlayer.style.opacity = '1';
 });
 
-// Otomatis melompat ke video kedua jika yang pertama selesai
 el.videoPlayer.addEventListener('ended', function() {
-  el.videoPlayer.style.opacity = '0';
-  setTimeout(lanjutKeVideoBerikutnya, 500); 
+  if (statusPanggilanBerjalan) {
+    antreanGantiVideo = true;
+  } else {
+    el.videoPlayer.style.opacity = '0';
+    setTimeout(lanjutKeVideoBerikutnya, 500); 
+  }
 });
 
 db.ref('pengaturan/playlist_video').on('value', (snap) => {
@@ -320,20 +341,36 @@ db.ref('pengaturan/playlist_video').on('value', (snap) => {
   }
 });
 
-// PERBAIKAN: JANGAN PERNAH MENJEDA (PAUSE) VIDEO. Cukup kecilkan volumenya!
 function redamSuaraVideo() { 
   if (el.videoPlayer) {
     el.videoPlayer.volume = VOLUME_MENGECIL; 
   }
 }
 
-// PERBAIKAN: SABUK PENGAMAN (FAILSAFE TIMER).
+// PERBAIKAN FAILSAFE: Timer Sabuk Pengaman
 let failsafeSuara = null;
 
 function pulihkanSuaraVideo() { 
   clearTimeout(failsafeSuara);
+  statusPanggilanBerjalan = false;
+
+  if (antreanGantiVideo) {
+    antreanGantiVideo = false;
+    el.videoPlayer.style.opacity = '0';
+    setTimeout(lanjutKeVideoBerikutnya, 500);
+    return;
+  }
+
   if (el.videoPlayer) {
     el.videoPlayer.volume = VOLUME_NORMAL; 
+    let p = el.videoPlayer.play();
+    if (p !== undefined) {
+      p.catch(e => {
+        console.log("Auto-resume diblokir, memaksa play...", e);
+        // Paksa tekan tombol play ulang jika ditolak
+        setTimeout(() => el.videoPlayer.play(), 1000);
+      });
+    }
   }
 }
 
@@ -357,12 +394,14 @@ el.btnAktifkan.addEventListener('click', () => {
   if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
   
   if (playlistVideo.length > 0) {
+    el.videoPlayer.pause();
     el.videoPlayer.muted = false;
     el.videoPlayer.volume = VOLUME_NORMAL;
     el.videoPlayer.load();
     let p = el.videoPlayer.play();
     if(p !== undefined) {
-       p.catch(e => console.log(e));
+       p.then(() => { el.videoPlayer.style.opacity = '1'; el.indikatorLoading.style.display = 'none'; })
+        .catch(e => console.log(e));
     }
   }
 });
@@ -473,7 +512,9 @@ function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
   const osc = konteks.createOscillator(); const gain = konteks.createGain();
   osc.type = 'sine'; osc.frequency.value = frekuensi;
   osc.connect(gain); gain.connect(konteks.destination);
-  gain.gain.setValueAtTime(0, waktuMulai); gain.gain.linearRampToValueAtTime(0.35, waktuMulai + 0.03);
+  gain.gain.setValueAtTime(0, waktuMulai); 
+  // PERBAIKAN: Volume Bel Ting-Tong dikeraskan menjadi batas maksimal (1.0)
+  gain.gain.linearRampToValueAtTime(1.0, waktuMulai + 0.03); 
   gain.gain.exponentialRampToValueAtTime(0.0001, waktuMulai + durasi);
   osc.start(waktuMulai); osc.stop(waktuMulai + durasi);
 }
@@ -493,18 +534,21 @@ function ejaNomorAntrean(nomor){
 }
 
 function mainkanPanggilan(nomor, namaLoket){
+  statusPanggilanBerjalan = true; 
   redamSuaraVideo(); 
   mainkanBel();
   const teks = `Nomor Antrean. ${ejaNomorAntrean(nomor)}. Silakan menuju. ${namaLoket}.`;
   
+  // Beri jeda agar bel Ting-Tong selesai, baru mulai bicara
   setTimeout(() => {
-    if (typeof responsiveVoice !== 'undefined') { 
-      
-      // FAILSAFE: Jika sistem TV hang dan gagal lapor "selesai bicara",
-      // Timer ini akan MEMAKSA volume video kembali normal setelah 8 detik.
-      clearTimeout(failsafeSuara);
-      failsafeSuara = setTimeout(pulihkanSuaraVideo, 8000);
+    
+    // PERBAIKAN FAILSAFE: 
+    // Apa pun yang terjadi, tepat 9 detik dari sekarang sistem HARUS melanjutkan video.
+    // Ini menggebuk bug Tizen TV yang sering macet merespons "Selesai Bicara".
+    clearTimeout(failsafeSuara);
+    failsafeSuara = setTimeout(pulihkanSuaraVideo, 9000);
 
+    if (typeof responsiveVoice !== 'undefined') { 
       responsiveVoice.speak(teks, "Indonesian Female", { 
         pitch: 1.05, 
         rate: 1.0, 
@@ -515,7 +559,7 @@ function mainkanPanggilan(nomor, namaLoket){
     else { 
       setTimeout(pulihkanSuaraVideo, 4000); 
     }
-  }, 1000); 
+  }, 1200); 
 }
 </script>
 </body>
