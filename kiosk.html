@@ -347,7 +347,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getDatabase, ref, push, set, runTransaction, serverTimestamp
+  getDatabase, ref, push, set, get, runTransaction, serverTimestamp, onDisconnect
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 try { lucide.createIcons(); } catch (e) { console.error("Lucide Error:", e); }
@@ -374,7 +374,6 @@ if(btnRahasia) {
 let kursorTersembunyi = false;
 let jedaMouseAktif = null;
 
-// Saat layar disentuh: Hancurkan kursor dan abaikan mouse selama 2 detik
 document.addEventListener('touchstart', function() {
   document.documentElement.classList.add('hilangkan-kursor');
   kursorTersembunyi = true;
@@ -383,7 +382,6 @@ document.addEventListener('touchstart', function() {
   jedaMouseAktif = setTimeout(() => { jedaMouseAktif = null; }, 2000);
 }, {passive: true});
 
-// Saat mouse digerakkan: Hanya munculkan jika mouse fisik digeser & bukan habis disentuh
 document.addEventListener('mousemove', function(e) {
   if (jedaMouseAktif) return; 
   
@@ -445,9 +443,19 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// =========================================================================
+// PENYEMPURNAAN KONEKSI: AUTO-PING UNTUK MENCEGAH KIOSK TERLELAP (AMNESIA JARINGAN)
+// =========================================================================
 if(el.statusFirebaseFooter) {
   el.statusFirebaseFooter.innerHTML = `<svg class="h-5 w-5 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> Terhubung ke server`;
 }
+
+// Fitur Pendetak Jantung Kiosk (Berdenyut setiap 3 menit agar koneksi tidak putus)
+setInterval(() => {
+  const pingRef = ref(db, 'system_ping/kiosk_terakhir_aktif');
+  set(pingRef, serverTimestamp()).catch(()=>console.warn('Ping Firebase tertahan.'));
+}, 180000);
+// =========================================================================
 
 const NAMA_KATEGORI = { A: 'Verifikasi', B: 'Informasi' };
 const LOKET_KATEGORI = { A: 'Loket 1 & 3', B: 'Loket 2 & 4' };
@@ -548,8 +556,14 @@ if(el.btnKonfirmasiRombongan) {
   });
 }
 
+// =========================================================================
+// PENGAMBILAN NOMOR TERBARU DENGAN SINKRONISASI RESET ADMIN
+// =========================================================================
 async function ambilNomorBaru(kategori){
   const counterRef = ref(db, `counter_nomor/${kategori}`);
+  
+  // Karena admin.html akan menghapus folder 'counter_nomor' saat reset pagi hari,
+  // maka baris ini akan otomatis menghitung ulang dari 1 lagi.
   const hasil = await runTransaction(counterRef, (nilaiSaatIni) => (nilaiSaatIni || 0) + 1);
   return hasil.snapshot.val();
 }
