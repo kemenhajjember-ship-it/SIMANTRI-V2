@@ -101,10 +101,11 @@
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
-      <div class="h-full relative shrink-0" style="flex: 1; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.6); overflow: hidden;">
+      <!-- PERBAIKAN BENTUK KOTAK LENGKUNG -->
+      <div class="h-full relative shrink-0" style="flex: 1; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.6); overflow: hidden; transform: translateZ(0);">
         
         <!-- WADAH PELINDUNG -->
-        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 2rem; overflow: hidden; pointer-events: none; z-index: 1;">
+        <div style="position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 2rem; overflow: hidden; pointer-events: none; z-index: 1;">
             <video id="localVideoPlayer" 
                    preload="auto" 
                    playsinline 
@@ -114,17 +115,17 @@
             </video>
         </div>
 
-        <!-- TAMENG KACA TAK TERLIHAT (Mencegah klik tombol TV Samsung) -->
+        <!-- TAMENG KACA TAK TERLIHAT -->
         <div style="position: absolute; inset: 0; z-index: 2; background-color: transparent; cursor: default;"></div>
 
         <!-- Indikator Loading -->
-        <div id="indikatorLoading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: inherit; pointer-events: none;">
+        <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: 2rem; pointer-events: none;">
           <i data-lucide="loader" class="h-10 w-10 animate-spin" style="color: #e8c547; margin-bottom: 8px;"></i>
           <p style="color: #e8c547; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.1em;">MEMUAT VIDEO...</p>
         </div>
 
         <!-- Wadah Placeholder Kosong -->
-        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-4 p-4 text-center" style="border-radius: inherit; background-color: #000; color: rgba(245,238,224,0.3); pointer-events: none;">
+        <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-4 p-4 text-center" style="border-radius: 2rem; background-color: #000; color: rgba(245,238,224,0.3); pointer-events: none;">
           <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
       </div>
@@ -242,7 +243,7 @@ perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 
 /* =========================================================================
-   SISTEM VIDEO (PENYEMPURNAAN ANTI-LAG & MANAJEMEN CPU)
+   SISTEM VIDEO (ANTI KAGET & ANTI MACET MUTLAK)
    ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
@@ -250,17 +251,7 @@ let timerAntiMacet = null;
 const VOLUME_NORMAL = 0.85; 
 const VOLUME_MENGECIL = 0.10; 
 
-// STATE BARU: Sistem Manajemen Prioritas
-let statusPanggilanBerjalan = false;
-let antreanGantiVideo = false;
-
 function lanjutKeVideoBerikutnya() {
-  // Jika sedang ada panggilan masuk, tahan dulu pergantian videonya!
-  if (statusPanggilanBerjalan) {
-    antreanGantiVideo = true;
-    return;
-  }
-
   if (playlistVideo.length > 0) {
     indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
     putarVideoSekarang();
@@ -275,7 +266,6 @@ function putarVideoSekarang() {
     el.indikatorLoading.style.display = 'none';
     el.videoPlaceholder.style.display = 'flex';
     el.teksPlaceholderVideo.innerHTML = 'Playlist Kosong';
-    el.videoPlayer.pause();
     return;
   }
   
@@ -292,28 +282,19 @@ function putarVideoSekarang() {
   el.videoPlayer.load();
   
   setTimeout(() => {
-    let janjiPlay = el.videoPlayer.play();
-    if (janjiPlay !== undefined) {
-      janjiPlay.then(() => {
-         el.indikatorLoading.style.display = 'none';
-         el.videoPlayer.style.opacity = '1';
-      }).catch(e => console.warn("TV Memblokir Play:", e));
+    let p = el.videoPlayer.play();
+    if (p !== undefined) {
+      p.catch(e => console.warn("TV Memblokir Play:", e));
     }
-  }, 100);
+  }, 150);
 
+  // Deteksi darurat jika TV gagal merespons sama sekali (Hanya cek currentTime)
   timerAntiMacet = setTimeout(() => {
-    if (el.videoPlayer.currentTime === 0 || el.videoPlayer.paused) {
-      el.videoPlayer.src = ""; 
-      el.videoPlayer.style.opacity = '0';
+    if (el.videoPlayer.currentTime === 0) {
       el.indikatorLoading.style.display = 'none';
-      el.videoPlaceholder.style.display = 'flex';
-      el.teksPlaceholderVideo.innerHTML = `
-        <span style="color: #ef4444; font-size: 1.2rem; font-weight: 800;">KONEKSI LAMBAT</span><br>
-        <span style="color: #f5eee0; font-size: 1rem;">Melewati video ini...</span>
-      `;
-      setTimeout(lanjutKeVideoBerikutnya, 3000);
+      lanjutKeVideoBerikutnya();
     }
-  }, 25000); 
+  }, 15000); 
 }
 
 el.videoPlayer.addEventListener('playing', function() {
@@ -322,14 +303,10 @@ el.videoPlayer.addEventListener('playing', function() {
   el.videoPlayer.style.opacity = '1';
 });
 
+// Otomatis melompat ke video kedua jika yang pertama selesai
 el.videoPlayer.addEventListener('ended', function() {
-  if (statusPanggilanBerjalan) {
-    // Biarkan frame terakhir tampil selagi panggilan berlangsung
-    antreanGantiVideo = true;
-  } else {
-    el.videoPlayer.style.opacity = '0';
-    setTimeout(lanjutKeVideoBerikutnya, 500); 
-  }
+  el.videoPlayer.style.opacity = '0';
+  setTimeout(lanjutKeVideoBerikutnya, 500); 
 });
 
 db.ref('pengaturan/playlist_video').on('value', (snap) => {
@@ -343,31 +320,20 @@ db.ref('pengaturan/playlist_video').on('value', (snap) => {
   }
 });
 
+// PERBAIKAN: JANGAN PERNAH MENJEDA (PAUSE) VIDEO. Cukup kecilkan volumenya!
 function redamSuaraVideo() { 
   if (el.videoPlayer) {
     el.videoPlayer.volume = VOLUME_MENGECIL; 
-    // Bebaskan 100% CPU TV agar fokus bersuara (mencegah lag)
-    el.videoPlayer.pause();
   }
 }
 
+// PERBAIKAN: SABUK PENGAMAN (FAILSAFE TIMER).
+let failsafeSuara = null;
+
 function pulihkanSuaraVideo() { 
-  statusPanggilanBerjalan = false;
-
-  // Jika tadi ada video yang antre ingin ganti, jalankan sekarang
-  if (antreanGantiVideo) {
-    antreanGantiVideo = false;
-    el.videoPlayer.style.opacity = '0';
-    setTimeout(lanjutKeVideoBerikutnya, 500);
-    return;
-  }
-
+  clearTimeout(failsafeSuara);
   if (el.videoPlayer) {
     el.videoPlayer.volume = VOLUME_NORMAL; 
-    let p = el.videoPlayer.play();
-    if (p !== undefined) {
-      p.catch(e => console.log("Gagal auto-resume:", e));
-    }
   }
 }
 
@@ -391,20 +357,18 @@ el.btnAktifkan.addEventListener('click', () => {
   if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
   
   if (playlistVideo.length > 0) {
-    el.videoPlayer.pause();
     el.videoPlayer.muted = false;
     el.videoPlayer.volume = VOLUME_NORMAL;
     el.videoPlayer.load();
     let p = el.videoPlayer.play();
     if(p !== undefined) {
-       p.then(() => { el.videoPlayer.style.opacity = '1'; el.indikatorLoading.style.display = 'none'; })
-        .catch(e => console.log(e));
+       p.catch(e => console.log(e));
     }
   }
 });
 
 /* =========================================================================
-   SISA LOGIKA (TETAP AMAN)
+   SISA LOGIKA (PANGGILAN, LOKET)
    ========================================================================= */
 KONFIGURASI_LOKET.forEach(loket => {
   db.ref(`status_loket/${loket.id}`).on('value', (snap) => {
@@ -528,15 +492,19 @@ function ejaNomorAntrean(nomor){
   return `${prefixHuruf}, ${digitDieja}`;
 }
 
-// PERBAIKAN: Fungsi memanggil yang terintegrasi dengan penjeda CPU Video
 function mainkanPanggilan(nomor, namaLoket){
-  statusPanggilanBerjalan = true; // Kunci sistem video
   redamSuaraVideo(); 
   mainkanBel();
   const teks = `Nomor Antrean. ${ejaNomorAntrean(nomor)}. Silakan menuju. ${namaLoket}.`;
   
   setTimeout(() => {
     if (typeof responsiveVoice !== 'undefined') { 
+      
+      // FAILSAFE: Jika sistem TV hang dan gagal lapor "selesai bicara",
+      // Timer ini akan MEMAKSA volume video kembali normal setelah 8 detik.
+      clearTimeout(failsafeSuara);
+      failsafeSuara = setTimeout(pulihkanSuaraVideo, 8000);
+
       responsiveVoice.speak(teks, "Indonesian Female", { 
         pitch: 1.05, 
         rate: 1.0, 
