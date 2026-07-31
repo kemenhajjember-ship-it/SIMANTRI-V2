@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remote Loket SIMANTRI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background-color: #faf7f2; color: #2b1b10; font-family: system-ui, -apple-system, sans-serif; user-select: none; }
+  .btn-raksasa { transition: all 0.1s; box-shadow: 0 8px 0 rgba(0,0,0,0.2); }
+  .btn-raksasa:active { transform: translateY(8px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+  .btn-gold { background-color: #d4af37; color: #1b1008; box-shadow: 0 8px 0 #a8842a; }
+  .btn-dark { background-color: #2b1b10; color: #d4af37; box-shadow: 0 8px 0 #110a05; }
+  .btn-white { background-color: #fff; color: #2b1b10; border: 2px solid #2b1b10; box-shadow: 0 8px 0 #2b1b10; }
+  .btn-disabled { opacity: 0.5; pointer-events: none; box-shadow: none !important; transform: translateY(8px); }
+</style>
+</head>
+<body class="flex h-screen flex-col overflow-hidden">
+
+  <!-- LAYAR PENGATURAN AWAL (Hanya muncul sekali) -->
+  <div id="layarSetup" class="flex h-full flex-col items-center justify-center p-6 hidden">
+    <div class="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl text-center border-4 border-[#d4af37]">
+      <i data-lucide="monitor-cog" class="mx-auto h-16 w-16 text-[#d4af37] mb-4"></i>
+      <h1 class="text-2xl font-bold mb-2">Pengaturan Komputer</h1>
+      <p class="text-gray-600 mb-6">Pilih loket untuk komputer ini. Anda hanya perlu melakukan ini sekali.</p>
+      
+      <select id="pilihLoket" class="w-full rounded-xl border-2 border-gray-300 p-4 text-xl font-bold mb-6 focus:border-[#d4af37] focus:outline-none">
+        <option value="">-- Sentuh untuk Pilih Loket --</option>
+        <option value="loket1">LOKET 1 (Kode A)</option>
+        <option value="loket2">LOKET 2 (Kode B)</option>
+        <option value="loket3">LOKET 3 (Kode A)</option>
+        <option value="loket4">LOKET 4 (Kode B)</option>
+      </select>
+      
+      <button id="btnSimpanSetup" class="w-full rounded-xl bg-[#2b1b10] py-4 text-xl font-bold text-white transition hover:bg-[#3d2817]">Simpan & Masuk</button>
+    </div>
+  </div>
+
+  <!-- LAYAR REMOTE UTAMA -->
+  <div id="layarUtama" class="flex h-full flex-col hidden">
+    
+    <!-- Header -->
+    <header class="flex items-center justify-between bg-[#2b1b10] p-4 text-white">
+      <div class="flex items-center gap-3">
+        <div class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#d4af37] bg-black/20">
+          <i data-lucide="user" class="h-6 w-6 text-[#d4af37]"></i>
+        </div>
+        <div>
+          <h1 id="namaLoket" class="text-2xl font-bold text-[#d4af37]">LOKET --</h1>
+          <p id="kategoriLoket" class="text-sm opacity-80">Melayani Kode --</p>
+        </div>
+      </div>
+      <button id="btnGantiLoket" class="rounded-lg border border-white/20 p-3 text-sm opacity-70 hover:bg-white/10">Ganti Loket</button>
+    </header>
+
+    <!-- Display Nomor -->
+    <div class="flex flex-1 flex-col items-center justify-center px-6 py-4">
+      <p class="text-xl font-bold uppercase tracking-widest text-gray-500 mb-2">Nomor Saat Ini</p>
+      <div class="flex w-full max-w-2xl flex-col items-center justify-center rounded-3xl border-4 border-[#d4af37] bg-white py-12 shadow-2xl">
+        <h2 id="nomorTampil" class="text-[8rem] font-black leading-none text-[#2b1b10] drop-shadow-md">—</h2>
+        <div class="mt-6 flex items-center gap-3 rounded-full bg-orange-100 px-6 py-2 text-orange-800 hidden" id="statusAntreanKosong">
+          <i data-lucide="info" class="h-6 w-6"></i>
+          <span class="text-lg font-bold">Belum ada antrean baru</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tombol Aksi Raksasa -->
+    <div class="grid grid-cols-2 gap-4 bg-gray-100 p-6 pb-8 border-t-2 border-gray-200">
+      <button id="btnSelesai" class="btn-raksasa btn-white flex flex-col items-center justify-center rounded-3xl py-8 text-2xl font-black uppercase btn-disabled">
+        <i data-lucide="check-circle" class="mb-2 h-12 w-12 text-green-600"></i> Selesai
+      </button>
+      
+      <button id="btnTeruskan" class="btn-raksasa btn-dark flex flex-col items-center justify-center rounded-3xl py-8 text-2xl font-black uppercase btn-disabled hidden">
+        <i data-lucide="fingerprint" class="mb-2 h-12 w-12 text-[#d4af37]"></i> Teruskan (Bio)
+      </button>
+
+      <button id="btnPanggil" class="btn-raksasa btn-gold col-span-2 flex flex-col items-center justify-center rounded-3xl py-10 text-4xl font-black uppercase">
+        <i data-lucide="volume-2" class="mb-2 h-16 w-16"></i> Panggil Antrean
+      </button>
+    </div>
+  </div>
+
+<script>
+lucide.createIcons();
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
+  authDomain: "simantri-jember.firebaseapp.com",
+  databaseURL: "https://simantri-jember-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "simantri-jember",
+  storageBucket: "simantri-jember.firebasestorage.app",
+  messagingSenderId: "507271630488",
+  appId: "1:507271630488:web:dcc347a35334c6f3a84aed"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const KONFIG_LOKET = {
+  loket1: { nama: "Loket 1", kode: "A", bio: true },
+  loket2: { nama: "Loket 2", kode: "B", bio: false },
+  loket3: { nama: "Loket 3", kode: "A", bio: true },
+  loket4: { nama: "Loket 4", kode: "B", bio: false }
+};
+
+const el = {
+  layarSetup: document.getElementById('layarSetup'),
+  layarUtama: document.getElementById('layarUtama'),
+  pilihLoket: document.getElementById('pilihLoket'),
+  btnSimpanSetup: document.getElementById('btnSimpanSetup'),
+  namaLoket: document.getElementById('namaLoket'),
+  kategoriLoket: document.getElementById('kategoriLoket'),
+  btnGantiLoket: document.getElementById('btnGantiLoket'),
+  nomorTampil: document.getElementById('nomorTampil'),
+  btnPanggil: document.getElementById('btnPanggil'),
+  btnSelesai: document.getElementById('btnSelesai'),
+  btnTeruskan: document.getElementById('btnTeruskan'),
+  statusAntreanKosong: document.getElementById('statusAntreanKosong')
+};
+
+let loketAktif = localStorage.getItem('simantri_remote_loket');
+let nomorDilayaniSekarang = null;
+let jumlahRombonganSekarang = 1;
+let statusTerkunci = false;
+
+function init() {
+  if (!loketAktif || !KONFIG_LOKET[loketAktif]) {
+    el.layarSetup.classList.remove('hidden');
+    el.layarUtama.classList.add('hidden');
+  } else {
+    el.layarSetup.classList.add('hidden');
+    el.layarUtama.classList.remove('hidden');
+    jalankanRemote();
+  }
+}
+
+el.btnSimpanSetup.addEventListener('click', () => {
+  if (el.pilihLoket.value) {
+    localStorage.setItem('simantri_remote_loket', el.pilihLoket.value);
+    loketAktif = el.pilihLoket.value;
+    init();
+  } else { alert("Pilih loket terlebih dahulu!"); }
+});
+
+el.btnGantiLoket.addEventListener('click', () => {
+  localStorage.removeItem('simantri_remote_loket');
+  loketAktif = null;
+  init();
+});
+
+function kunciTombol(dikunci) {
+  statusTerkunci = dikunci;
+  if (dikunci) {
+    el.btnPanggil.classList.add('btn-disabled');
+    el.btnSelesai.classList.remove('btn-disabled');
+    el.btnTeruskan.classList.remove('btn-disabled');
+    el.btnPanggil.innerHTML = `<i data-lucide="volume-2" class="mb-2 h-16 w-16"></i> Panggil Ulang`;
+  } else {
+    el.btnPanggil.classList.remove('btn-disabled');
+    el.btnSelesai.classList.add('btn-disabled');
+    el.btnTeruskan.classList.add('btn-disabled');
+    el.btnPanggil.innerHTML = `<i data-lucide="mic" class="mb-2 h-16 w-16"></i> Panggil Antrean`;
+    el.nomorTampil.textContent = "—";
+  }
+  lucide.createIcons();
+}
+
+function jalankanRemote() {
+  const konfig = KONFIG_LOKET[loketAktif];
+  el.namaLoket.textContent = konfig.nama.toUpperCase();
+  el.kategoriLoket.textContent = `Melayani Antrean Kode ${konfig.kode}`;
+  
+  if (konfig.bio) {
+    el.btnTeruskan.classList.remove('hidden');
+    el.btnSelesai.classList.add('col-span-1');
+  } else {
+    el.btnTeruskan.classList.add('hidden');
+    el.btnSelesai.classList.add('col-span-2');
+  }
+
+  // Pantau status loket ini
+  db.ref(`status_loket/${loketAktif}`).on('value', (snap) => {
+    if (snap.exists() && snap.val().sedangDilayani) {
+      const data = snap.val();
+      nomorDilayaniSekarang = data.nomor;
+      jumlahRombonganSekarang = data.jumlahOrang || 1;
+      el.nomorTampil.textContent = nomorDilayaniSekarang;
+      kunciTombol(true);
+    } else {
+      nomorDilayaniSekarang = null;
+      kunciTombol(false);
+    }
+  });
+
+  // Pantau ketersediaan antrean
+  db.ref('antrean_menunggu').orderByChild('kategori').equalTo(konfig.kode).on('value', (snap) => {
+    if (snap.exists()) {
+      el.statusAntreanKosong.classList.add('hidden');
+      if (!statusTerkunci) el.btnPanggil.classList.remove('btn-disabled');
+    } else {
+      el.statusAntreanKosong.classList.remove('hidden');
+      if (!statusTerkunci) el.btnPanggil.classList.add('btn-disabled');
+    }
+  });
+}
+
+async function catatLog(nomor, aksi, catatan) {
+  try {
+    await db.ref('log_aktivitas').push({
+      nomor: nomor, aksi: aksi, catatan: catatan,
+      waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }),
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+  } catch(e) {}
+}
+
+el.btnPanggil.addEventListener('click', async () => {
+  const konfig = KONFIG_LOKET[loketAktif];
+  
+  // Jika sedang terkunci, maka tombol ini berfungsi sebagai PANGGIL ULANG
+  if (statusTerkunci && nomorDilayaniSekarang) {
+    await db.ref('panggilan_aktif').set({
+      nomor: nomorDilayaniSekarang, loket: konfig.nama, kategori: konfig.kode, 
+      timestamp: firebase.database.ServerValue.TIMESTAMP
+    });
+    return;
+  }
+
+  // PANGGIL BARU
+  el.btnPanggil.classList.add('btn-disabled');
+  try {
+    const snap = await db.ref('antrean_menunggu').orderByChild('kategori').equalTo(konfig.kode).limitToFirst(1).once('value');
+    if (!snap.exists()) return;
+    
+    let tiket = null, keyTiket = null;
+    snap.forEach(child => { tiket = child.val(); keyTiket = child.key; });
+    
+    await db.ref(`antrean_menunggu/${keyTiket}`).remove();
+    
+    const payload = { nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang || 1, sedangDilayani: true, timestamp: firebase.database.ServerValue.TIMESTAMP };
+    await db.ref('panggilan_aktif').set(payload);
+    await db.ref(`status_loket/${loketAktif}`).set(payload);
+    
+    await catatLog(tiket.nomor, 'Panggil', `Dipanggil ke ${konfig.nama}`);
+  } catch (err) { alert("Koneksi gagal."); }
+});
+
+el.btnSelesai.addEventListener('click', async () => {
+  if (!nomorDilayaniSekarang) return;
+  el.btnSelesai.classList.add('btn-disabled');
+  await catatLog(nomorDilayaniSekarang, 'Selesai', 'Layanan selesai di loket');
+  await db.ref(`status_loket/${loketAktif}/sedangDilayani`).set(false);
+});
+
+el.btnTeruskan.addEventListener('click', async () => {
+  if (!nomorDilayaniSekarang) return;
+  const konfig = KONFIG_LOKET[loketAktif];
+  
+  // Tampilkan prompt super sederhana menggunakan alert bawaan browser
+  let konfirmasi = confirm(`Teruskan Nomor ${nomorDilayaniSekarang} ke Ruang Biometrik?`);
+  if (konfirmasi) {
+    el.btnTeruskan.classList.add('btn-disabled');
+    try {
+      await db.ref('antrean_biometrik').push({ 
+        nomorAsal: nomorDilayaniSekarang, asalLoket: konfig.nama, 
+        jumlahOrang: jumlahRombonganSekarang, timestamp: firebase.database.ServerValue.TIMESTAMP 
+      });
+      await catatLog(nomorDilayaniSekarang, 'Biometrik', `Diteruskan ke Biometrik (${jumlahRombonganSekarang} orang)`);
+      await db.ref(`status_loket/${loketAktif}/sedangDilayani`).set(false);
+    } catch (err) { alert("Gagal meneruskan. Cek internet."); }
+  }
+});
+
+init();
+</script>
+</body>
+</html>
