@@ -14,7 +14,7 @@
   .disabled { opacity: 0.5; pointer-events: none; }
 </style>
 </head>
-<body class="bg-[#faf7f2] h-screen flex flex-col border border-[#e7dcc8]">
+<body class="bg-[#faf7f2] h-screen flex flex-col border border-[#e7dcc8] relative">
 
   <!-- LAYAR SETUP LOKET -->
   <div id="layarSetup" class="flex-1 flex flex-col items-center justify-center p-4 text-center hidden">
@@ -69,6 +69,23 @@
     </div>
   </div>
 
+  <!-- MODAL NOTIFIKASI BIOMETRIK (CUSTOM) -->
+  <div id="modalBio" class="absolute inset-0 z-50 bg-[#1b1008]/80 backdrop-blur-sm hidden flex-col items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full p-5 text-center border-2 border-[#d4af37]">
+      <div class="mx-auto h-12 w-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-3">
+        <i data-lucide="arrow-right-circle" class="h-6 w-6 text-orange-600"></i>
+      </div>
+      <h3 class="text-lg font-extrabold text-[#2b1b10] leading-tight mb-2">Teruskan Jemaah?</h3>
+      <p class="text-[11px] text-gray-500 mb-5 leading-relaxed">
+        Pindahkan Nomor <span id="modalBioNomor" class="font-bold text-[#b8860b] text-sm tracking-widest">--</span><br>ke Ruang Biometrik.
+      </p>
+      <div class="flex gap-2">
+        <button id="btnBatalBio" class="flex-1 border-2 border-gray-200 text-gray-600 font-bold py-2.5 rounded-lg text-[11px] btn-hover uppercase tracking-wider">Batal</button>
+        <button id="btnOkBio" class="flex-1 bg-[#d4af37] text-[#2b1b10] font-bold py-2.5 rounded-lg text-[11px] btn-hover shadow-sm uppercase tracking-wider">Ya, Pindah</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 lucide.createIcons();
 const db = firebase.initializeApp({
@@ -85,7 +102,26 @@ const KONFIG = {
   loket4: { nama: "Loket 4", kode: "B", bio: false }
 };
 
-const el = { setup: document.getElementById('layarSetup'), utama: document.getElementById('layarUtama'), pilih: document.getElementById('pilihLoket'), btnSimpan: document.getElementById('btnSimpan'), nama: document.getElementById('namaLoket'), info: document.getElementById('infoKategori'), btnGanti: document.getElementById('btnGanti'), badge: document.getElementById('badgeTunggu'), jmlTunggu: document.getElementById('jmlTunggu'), nomor: document.getElementById('nomorTampil'), btnPanggil: document.getElementById('btnPanggil'), teksPanggil: document.getElementById('teksPanggil'), btnSelesai: document.getElementById('btnSelesai'), btnBio: document.getElementById('btnBio') };
+const el = { 
+  setup: document.getElementById('layarSetup'), 
+  utama: document.getElementById('layarUtama'), 
+  pilih: document.getElementById('pilihLoket'), 
+  btnSimpan: document.getElementById('btnSimpan'), 
+  nama: document.getElementById('namaLoket'), 
+  info: document.getElementById('infoKategori'), 
+  btnGanti: document.getElementById('btnGanti'), 
+  badge: document.getElementById('badgeTunggu'), 
+  jmlTunggu: document.getElementById('jmlTunggu'), 
+  nomor: document.getElementById('nomorTampil'), 
+  btnPanggil: document.getElementById('btnPanggil'), 
+  teksPanggil: document.getElementById('teksPanggil'), 
+  btnSelesai: document.getElementById('btnSelesai'), 
+  btnBio: document.getElementById('btnBio'),
+  modalBio: document.getElementById('modalBio'),
+  modalBioNomor: document.getElementById('modalBioNomor'),
+  btnBatalBio: document.getElementById('btnBatalBio'),
+  btnOkBio: document.getElementById('btnOkBio')
+};
 
 let loketAktif = localStorage.getItem('sm_loket');
 let nomorAktif = null;
@@ -155,15 +191,30 @@ el.btnSelesai.onclick = async () => {
   db.ref('log_aktivitas').push({ nomor: nomorAktif, aksi: 'Selesai', catatan: 'Layanan selesai di loket', waktu: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), timestamp: Date.now() });
 };
 
-el.btnBio.onclick = async () => {
+// --- LOGIKA MODAL BIOMETRIK CUSTOM ---
+el.btnBio.onclick = () => {
   if(!nomorAktif) return; 
-  if(confirm(`Teruskan Nomor ${nomorAktif} ke Biometrik?`)) {
-    el.btnBio.classList.add('disabled');
-    await db.ref('antrean_biometrik').push({ nomorAsal: nomorAktif, asalLoket: KONFIG[loketAktif].nama, jumlahOrang: 1, timestamp: firebase.database.ServerValue.TIMESTAMP });
-    await db.ref(`status_loket/${loketAktif}/sedangDilayani`).set(false);
-    db.ref('log_aktivitas').push({ nomor: nomorAktif, aksi: 'Biometrik', catatan: `Diteruskan ke Biometrik (1 orang)`, waktu: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), timestamp: Date.now() });
-  }
+  el.modalBioNomor.textContent = nomorAktif;
+  el.modalBio.classList.remove('hidden');
+  el.modalBio.classList.add('flex');
 };
+
+el.btnBatalBio.onclick = () => {
+  el.modalBio.classList.add('hidden');
+  el.modalBio.classList.remove('flex');
+};
+
+el.btnOkBio.onclick = async () => {
+  el.modalBio.classList.add('hidden');
+  el.modalBio.classList.remove('flex');
+  el.btnBio.classList.add('disabled');
+  
+  await db.ref('antrean_biometrik').push({ nomorAsal: nomorAktif, asalLoket: KONFIG[loketAktif].nama, jumlahOrang: 1, timestamp: firebase.database.ServerValue.TIMESTAMP });
+  await db.ref(`status_loket/${loketAktif}/sedangDilayani`).set(false);
+  db.ref('log_aktivitas').push({ nomor: nomorAktif, aksi: 'Biometrik', catatan: `Diteruskan ke Biometrik (1 orang)`, waktu: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), timestamp: Date.now() });
+};
+// ------------------------------------
+
 init();
 </script>
 </body>
