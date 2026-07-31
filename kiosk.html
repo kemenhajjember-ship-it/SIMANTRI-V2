@@ -347,7 +347,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getDatabase, ref, push, set, get, runTransaction, serverTimestamp, onDisconnect
+  getDatabase, ref, push, set, get, remove, runTransaction, serverTimestamp, onDisconnect
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 try { lucide.createIcons(); } catch (e) { console.error("Lucide Error:", e); }
@@ -444,7 +444,41 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // =========================================================================
-// PENYEMPURNAAN KONEKSI: AUTO-PING UNTUK MENCEGAH KIOSK TERLELAP (AMNESIA JARINGAN)
+// PENYEMPURNAAN 1: PENGAMAN GANDA "PEMBERSIH OTOMATIS PAGI HARI" DI KIOSK
+// =========================================================================
+const TANGGAL_HARI_INI = new Date().toLocaleDateString('id-ID');
+const refTanggal = ref(db, 'pengaturan/tanggal_terakhir');
+
+get(refTanggal).then(async (snap) => {
+  if (!snap.exists()) {
+    set(refTanggal, TANGGAL_HARI_INI);
+  } else if (snap.val() !== TANGGAL_HARI_INI) {
+    try {
+      await Promise.all([ 
+        remove(ref(db, 'counter_nomor')), 
+        remove(ref(db, 'antrean_menunggu')), 
+        remove(ref(db, 'antrean_biometrik')), 
+        remove(ref(db, 'status_loket')), 
+        remove(ref(db, 'panggilan_aktif')), 
+        set(ref(db, 'kapasitas_biometrik/saat_ini'), 0),
+        set(refTanggal, TANGGAL_HARI_INI)
+      ]);
+      await push(ref(db, 'log_aktivitas'), { 
+        nomor: 'SISTEM', 
+        aksi: 'Reset', 
+        catatan: 'Antrean direset otomatis oleh Kiosk di awal hari.', 
+        waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), 
+        timestamp: serverTimestamp() 
+      });
+      console.log("Kiosk telah mereset antrean harian.");
+    } catch(e) {
+      console.error("Gagal Auto-Reset Kiosk", e);
+    }
+  }
+});
+
+// =========================================================================
+// PENYEMPURNAAN 2: AUTO-PING UNTUK MENCEGAH KIOSK TERLELAP (AMNESIA JARINGAN)
 // =========================================================================
 if(el.statusFirebaseFooter) {
   el.statusFirebaseFooter.innerHTML = `<svg class="h-5 w-5 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> Terhubung ke server`;
@@ -557,13 +591,10 @@ if(el.btnKonfirmasiRombongan) {
 }
 
 // =========================================================================
-// PENGAMBILAN NOMOR TERBARU DENGAN SINKRONISASI RESET ADMIN
+// PENGAMBILAN NOMOR TERBARU
 // =========================================================================
 async function ambilNomorBaru(kategori){
   const counterRef = ref(db, `counter_nomor/${kategori}`);
-  
-  // Karena admin.html akan menghapus folder 'counter_nomor' saat reset pagi hari,
-  // maka baris ini akan otomatis menghitung ulang dari 1 lagi.
   const hasil = await runTransaction(counterRef, (nilaiSaatIni) => (nilaiSaatIni || 0) + 1);
   return hasil.snapshot.val();
 }
