@@ -101,27 +101,29 @@
       </div>
 
       <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE) -->
-      <!-- PERBAIKAN: Menggunakan standar border-radius yang aman tanpa hack mask-image -->
       <div class="h-full relative shrink-0" style="flex: 1; border-radius: 2rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.6); overflow: hidden;">
         
-        <video id="localVideoPlayer" 
-               preload="auto" 
-               playsinline 
-               webkit-playsinline 
-               disablePictureInPicture 
-               style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; background-color: #000; opacity: 0; transition: opacity 0.5s ease;">
-        </video>
-        
+        <!-- WADAH PELINDUNG -->
+        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 2rem; overflow: hidden; pointer-events: none; z-index: 1;">
+            <video id="localVideoPlayer" 
+                   preload="auto" 
+                   playsinline 
+                   webkit-playsinline 
+                   disablePictureInPicture 
+                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; -webkit-object-fit: cover; border-radius: 2rem; background-color: #000; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;">
+            </video>
+        </div>
+
         <!-- TAMENG KACA TAK TERLIHAT (Mencegah klik tombol TV Samsung) -->
         <div style="position: absolute; inset: 0; z-index: 2; background-color: transparent; cursor: default;"></div>
 
-        <!-- Indikator Loading (Z-Index 3) -->
-        <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: inherit; pointer-events: none;">
+        <!-- Indikator Loading -->
+        <div id="indikatorLoading" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: inherit; pointer-events: none;">
           <i data-lucide="loader" class="h-10 w-10 animate-spin" style="color: #e8c547; margin-bottom: 8px;"></i>
           <p style="color: #e8c547; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.1em;">MEMUAT VIDEO...</p>
         </div>
 
-        <!-- Wadah Placeholder Kosong/Error (Z-Index 4) -->
+        <!-- Wadah Placeholder Kosong -->
         <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-4 p-4 text-center" style="border-radius: inherit; background-color: #000; color: rgba(245,238,224,0.3); pointer-events: none;">
           <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
         </div>
@@ -240,7 +242,7 @@ perbaruiJam(); setInterval(perbaruiJam, 1000);
 
 
 /* =========================================================================
-   SISTEM VIDEO OFFLINE (Disempurnakan)
+   SISTEM VIDEO (PENYEMPURNAAN ANTI-LAG & MANAJEMEN CPU)
    ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
@@ -248,7 +250,17 @@ let timerAntiMacet = null;
 const VOLUME_NORMAL = 0.85; 
 const VOLUME_MENGECIL = 0.10; 
 
+// STATE BARU: Sistem Manajemen Prioritas
+let statusPanggilanBerjalan = false;
+let antreanGantiVideo = false;
+
 function lanjutKeVideoBerikutnya() {
+  // Jika sedang ada panggilan masuk, tahan dulu pergantian videonya!
+  if (statusPanggilanBerjalan) {
+    antreanGantiVideo = true;
+    return;
+  }
+
   if (playlistVideo.length > 0) {
     indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
     putarVideoSekarang();
@@ -289,10 +301,9 @@ function putarVideoSekarang() {
     }
   }, 100);
 
-  // PERBAIKAN: Diperpanjang menjadi 25 detik & memastikan src dikosongkan agar suara tidak bocor
   timerAntiMacet = setTimeout(() => {
     if (el.videoPlayer.currentTime === 0 || el.videoPlayer.paused) {
-      el.videoPlayer.src = ""; // Stop buffering total
+      el.videoPlayer.src = ""; 
       el.videoPlayer.style.opacity = '0';
       el.indikatorLoading.style.display = 'none';
       el.videoPlaceholder.style.display = 'flex';
@@ -311,10 +322,14 @@ el.videoPlayer.addEventListener('playing', function() {
   el.videoPlayer.style.opacity = '1';
 });
 
-// PERBAIKAN: Pastikan video bersembunyi sebelum lanjut ke daftar putar berikutnya
 el.videoPlayer.addEventListener('ended', function() {
-  el.videoPlayer.style.opacity = '0';
-  setTimeout(lanjutKeVideoBerikutnya, 500); 
+  if (statusPanggilanBerjalan) {
+    // Biarkan frame terakhir tampil selagi panggilan berlangsung
+    antreanGantiVideo = true;
+  } else {
+    el.videoPlayer.style.opacity = '0';
+    setTimeout(lanjutKeVideoBerikutnya, 500); 
+  }
 });
 
 db.ref('pengaturan/playlist_video').on('value', (snap) => {
@@ -329,10 +344,24 @@ db.ref('pengaturan/playlist_video').on('value', (snap) => {
 });
 
 function redamSuaraVideo() { 
-  if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; 
+  if (el.videoPlayer) {
+    el.videoPlayer.volume = VOLUME_MENGECIL; 
+    // Bebaskan 100% CPU TV agar fokus bersuara (mencegah lag)
+    el.videoPlayer.pause();
+  }
 }
 
 function pulihkanSuaraVideo() { 
+  statusPanggilanBerjalan = false;
+
+  // Jika tadi ada video yang antre ingin ganti, jalankan sekarang
+  if (antreanGantiVideo) {
+    antreanGantiVideo = false;
+    el.videoPlayer.style.opacity = '0';
+    setTimeout(lanjutKeVideoBerikutnya, 500);
+    return;
+  }
+
   if (el.videoPlayer) {
     el.videoPlayer.volume = VOLUME_NORMAL; 
     let p = el.videoPlayer.play();
@@ -375,7 +404,7 @@ el.btnAktifkan.addEventListener('click', () => {
 });
 
 /* =========================================================================
-   SISA LOGIKA
+   SISA LOGIKA (TETAP AMAN)
    ========================================================================= */
 KONFIGURASI_LOKET.forEach(loket => {
   db.ref(`status_loket/${loket.id}`).on('value', (snap) => {
@@ -499,12 +528,25 @@ function ejaNomorAntrean(nomor){
   return `${prefixHuruf}, ${digitDieja}`;
 }
 
+// PERBAIKAN: Fungsi memanggil yang terintegrasi dengan penjeda CPU Video
 function mainkanPanggilan(nomor, namaLoket){
-  redamSuaraVideo(); mainkanBel();
+  statusPanggilanBerjalan = true; // Kunci sistem video
+  redamSuaraVideo(); 
+  mainkanBel();
   const teks = `Nomor Antrean. ${ejaNomorAntrean(nomor)}. Silakan menuju. ${namaLoket}.`;
+  
   setTimeout(() => {
-    if (typeof responsiveVoice !== 'undefined') { responsiveVoice.speak(teks, "Indonesian Female", { pitch: 1.05, rate: 1.0, volume: 1.0, onend: pulihkanSuaraVideo }); } 
-    else { setTimeout(pulihkanSuaraVideo, 4000); }
+    if (typeof responsiveVoice !== 'undefined') { 
+      responsiveVoice.speak(teks, "Indonesian Female", { 
+        pitch: 1.05, 
+        rate: 1.0, 
+        volume: 1.0, 
+        onend: pulihkanSuaraVideo 
+      }); 
+    } 
+    else { 
+      setTimeout(pulihkanSuaraVideo, 4000); 
+    }
   }, 1000); 
 }
 </script>
