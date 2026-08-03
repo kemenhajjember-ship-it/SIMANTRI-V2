@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <!-- ============================================================
-     META TAGS KIOSK & PWA (AGAR TAMPIL FULLSCREEN SEPERTI APLIKASI)
+     META TAGS KIOSK & PWA
      ============================================================ -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,11 +13,8 @@
 <meta name="display" content="standalone">
 <meta name="theme-color" content="#1b1008">
 
-<title>SIMANTRI V2 — Kiosk Layanan Haji &amp; Umrah</title>
+<title>SIMANTRI V2 — Kiosk Premium</title>
 
-<!-- ============================================================
-     TAILWIND CDN + KONFIGURASI TOKEN WARNA
-     ============================================================ -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -47,74 +44,46 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-  /* =========================================================================
-     ============  PERBAIKAN SKALA LAYAR KHUSUS MONITOR LG/SAMSUNG  ==========
-     ========================================================================= */
-  html {
-    font-size: 14px; 
-    width: 100%; height: 100%;
-  }
-
+  html { font-size: 14px; width: 100%; height: 100%; }
   @media (min-width: 1024px) { html { font-size: 16px; } }
   @media (min-width: 1366px) { html { font-size: 18px; } }
   @media (min-width: 1920px) { html { font-size: 22px; } }
 
   html, body { 
-    width: 100%; 
-    height: 100%; 
-    margin: 0; 
-    padding: 0;
-    overflow: hidden; 
-
-    /* === MENCEGAH TEKS TER-BLOK SAAT DISENTUH === */
-    user-select: none; 
-    -webkit-user-select: none;
-    touch-action: manipulation; 
-    -webkit-touch-callout: none; 
+    width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
+    user-select: none; touch-action: manipulation; -webkit-touch-callout: none; 
+    background-color: #1b1008;
   }
 
-  button {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent; 
-  }
+  button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
 
-  /* === KUNCI KURSOR LAYAR SENTUH === */
   @media (pointer: coarse) { *, button, a { cursor: none !important; } }
   .hilangkan-kursor, .hilangkan-kursor * { cursor: none !important; }
 
-  /* Grid Khusus 6 Tombol V2 */
-  .kiosk-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    min-height: 0;
+  .kiosk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
+
+  /* Pola Latar Belakang Elegan (Arabesque/Geometric) */
+  .bg-pattern {
+    background-image: radial-gradient(rgba(212, 175, 55, 0.15) 2px, transparent 2px),
+                      radial-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px, 20px 20px;
+    background-position: 0 0, 20px 20px;
   }
 
-  .hairline-gold {
-    background-image: linear-gradient(90deg, transparent, rgba(212,175,55,.85), transparent);
+  /* Animasi Kilap Tombol */
+  .btn-kilap::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 60%, rgba(255,255,255,0) 100%);
+    transform: rotate(30deg) translate(-100%, -100%);
+    transition: transform 0.8s ease-in-out;
+    pointer-events: none;
   }
+  .group:active .btn-kilap::after { transform: rotate(30deg) translate(100%, 100%); transition: transform 0s; }
 
-  /* Watermark Samping Khas V1 */
-  .watermark-img {
-    position: absolute; 
-    top: 0; right: 0; bottom: 0; left: 0;
-    background-size: cover;
-    opacity: 0.55;
-  }
-  .watermark-left {
-    background-position: left center;
-    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 92%);
-            mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 92%);
-  }
-  .watermark-right {
-    background-position: right center;
-    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 92%);
-            mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 92%);
-  }
-
-  /* =========================================================================
-     ==========================  CETAK STRUK FISIK (GLOBAL QUEUE) =============
-     ========================================================================= */
+  /* Area Cetak */
   #areaStruk{ display:none; }
   @media print {
     @page{ size:58mm auto; margin:0; }
@@ -128,237 +97,204 @@
     }
     #areaStruk *{ color:#000 !important; background:transparent !important; box-shadow:none !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .struk-garis{ border-top:1px dashed #000; margin:5px 0; }
-    .struk-kop-instansi{ text-align:center; font-size:11px; font-weight:700; line-height:1.3; text-transform:uppercase; }
+    .struk-kop{ text-align:center; font-size:11px; font-weight:700; line-height:1.3; text-transform:uppercase; }
     .struk-kategori{ text-align:center; font-size:12px; font-weight:700; margin-top:5px; }
     .struk-judul-kecil{ text-align:center; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:6px 0 2px; }
-    .struk-nomor-raksasa{
-      text-align:center; font-size:64px; font-weight:900; letter-spacing:1px;
-      line-height:1; margin:2px 0 6px; -webkit-text-stroke:0.6px #000;
-    }
-    .struk-jumlah{ text-align:center; font-size:12px; font-weight:700; margin-bottom:5px; }
+    .struk-nomor{ text-align:center; font-size:64px; font-weight:900; letter-spacing:1px; line-height:1; margin:2px 0 6px; -webkit-text-stroke:0.6px #000; }
+    .struk-jumlah{ text-align:center; font-size:11px; font-weight:bold; margin-bottom:5px; }
     .struk-waktu{ text-align:center; font-size:10px; margin-bottom:3px; }
-    .struk-pesan{ text-align:center; font-size:11px; font-weight:700; margin-top:5px; }
-    .struk-footer{ text-align:center; font-size:9px; margin-top:8px; }
+    .struk-pesan{ text-align:center; font-size:10px; font-weight:bold; margin-top:5px; }
   }
 </style>
 </head>
-<body class="bg-bronze-ink font-sans">
+<body class="font-sans text-[#2b1b10]">
 
-  <!-- ==================== BACKGROUND AMBIENT (DARI VERSI 1) ==================== -->
-  <div class="absolute top-0 right-0 bottom-0 left-0 z-0 flex pointer-events-none">
-    <div class="relative h-full w-1/2 overflow-hidden">
-      <div class="watermark-img watermark-left" style="background-image:url('kiri.png')"></div>
-    </div>
-    <div class="relative h-full w-1/2 overflow-hidden">
-      <div class="watermark-img watermark-right" style="background-image:url('kanan.png')"></div>
-    </div>
-  </div>
+  <!-- Latar Belakang Mewah -->
+  <div class="absolute inset-0 z-0 bg-pattern opacity-40"></div>
+  <div class="absolute inset-0 z-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_30%,rgba(212,175,55,0.25),transparent_80%)] pointer-events-none"></div>
 
-  <div class="absolute top-0 right-0 bottom-0 left-0 z-0 bg-[radial-gradient(ellipse_60%_55%_at_50%_45%,rgba(212,175,55,.14),transparent_70%)] pointer-events-none"></div>
+  <!-- Panggung Utama (Efek Kaca / Glassmorphism) -->
+  <main id="kioskPanel" class="absolute inset-[1.5rem] lg:inset-[2.5rem] z-20 flex flex-col overflow-hidden rounded-[2.5rem] border border-[#d4af37]/40 bg-[#faf7f2]/95 backdrop-blur-xl shadow-[0_2rem_5rem_-1rem_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)]">
 
-  <!-- ==================== PANGGUNG FULL-SCREEN ==================== -->
-  <main id="kioskPanel" class="absolute top-6 right-6 bottom-6 left-6 z-20 flex flex-col overflow-hidden rounded-[2.25rem] border border-gold/35 bg-cream-light text-bronze-deep shadow-[0_2.5rem_7.5rem_-1.25rem_rgba(0,0,0,.85),0_0_0_1px_rgba(255,255,255,.35)_inset] ring-1 ring-bronze-deep/10">
+    <!-- Aksen Emas Atas -->
+    <div class="h-2.5 w-full bg-[linear-gradient(90deg,#a8842a,#f2d877_30%,#d4af37_50%,#f2d877_70%,#a8842a)] shrink-0 shadow-[0_2px_10px_rgba(212,175,55,0.5)]"></div>
 
-    <!-- DEKORASI PANEL DALAM (DARI VERSI 1) -->
-    <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-65">
-      <!-- Grid Garis Tipis -->
-      <div class="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.15)_1px,transparent_1px)]" style="background-size: 4rem 4rem;"></div>
-      <!-- Gradasi Radial agar grid memudar di pinggir -->
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,#faf7f2_80%)]"></div>
-      <!-- Cahaya Emas di Tengah -->
-      <div class="absolute h-[60vh] w-[60vh] rounded-full bg-gold-light/15 blur-[90px]"></div>
-    </div>
-
-    <!-- Garis Emas Atas -->
-    <div class="relative z-10 h-[0.375rem] w-full shrink-0 bg-[linear-gradient(90deg,#a8842a,#e8c547_35%,#d4af37_50%,#e8c547_65%,#a8842a)]"></div>
-
-    <!-- HEADER -->
-    <header class="kiosk-header relative z-10 flex shrink-0 items-center gap-6 border-b border-bronze-deep/10 bg-gradient-to-b from-cream/90 to-transparent px-10 py-5">
-      
-      <!-- TOMBOL RAHASIA FULLSCREEN -->
-      <div id="btnRahasiaFullscreen" class="shrink-0 cursor-pointer rounded-full border-2 border-gold/70 bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(61,40,23,.55)] transition-transform active:scale-95" title="Ketuk 2x untuk Layar Penuh">
-        <img src="logo.png" alt="Logo Instansi" class="block h-16 w-16 rounded-full object-cover pointer-events-none">
+    <!-- Header Elegan -->
+    <header class="relative z-10 flex shrink-0 items-center justify-between border-b border-[#2b1b10]/10 bg-white/40 px-12 py-5 shadow-sm">
+      <div class="flex items-center gap-6" id="btnRahasiaFullscreen">
+        <div class="relative rounded-full bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(212,175,55,0.6)] border border-[#d4af37]/30">
+          <img src="logo.png" alt="Logo Instansi" class="h-16 w-16 rounded-full object-cover pointer-events-none">
+        </div>
+        <div>
+          <p class="font-serif text-sm font-bold uppercase tracking-[0.25em] text-[#a8842a]">Kemenhaj Kab. Jember</p>
+          <p class="text-[2.25rem] font-extrabold tracking-widest text-[#2b1b10] drop-shadow-sm leading-none mt-1">SIMANTRI V2</p>
+        </div>
       </div>
 
-      <div class="min-w-0 flex-1">
-        <p class="truncate font-serif text-xs font-bold uppercase tracking-[0.28em] text-gold-deep">
-          Kementerian Haji dan Umrah Kabupaten Jember
-        </p>
-        <p class="text-[2.125rem] font-extrabold leading-tight tracking-[0.14em] text-bronze-deep drop-shadow-sm">
-          SIMANTRI V2
-        </p>
-        <p class="text-[0.8125rem] font-semibold tracking-[0.2em] text-bronze/80">
-          Sistem Antrean Global
-        </p>
-      </div>
-
-      <div class="kiosk-clock flex shrink-0 flex-col items-end border-l border-bronze-deep/10 pl-6 text-right">
-        <span class="text-[0.6875rem] font-semibold uppercase tracking-[0.22em] text-bronze/60">Waktu Setempat</span>
-        <span class="mt-1 flex items-baseline gap-2">
-          <span id="footerJam" class="font-mono text-[1.875rem] font-extrabold leading-none tracking-tight text-bronze-deep">--:--:--</span>
-          <span class="text-xs font-bold text-gold-deep">WIB</span>
-        </span>
-        <span id="footerTanggal" class="mt-1 text-xs font-semibold text-bronze/70">memuat tanggal...</span>
+      <div class="flex flex-col items-end text-right">
+        <span id="footerJam" class="font-mono text-[2.5rem] font-black text-[#2b1b10] leading-none drop-shadow-sm">--:--:--</span>
+        <span id="footerTanggal" class="mt-1.5 text-xs font-bold uppercase text-[#a8842a] tracking-widest bg-[#d4af37]/10 px-3 py-1 rounded-full">memuat tanggal...</span>
       </div>
     </header>
 
-    <!-- KONTEN UTAMA: 6 TOMBOL LAYANAN (V2) -->
-    <section class="relative z-10 flex min-h-0 flex-1 flex-col px-10 py-6">
-
-      <div class="flex shrink-0 items-center justify-center gap-5">
-        <span class="hairline-gold h-px w-28"></span>
-        <h1 class="text-center font-serif text-2xl font-bold uppercase tracking-[0.22em] text-bronze-deep">
+    <!-- Konten Pilihan Layanan -->
+    <section class="relative z-10 flex flex-1 flex-col px-12 py-8">
+      
+      <div class="flex items-center justify-center gap-6 mb-8 shrink-0">
+        <div class="h-px w-24 bg-gradient-to-r from-transparent to-[#d4af37]"></div>
+        <h1 class="text-center font-serif text-3xl font-black uppercase tracking-[0.2em] text-[#2b1b10]">
           Silakan Pilih Layanan
         </h1>
-        <span class="hairline-gold h-px w-28"></span>
+        <div class="h-px w-24 bg-gradient-to-l from-transparent to-[#d4af37]"></div>
       </div>
-      <p class="mt-2 shrink-0 text-center text-sm font-medium text-bronze/75 mb-5">
-        Sentuh salah satu kartu di bawah untuk mengambil nomor antrean
-      </p>
 
+      <!-- Grid Tombol Modern 3D -->
       <div class="kiosk-grid flex-1">
         
         <!-- 1. Verifikasi -->
-        <button type="button" onclick="bukaModal('verifikasi', 'Verifikasi Pendaftaran')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2.25rem] border-t border-t-white/10 border-x border-x-black/30 border-b-[8px] border-b-[#0c0704] bg-[linear-gradient(145deg,#3d2817,#1b1008)] text-white shadow-[0_20px_40px_rgba(0,0,0,0.6),inset_0_2px_5px_rgba(255,255,255,0.05)] active:translate-y-[6px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(0,0,0,0.8),inset_0_2px_5px_rgba(255,255,255,0.05)] transition-all overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none"></div>
-          <i data-lucide="file-check-2" class="absolute -bottom-10 -right-10 h-48 w-48 text-white opacity-[0.03] -rotate-12 pointer-events-none"></i>
-          <span class="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-gold/45 bg-gradient-to-br from-gold/20 to-transparent shadow-[0_0_35px_rgba(212,175,55,0.2)] mb-4">
-            <i data-lucide="file-check-2" stroke-width="1.5" class="h-10 w-10 text-[#e8c547]"></i>
-          </span>
-          <span class="relative z-10 block text-[1.5rem] font-extrabold leading-none tracking-[0.18em] text-[#f5eee0] drop-shadow-md">VERIFIKASI</span>
-          <span class="relative z-10 mt-2 block text-sm font-medium text-[#f5eee0]/70">Pendaftaran Haji/Umrah</span>
+        <button type="button" onclick="bukaModal('verifikasi', 'Verifikasi Pendaftaran')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#3d2817]/20 bg-[linear-gradient(145deg,#3d2817,#1b1008)] text-white shadow-[0_15px_35px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] transition-all overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 mb-5 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+            <i data-lucide="file-check-2" stroke-width="1.5" class="h-10 w-10 text-[#f2d877]"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-[#f5eee0] drop-shadow-lg">VERIFIKASI</span>
+          <span class="text-sm text-[#f5eee0]/60 mt-2 font-medium tracking-wide">Pendaftaran Haji/Umrah</span>
         </button>
 
         <!-- 2. Informasi -->
-        <button type="button" onclick="bukaModal('informasi', 'Informasi Layanan')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2.25rem] border-t border-t-white/60 border-x border-x-[#2b1b10]/30 border-b-[8px] border-b-[#826115] bg-[linear-gradient(145deg,#f2d877,#d4af37_45%,#a8842a)] text-[#2b1b10] shadow-[0_20px_40px_rgba(0,0,0,0.35),inset_0_2px_5px_rgba(255,255,255,0.5)] active:translate-y-[6px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.5)] transition-all overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.25] to-transparent pointer-events-none"></div>
-          <i data-lucide="info" class="absolute -bottom-10 -right-10 h-48 w-48 text-[#2b1b10] opacity-[0.06] -rotate-12 pointer-events-none"></i>
-          <span class="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-white/50 bg-gradient-to-br from-white/40 to-white/10 shadow-[0_0_35px_rgba(255,255,255,0.4)] mb-4">
-            <i data-lucide="info" stroke-width="1.5" class="h-10 w-10 text-[#2b1b10]"></i>
-          </span>
-          <span class="relative z-10 block text-[1.5rem] font-extrabold leading-none tracking-[0.18em] text-[#2b1b10] drop-shadow-[0_2px_4px_rgba(255,255,255,0.4)]">INFORMASI</span>
-          <span class="relative z-10 mt-2 block text-sm font-bold text-[#2b1b10]/70">Tanya Jadwal & Status</span>
+        <button type="button" onclick="bukaModal('informasi', 'Informasi Layanan')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#d4af37]/50 bg-[linear-gradient(145deg,#fceabb,#f8b500)] text-[#2b1b10] shadow-[0_15px_35px_rgba(212,175,55,0.2),inset_0_2px_5px_rgba(255,255,255,0.6)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(212,175,55,0.3),inset_0_2px_5px_rgba(255,255,255,0.6)] transition-all overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/40 blur-2xl pointer-events-none"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-white/30 border border-white/50 mb-5 shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+            <i data-lucide="info" stroke-width="2" class="h-10 w-10 text-[#2b1b10]"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest drop-shadow-[0_2px_2px_rgba(255,255,255,0.5)]">INFORMASI</span>
+          <span class="text-sm text-[#2b1b10]/70 mt-2 font-bold tracking-wide">Tanya Jadwal & Status</span>
         </button>
 
         <!-- 3. Pembatalan -->
-        <button type="button" onclick="bukaModal('pembatalan', 'Pembatalan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2.25rem] border-t border-t-white/20 border-x border-x-red-900/50 border-b-[8px] border-b-[#450a0a] bg-[linear-gradient(145deg,#b91c1c,#7f1d1d)] text-white shadow-[0_20px_40px_rgba(153,27,27,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(153,27,27,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none"></div>
-          <i data-lucide="x-octagon" class="absolute -bottom-10 -right-10 h-48 w-48 text-white opacity-[0.04] -rotate-12 pointer-events-none"></i>
-          <span class="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-red-300/40 bg-gradient-to-br from-red-400/20 to-transparent shadow-[0_0_35px_rgba(248,113,113,0.2)] mb-4">
+        <button type="button" onclick="bukaModal('pembatalan', 'Pembatalan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-red-900/50 bg-[linear-gradient(145deg,#991b1b,#450a0a)] text-white shadow-[0_15px_35px_rgba(153,27,27,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(153,27,27,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-red-500/20 blur-xl pointer-events-none"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-red-400/10 border border-red-400/30 mb-5 shadow-[0_0_20px_rgba(248,113,113,0.2)]">
             <i data-lucide="x-octagon" stroke-width="1.5" class="h-10 w-10 text-red-200"></i>
-          </span>
-          <span class="relative z-10 block text-[1.5rem] font-extrabold leading-none tracking-[0.18em] text-red-50 drop-shadow-md">PEMBATALAN</span>
-          <span class="relative z-10 mt-2 block text-sm font-medium text-red-200/80">Proses Batal Porsi Haji</span>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-red-50 drop-shadow-lg">PEMBATALAN</span>
+          <span class="text-sm text-red-200/70 mt-2 font-medium tracking-wide">Proses Batal Porsi Haji</span>
         </button>
 
         <!-- 4. Pelimpahan -->
-        <button type="button" onclick="bukaModal('pelimpahan', 'Pelimpahan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2.25rem] border-t border-t-white/20 border-x border-x-orange-900/50 border-b-[8px] border-b-[#7c2d12] bg-[linear-gradient(145deg,#d97706,#9a3412)] text-white shadow-[0_20px_40px_rgba(194,65,12,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(194,65,12,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none"></div>
-          <i data-lucide="users" class="absolute -bottom-10 -right-10 h-48 w-48 text-white opacity-[0.04] -rotate-12 pointer-events-none"></i>
-          <span class="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-orange-300/40 bg-gradient-to-br from-orange-400/20 to-transparent shadow-[0_0_35px_rgba(251,146,60,0.2)] mb-4">
+        <button type="button" onclick="bukaModal('pelimpahan', 'Pelimpahan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-orange-900/50 bg-[linear-gradient(145deg,#c2410c,#7c2d12)] text-white shadow-[0_15px_35px_rgba(194,65,12,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(194,65,12,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-orange-400/10 border border-orange-400/30 mb-5 shadow-[0_0_20px_rgba(251,146,60,0.2)]">
             <i data-lucide="users" stroke-width="1.5" class="h-10 w-10 text-orange-200"></i>
-          </span>
-          <span class="relative z-10 block text-[1.5rem] font-extrabold leading-none tracking-[0.18em] text-orange-50 drop-shadow-md">PELIMPAHAN</span>
-          <span class="relative z-10 mt-2 block text-sm font-medium text-orange-200/80">Pelimpahan Porsi Keluarga</span>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-orange-50 drop-shadow-lg">PELIMPAHAN</span>
+          <span class="text-sm text-orange-200/70 mt-2 font-medium tracking-wide">Pelimpahan Porsi Keluarga</span>
         </button>
 
-        <!-- 5. Foto Wajah (Revisi Ikon) -->
-        <button type="button" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2.25rem] border-t border-t-white/10 border-x border-x-slate-800/50 border-b-[8px] border-b-[#0f172a] bg-[linear-gradient(145deg,#334155,#1e293b)] text-white shadow-[0_20px_40px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] transition-all overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none"></div>
-          <i data-lucide="camera" class="absolute -bottom-10 -right-10 h-48 w-48 text-white opacity-[0.03] -rotate-12 pointer-events-none"></i>
-          <span class="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-slate-400/30 bg-gradient-to-br from-slate-400/10 to-transparent shadow-[0_0_35px_rgba(148,163,184,0.2)] mb-4">
+        <!-- 5. Foto Wajah (Revisi Ikon Camera) -->
+        <button type="button" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-slate-700/50 bg-[linear-gradient(145deg,#334155,#0f172a)] text-white shadow-[0_15px_35px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] transition-all overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-slate-400/10 border border-slate-400/30 mb-5 shadow-[0_0_20px_rgba(148,163,184,0.2)]">
+            <!-- Diganti menjadi ikon kamera -->
             <i data-lucide="camera" stroke-width="1.5" class="h-10 w-10 text-[#e8c547]"></i>
-          </span>
-          <span class="relative z-10 block text-[1.5rem] font-extrabold leading-none tracking-[0.18em] text-slate-50 drop-shadow-md">FOTO WAJAH</span>
-          <span class="relative z-10 mt-2 block text-sm font-medium text-slate-300/80">Verifikasi Data & Foto</span>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-slate-50 drop-shadow-lg text-center leading-none">FOTO WAJAH</span>
+          <span class="text-sm text-slate-300/70 mt-2 font-medium tracking-wide text-center">Verifikasi Data & Foto</span>
         </button>
 
-        <!-- 6. Bio Visa (Revisi Ikon) -->
-        <button type="button" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2.25rem] border-t border-t-white/20 border-x border-x-teal-900/50 border-b-[8px] border-b-[#115e59] bg-[linear-gradient(145deg,#0d9488,#0f766e)] text-white shadow-[0_20px_40px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:border-b-[2px] active:shadow-[0_5px_10px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
-          <div class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent pointer-events-none"></div>
-          <i data-lucide="scan-face" class="absolute -bottom-10 -right-10 h-48 w-48 text-white opacity-[0.04] -rotate-12 pointer-events-none"></i>
-          <span class="relative z-10 flex h-20 w-20 shrink-0 items-center justify-center rounded-full border border-teal-300/40 bg-gradient-to-br from-teal-400/20 to-transparent shadow-[0_0_35px_rgba(45,212,191,0.2)] mb-4">
+        <!-- 6. Bio Visa (Revisi Ikon Scan Face) -->
+        <button type="button" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-teal-900/50 bg-[linear-gradient(145deg,#0f766e,#134e4a)] text-white shadow-[0_15px_35px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-teal-400/10 border border-teal-400/30 mb-5 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
+            <!-- Diganti menjadi ikon scan-face -->
             <i data-lucide="scan-face" stroke-width="1.5" class="h-10 w-10 text-teal-100"></i>
-          </span>
-          <span class="relative z-10 block text-[1.5rem] font-extrabold leading-none tracking-[0.18em] text-teal-50 drop-shadow-md">BIO VISA</span>
-          <span class="relative z-10 mt-2 block text-sm font-medium text-teal-200/80">Perekaman Saudi Visa Bio</span>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-teal-50 drop-shadow-lg">BIO VISA</span>
+          <span class="text-sm text-teal-200/70 mt-2 font-medium tracking-wide">Perekaman Saudi Visa Bio</span>
         </button>
 
       </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-bronze-deep/10 bg-cream/80 px-10 py-4">
-      <p class="flex items-center gap-3 text-sm font-semibold tracking-wide text-bronze/75">
-        <i data-lucide="shield-check" class="h-5 w-5 text-gold-deep"></i>
-        Layanan resmi &middot; Mohon simpan struk antrean Anda
-      </p>
-      <span id="statusFirebaseFooter" class="flex items-center gap-2.5 rounded-full border border-gold/40 bg-gold/10 px-4 py-1.5 text-sm font-bold tracking-wide text-gold-deep backdrop-blur-sm">
-        <i data-lucide="loader-circle" class="h-5 w-5 animate-spin text-gold-deep"></i> Menghubungkan...
+    <!-- FOOTER KONEKSI -->
+    <footer class="relative z-10 flex shrink-0 items-center justify-center border-t border-[#2b1b10]/10 bg-[#faf7f2] px-10 py-3 shadow-inner">
+      <span id="statusFirebaseFooter" class="flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] text-[#a8842a]">
+        <i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i> MENGHUBUNGKAN...
       </span>
     </footer>
   </main>
 
-  <!-- ==================== MODAL ROMBONGAN (DARI VERSI 1) ==================== -->
-  <div id="overlayRombongan" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-auto bg-bronze-ink/92 px-10 py-10 text-center backdrop-blur-md">
-    <div class="flex w-full max-w-[48rem] flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-10 py-8 shadow-[0_2.5rem_6.25rem_-1.875rem_rgba(0,0,0,.9)]">
-      <p id="labelLayanan" class="rounded-full border border-gold/50 bg-gold/12 px-6 py-2 text-xs font-bold uppercase tracking-[0.2em] text-gold-light">Layanan</p>
+  <!-- ==================== MODAL ROMBONGAN ELEGAN ==================== -->
+  <div id="overlayRombongan" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-[#1b1008]/85 px-10 backdrop-blur-md transition-opacity">
+    <div class="relative flex w-full max-w-2xl flex-col items-center overflow-hidden rounded-[2.5rem] bg-[#faf7f2] px-10 py-12 text-center shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-[#d4af37]/30">
+      
+      <div class="absolute top-0 inset-x-0 h-3 bg-gradient-to-r from-[#a8842a] via-[#e8c547] to-[#a8842a]"></div>
 
-      <h2 class="mt-5 font-serif text-3xl font-bold leading-snug text-cream-light">
+      <p id="labelLayanan" class="rounded-full bg-[#d4af37]/15 border border-[#d4af37]/30 px-6 py-2 text-xs font-black uppercase tracking-[0.2em] text-[#a8842a] mb-6 shadow-sm">Layanan</p>
+
+      <h2 class="font-serif text-3xl font-extrabold leading-snug text-[#2b1b10] mb-8">
         Berapa jumlah jemaah<br>dalam rombongan Anda?
       </h2>
 
-      <div class="mt-6 flex items-center justify-center gap-10">
-        <button type="button" id="btnKurang" class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-3xl font-bold leading-none text-gold-light transition-all active:scale-90 disabled:opacity-25">−</button>
-        <div id="angkaRombongan" class="w-28 font-mono text-7xl font-black leading-none text-cream-light">1</div>
-        <button type="button" id="btnTambah" class="flex h-16 w-16 items-center justify-center rounded-full border-2 border-gold/70 bg-cream/10 text-3xl font-bold leading-none text-gold-light transition-all active:scale-90 disabled:opacity-25">+</button>
+      <div class="flex items-center justify-center gap-10 mb-8">
+        <button type="button" id="btnKurang" class="flex h-20 w-20 items-center justify-center rounded-full border-4 border-[#e7dcc8] bg-white text-5xl font-bold text-[#a8842a] shadow-sm transition-all active:bg-[#faf7f2] active:scale-90 disabled:opacity-30 disabled:active:scale-100">−</button>
+        
+        <div class="relative w-36 h-36 flex items-center justify-center bg-white rounded-[2rem] shadow-inner border border-[#e7dcc8]">
+          <div id="angkaRombongan" class="font-mono text-[6rem] font-black leading-none text-[#2b1b10] drop-shadow-sm">1</div>
+        </div>
+        
+        <button type="button" id="btnTambah" class="flex h-20 w-20 items-center justify-center rounded-full border-4 border-[#e7dcc8] bg-white text-5xl font-bold text-[#a8842a] shadow-sm transition-all active:bg-[#faf7f2] active:scale-90 disabled:opacity-30 disabled:active:scale-100">+</button>
       </div>
 
-      <p class="mt-4 text-sm font-medium tracking-wide text-cream/55">Maksimal 8 orang per rombongan</p>
+      <p class="text-xs font-bold uppercase tracking-widest text-[#2b1b10]/40 mb-10"><i data-lucide="info" class="inline h-4 w-4 mr-1 -mt-0.5"></i> Maksimal 8 orang per rombongan</p>
 
-      <div class="mt-7 flex w-full max-w-[36rem] flex-wrap gap-5">
-        <button type="button" id="btnBatal" class="min-w-[10rem] flex-1 rounded-2xl border border-cream/25 bg-cream/10 py-4 text-lg font-bold tracking-wide text-cream-light transition-all active:scale-95">Batal</button>
-        <button type="button" id="btnCetak" class="min-w-[12rem] flex-1 rounded-2xl bg-[linear-gradient(135deg,#e8c547,#d4af37)] py-4 text-lg font-extrabold tracking-wide text-bronze-deep shadow-[0_1rem_2.5rem_-0.875rem_rgba(212,175,55,.8)] transition-all active:scale-95">Lanjutkan &amp; Cetak</button>
+      <div class="flex w-full gap-5">
+        <button type="button" id="btnBatal" class="flex-1 rounded-2xl border-2 border-[#2b1b10]/10 bg-white py-5 text-xl font-bold tracking-wide text-[#2b1b10]/60 hover:bg-gray-50 transition-all active:scale-95 shadow-sm">BATAL</button>
+        <button type="button" id="btnCetak" class="flex-1 rounded-2xl bg-[linear-gradient(145deg,#d4af37,#a8842a)] py-5 text-xl font-black tracking-widest text-white shadow-[0_10px_20px_rgba(212,175,55,0.3)] transition-all active:scale-95">CETAK TIKET</button>
       </div>
     </div>
   </div>
 
   <!-- ==================== MODAL TIKET (GLOBAL QUEUE) ==================== -->
-  <div id="overlayTiket" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center overflow-auto bg-bronze-ink/95 px-10 py-10 text-center backdrop-blur-md">
-    <div class="flex w-full max-w-[56rem] flex-col items-center overflow-hidden rounded-[1.75rem] border border-gold/30 bg-bronze-deep/70 px-10 py-7 shadow-[0_2.5rem_6.25rem_-1.875rem_rgba(0,0,0,.9)]">
-      <p class="font-serif text-base font-bold uppercase tracking-[0.24em] text-gold-light">Nomor antrean Anda</p>
+  <div id="overlayTiket" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-[#1b1008]/95 px-10 backdrop-blur-md">
+    <div class="relative flex w-full max-w-2xl flex-col items-center overflow-hidden rounded-[3rem] bg-white px-10 py-14 text-center shadow-[0_0_100px_rgba(212,175,55,0.2)]">
+      
+      <div class="absolute -top-20 -left-20 h-40 w-40 rounded-full bg-[#d4af37]/20 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-[#d4af37]/20 blur-3xl pointer-events-none"></div>
+
+      <p class="font-serif text-sm font-bold uppercase tracking-[0.3em] text-[#a8842a]">Nomor Antrean Anda</p>
 
       <!-- NOMOR MURNI -->
-      <p id="tiketKode" class="mt-2 text-[8rem] font-black leading-[.95] tracking-wider text-cream-light drop-shadow-[0_0.625rem_1.875rem_rgba(212,175,55,.25)]">001</p>
+      <p id="tiketKode" class="mt-6 text-[10rem] font-black leading-none tracking-tighter text-[#2b1b10] drop-shadow-md">001</p>
 
-      <div class="mt-6 w-full max-w-[32rem] rounded-2xl border border-cream/20 bg-cream/8 px-8 py-5">
-        <p id="tiketLayanan" class="text-xl font-bold tracking-wide text-gold-light">Verifikasi Dokumen</p>
-        <p id="tiketJumlah" class="mt-3 border-t border-cream/15 pt-3 text-base font-bold text-cream-light">Jumlah Rombongan: 1 orang</p>
+      <div class="mt-10 w-full rounded-[2rem] bg-[#faf7f2] border border-[#e7dcc8] px-8 py-8 shadow-inner relative overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-2 bg-[#d4af37]"></div>
+        <p id="tiketLayanan" class="text-2xl font-black tracking-widest text-[#2b1b10] uppercase mb-2">Layanan</p>
+        <p id="tiketJumlah" class="text-sm font-bold text-gray-500 uppercase tracking-widest">Rombongan: 1 orang</p>
       </div>
 
-      <p class="mt-6 flex items-center gap-3 text-base font-semibold tracking-wide text-gold-light">
-        <i data-lucide="printer" stroke-width="2" class="h-6 w-6 animate-pulse"></i>
-        Struk sedang dicetak, silakan ambil di bawah layar
-      </p>
+      <div class="mt-10 flex items-center justify-center gap-3 text-sm font-bold tracking-widest text-[#a8842a] bg-[#d4af37]/10 px-8 py-4 rounded-full animate-pulse">
+        <i data-lucide="printer" stroke-width="2.5" class="h-6 w-6"></i>
+        <span>MENCETAK STRUK DI BAWAH LAYAR...</span>
+      </div>
     </div>
   </div>
 
   <!-- ==================== AREA CETAK STRUK FISIK ==================== -->
   <div id="areaStruk">
-    <div class="struk-kop-instansi">
-      Kementerian Haji dan Umrah RI<br>
-      Kantor Kemenhaj Kab. Jember
-    </div>
+    <div class="struk-kop">Kementerian Haji & Umrah<br>Kab. Jember</div>
     <div class="struk-garis"></div>
     <div class="struk-kategori" id="strukKategori">Layanan: -</div>
-    <div class="struk-judul-kecil">Nomor Antrean Anda</div>
+    <div class="struk-judul-kecil">Nomor Antrean:</div>
     <!-- STRUK NOMOR MURNI -->
-    <div class="struk-nomor-raksasa" id="strukNomor">000</div>
-    <div class="struk-jumlah" id="strukJumlah">Jumlah Rombongan: 1 Orang</div>
+    <div class="struk-nomor" id="strukNomor">000</div>
+    <div class="struk-jumlah" id="strukJumlah">Rombongan: 1 Orang</div>
     <div class="struk-garis"></div>
-    <div class="struk-waktu" id="strukWaktu">--/--/---- --:--:--</div>
-    <div class="struk-pesan">Silakan menunggu panggilan</div>
-    <div class="struk-footer">Terima kasih atas kesabaran Anda</div>
+    <div class="struk-waktu" id="strukWaktu">--/--/----</div>
+    <div class="struk-pesan">Silakan tunggu panggilan ke Loket</div>
   </div>
 
 <script type="module">
@@ -410,7 +346,7 @@ const db = getDatabase(app);
 
 // Indikator Koneksi & Auto Ping
 const elStatus = document.getElementById('statusFirebaseFooter');
-if(elStatus) elStatus.innerHTML = `<svg class="h-5 w-5 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> Terhubung ke server`;
+if(elStatus) elStatus.innerHTML = `<svg class="h-4 w-4 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span class="pt-0.5">SISTEM TERHUBUNG</span>`;
 setInterval(() => { set(ref(db, 'system_ping/kiosk_terakhir_aktif'), serverTimestamp()).catch(()=>{}); }, 180000);
 
 // Logika Modal Rombongan
@@ -490,16 +426,14 @@ el.btnCetak.onclick = async () => {
     
     el.tiketKode.textContent = nomorFormat;
     el.tiketLayanan.textContent = namaLayananLengkap;
-    el.tiketJumlah.textContent = `Jumlah Rombongan: ${jumlahRombongan} orang`;
+    el.tiketJumlah.textContent = `Rombongan: ${jumlahRombongan} orang`;
     el.overlayTiket.classList.remove('hidden'); el.overlayTiket.classList.add('flex');
 
     // 4. Siapkan Data Struk
     document.getElementById('strukKategori').textContent = `Layanan: ${namaLayananLengkap}`;
     document.getElementById('strukNomor').textContent = nomorFormat;
-    document.getElementById('strukJumlah').textContent = `Jumlah Rombongan: ${jumlahRombongan} Orang`;
-    
-    const sekarang = new Date();
-    document.getElementById('strukWaktu').textContent = sekarang.toLocaleDateString('id-ID', { day:'2-digit', month:'2-digit', year:'numeric' }) + '  ' + sekarang.toLocaleTimeString('id-ID', { hour12:false });
+    document.getElementById('strukJumlah').textContent = `Rombongan: ${jumlahRombongan} Orang`;
+    document.getElementById('strukWaktu').textContent = new Date().toLocaleString('id-ID');
 
     setTimeout(() => { window.print(); }, 200);
 
