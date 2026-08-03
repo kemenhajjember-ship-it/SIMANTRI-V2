@@ -62,7 +62,7 @@
 
   .kiosk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
 
-  /* Pola Latar Belakang Elegan (Arabesque/Geometric) */
+  /* Pola Latar Belakang Luar Elegan (Arabesque/Geometric) */
   .bg-pattern {
     background-image: radial-gradient(rgba(212, 175, 55, 0.15) 2px, transparent 2px),
                       radial-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px);
@@ -109,15 +109,28 @@
 </head>
 <body class="font-sans text-[#2b1b10]">
 
-  <!-- Latar Belakang Mewah -->
+  <!-- Latar Belakang Luar (Gelap) -->
   <div class="absolute inset-0 z-0 bg-pattern opacity-40"></div>
   <div class="absolute inset-0 z-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_30%,rgba(212,175,55,0.25),transparent_80%)] pointer-events-none"></div>
 
-  <!-- Panggung Utama (Efek Kaca / Glassmorphism) -->
-  <main id="kioskPanel" class="absolute inset-[1.5rem] lg:inset-[2.5rem] z-20 flex flex-col overflow-hidden rounded-[2.5rem] border border-[#d4af37]/40 bg-[#faf7f2]/95 backdrop-blur-xl shadow-[0_2rem_5rem_-1rem_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)]">
+  <!-- Panggung Utama Dalam (Krem) -->
+  <main id="kioskPanel" class="absolute inset-[1.5rem] lg:inset-[2.5rem] z-20 flex flex-col overflow-hidden rounded-[2.5rem] border border-[#d4af37]/40 bg-[#faf7f2]/95 backdrop-blur-xl shadow-[0_2rem_5rem_-1rem_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)] relative">
+
+    <!-- TAMBAHAN BARU: DEKORASI PANEL DALAM (MENGHILANGKAN KESAN POLOS) -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <!-- 1. Jaring (Grid) Tipis Emas -->
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(212,175,55,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(212,175,55,0.06)_1px,transparent_1px)]" style="background-size: 3rem 3rem;"></div>
+      
+      <!-- 2. Cahaya Ambient di Sudut -->
+      <div class="absolute -top-40 -right-40 h-[30rem] w-[30rem] rounded-full bg-[#d4af37]/10 blur-[80px]"></div>
+      <div class="absolute -bottom-40 -left-40 h-[30rem] w-[30rem] rounded-full bg-[#a8842a]/10 blur-[80px]"></div>
+      
+      <!-- 3. Watermark Raksasa Pudar (Bulan Bintang / Nuansa Haji) -->
+      <i data-lucide="moon-star" class="absolute -bottom-10 -right-10 h-[40rem] w-[40rem] text-[#d4af37] opacity-[0.03] -rotate-12"></i>
+    </div>
 
     <!-- Aksen Emas Atas -->
-    <div class="h-2.5 w-full bg-[linear-gradient(90deg,#a8842a,#f2d877_30%,#d4af37_50%,#f2d877_70%,#a8842a)] shrink-0 shadow-[0_2px_10px_rgba(212,175,55,0.5)]"></div>
+    <div class="relative z-10 h-2.5 w-full bg-[linear-gradient(90deg,#a8842a,#f2d877_30%,#d4af37_50%,#f2d877_70%,#a8842a)] shrink-0 shadow-[0_2px_10px_rgba(212,175,55,0.5)]"></div>
 
     <!-- Header Elegan -->
     <header class="relative z-10 flex shrink-0 items-center justify-between border-b border-[#2b1b10]/10 bg-white/40 px-12 py-5 shadow-sm">
@@ -133,7 +146,7 @@
 
       <div class="flex flex-col items-end text-right">
         <span id="footerJam" class="font-mono text-[2.5rem] font-black text-[#2b1b10] leading-none drop-shadow-sm">--:--:--</span>
-        <span id="footerTanggal" class="mt-1.5 text-xs font-bold uppercase text-[#a8842a] tracking-widest bg-[#d4af37]/10 px-3 py-1 rounded-full">memuat tanggal...</span>
+        <span id="footerTanggal" class="mt-1.5 text-xs font-bold uppercase text-[#a8842a] tracking-widest bg-[#d4af37]/10 px-3 py-1 rounded-full border border-[#d4af37]/20 backdrop-blur-md">memuat tanggal...</span>
       </div>
     </header>
 
@@ -198,7 +211,6 @@
         <button type="button" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-slate-700/50 bg-[linear-gradient(145deg,#334155,#0f172a)] text-white shadow-[0_15px_35px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] transition-all overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-slate-400/10 border border-slate-400/30 mb-5 shadow-[0_0_20px_rgba(148,163,184,0.2)]">
-            <!-- Diganti menjadi ikon kamera -->
             <i data-lucide="camera" stroke-width="1.5" class="h-10 w-10 text-[#e8c547]"></i>
           </div>
           <span class="text-2xl font-black tracking-widest text-slate-50 drop-shadow-lg text-center leading-none">FOTO WAJAH</span>
@@ -209,7 +221,6 @@
         <button type="button" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-teal-900/50 bg-[linear-gradient(145deg,#0f766e,#134e4a)] text-white shadow-[0_15px_35px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-teal-400/10 border border-teal-400/30 mb-5 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
-            <!-- Diganti menjadi ikon scan-face -->
             <i data-lucide="scan-face" stroke-width="1.5" class="h-10 w-10 text-teal-100"></i>
           </div>
           <span class="text-2xl font-black tracking-widest text-teal-50 drop-shadow-lg">BIO VISA</span>
@@ -220,7 +231,7 @@
     </section>
 
     <!-- FOOTER KONEKSI -->
-    <footer class="relative z-10 flex shrink-0 items-center justify-center border-t border-[#2b1b10]/10 bg-[#faf7f2] px-10 py-3 shadow-inner">
+    <footer class="relative z-10 flex shrink-0 items-center justify-center border-t border-[#2b1b10]/10 bg-white/40 px-10 py-3 shadow-inner">
       <span id="statusFirebaseFooter" class="flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] text-[#a8842a]">
         <i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i> MENGHUBUNGKAN...
       </span>
@@ -346,7 +357,7 @@ const db = getDatabase(app);
 
 // Indikator Koneksi & Auto Ping
 const elStatus = document.getElementById('statusFirebaseFooter');
-if(elStatus) elStatus.innerHTML = `<svg class="h-4 w-4 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span class="pt-0.5">SISTEM TERHUBUNG</span>`;
+if(elStatus) elStatus.innerHTML = `<svg class="h-4 w-4 text-[#a8842a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span class="pt-0.5">SISTEM TERHUBUNG</span>`;
 setInterval(() => { set(ref(db, 'system_ping/kiosk_terakhir_aktif'), serverTimestamp()).catch(()=>{}); }, 180000);
 
 // Logika Modal Rombongan
