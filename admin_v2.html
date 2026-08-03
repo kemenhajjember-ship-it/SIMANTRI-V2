@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMANTRI V2 — Konsol Petugas</title>
 
-<!-- LIBRARY SUARA PREMIUM -->
+<!-- LIBRARY SUARA PREMIUM (DIKEMBALIKAN KE VERSI 1) -->
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -42,7 +42,7 @@
       <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold/40 object-cover">
       <div class="leading-tight">
         <p class="text-sm font-semibold tracking-[0.18em] text-gold">SIMANTRI V2</p>
-        <p class="text-[11px] text-cream/60">Kementerian Haji dan Umrah Kabupaten Jember</p>
+        <p class="text-[11px] text-cream/60">Sistem Antrean Global &middot; Kemenhaj Jember</p>
       </div>
     </div>
 
@@ -55,10 +55,10 @@
       <div class="flex items-center gap-3">
         <select id="pilihPeran" class="rounded-lg border border-gold/40 bg-bronze px-3 py-2 text-sm font-semibold text-cream focus:outline-none">
           <option value="">— Pilih Akses Login —</option>
-          <option value="loketA">Loket A (Verifikasi Pendaftaran)</option>
-          <option value="loketB">Loket B (Informasi Haji)</option>
-          <option value="loketC">Loket C (Batal & Limpah)</option>
-          <option value="loketD">Loket D (Batal & Limpah)</option>
+          <option value="loketA">Loket A (Pak Samhadi)</option>
+          <option value="loketB">Loket B (Pak Wahib)</option>
+          <option value="loketC">Loket C (Bu Yanti)</option>
+          <option value="loketD">Loket D (Pak Irvan)</option>
           <option value="biometrik">Ruang Foto Biometrik</option>
           <option value="biovisa">Ruang Bio Visa</option>
         </select>
@@ -1160,12 +1160,25 @@ function perbaruiChartKunjungan(perJam) {
 }
 
 const elAudio = { volume: document.getElementById('aturVolume'), nilaiVolume: document.getElementById('nilaiVolume'), kecepatan: document.getElementById('aturKecepatanTTS'), nilaiKecepatan: document.getElementById('nilaiKecepatanTTS'), tesSuara: document.getElementById('btnTesSuara') };
+
+// =========================================================================
+// FITUR AUDIO: DIKEMBALIKAN 100% SEPERTI VERSI 1 (MENGGUNAKAN RESPONSIVEVOICE)
+// =========================================================================
 if (elAudio.volume) {
-  elAudio.volume.value = localStorage.getItem('simantri_volume') || 80; elAudio.kecepatan.value = localStorage.getItem('simantri_kecepatan_tts') || 1;
-  elAudio.nilaiVolume.textContent = elAudio.volume.value; elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1);
+  elAudio.volume.value = localStorage.getItem('simantri_volume') || 80; 
+  elAudio.kecepatan.value = localStorage.getItem('simantri_kecepatan_tts') || 1;
+  
+  elAudio.nilaiVolume.textContent = elAudio.volume.value; 
+  elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1);
+  
   elAudio.volume.addEventListener('input', () => { elAudio.nilaiVolume.textContent = elAudio.volume.value; localStorage.setItem('simantri_volume', elAudio.volume.value); });
   elAudio.kecepatan.addEventListener('input', () => { elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1); localStorage.setItem('simantri_kecepatan_tts', elAudio.kecepatan.value); });
-  elAudio.tesSuara.addEventListener('click', () => { if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak('Tes panggilan. Nomor antrean. Kosong. Kosong. Satu. Silakan menuju. Loket A.', "Indonesian Female", { pitch: 1.05, rate: Number(elAudio.kecepatan.value), volume: Number(elAudio.volume.value) / 100 }); });
+  
+  elAudio.tesSuara.addEventListener('click', () => { 
+    if (typeof responsiveVoice !== 'undefined') {
+      responsiveVoice.speak('Tes panggilan. Nomor antrean. Kosong. Kosong. Satu. Silakan menuju. Loket A.', "Indonesian Female", { pitch: 1.05, rate: Number(elAudio.kecepatan.value), volume: Number(elAudio.volume.value) / 100 }); 
+    }
+  });
 }
 
 let playlistVideo = [];
