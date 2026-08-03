@@ -42,7 +42,7 @@
       <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold/40 object-cover">
       <div class="leading-tight">
         <p class="text-sm font-semibold tracking-[0.18em] text-gold">SIMANTRI V2</p>
-        <p class="text-[11px] text-cream/60">Sistem Antrean Global &middot; Kemenhaj Jember</p>
+        <p class="text-[11px] text-cream/60">Kementerian Haji dan Umrah Kabupaten Jember</p>
       </div>
     </div>
 
@@ -55,10 +55,10 @@
       <div class="flex items-center gap-3">
         <select id="pilihPeran" class="rounded-lg border border-gold/40 bg-bronze px-3 py-2 text-sm font-semibold text-cream focus:outline-none">
           <option value="">— Pilih Akses Login —</option>
-          <option value="loketA">Loket A (Pak Samhadi)</option>
-          <option value="loketB">Loket B (Pak Wahib)</option>
-          <option value="loketC">Loket C (Bu Yanti)</option>
-          <option value="loketD">Loket D (Pak Irvan)</option>
+          <option value="loketA">Loket A (Verifikasi Pendaftaran)</option>
+          <option value="loketB">Loket B (Informasi Haji)</option>
+          <option value="loketC">Loket C (Batal & Limpah)</option>
+          <option value="loketD">Loket D (Batal & Limpah)</option>
           <option value="biometrik">Ruang Foto Biometrik</option>
           <option value="biovisa">Ruang Bio Visa</option>
         </select>
@@ -214,7 +214,7 @@
                     </button>
                   </div>
                   <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
-                    <span id="pesanBiometrik">Panggilan mencakup foto murni & lemparan.</span>
+                    <span id="pesanBiometrik">Panggilan mencakup foto murni & lemparan dari loket lain.</span>
                   </div>
                 </section>
 
@@ -229,7 +229,7 @@
                     <thead>
                       <tr class="text-[11px] uppercase tracking-wider text-muted-foreground">
                         <th scope="col" class="px-5 py-2.5 font-medium">Nomor</th>
-                        <th scope="col" class="px-5 py-2.5 font-medium">Layanan</th>
+                        <th scope="col" class="px-5 py-2.5 font-medium">Layanan / Rombongan</th>
                         <th scope="col" class="px-5 py-2.5 text-right font-medium">Status</th>
                       </tr>
                     </thead>
@@ -599,7 +599,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, set, remove, onValue, push, query, orderByChild, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, get, set, remove, onValue, runTransaction, push, query, orderByChild, limitToFirst, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
@@ -1097,12 +1097,19 @@ function renderRiwayat(){
   if (!data.length){ elRiwayat.isi.innerHTML = `<tr><td colspan="5" class="px-6 py-14 text-center text-xs text-muted-foreground">Tidak ada catatan yang cocok dengan filter.</td></tr>`; return; }
   elRiwayat.isi.innerHTML = data.map((item, i) => {
     const badge = LABEL_STATUS[item.aksi] || { teks: item.aksi || '—', kelas: 'border-border bg-cream text-bronze' };
-    return `<tr class="${i % 2 === 1 ? 'bg-cream/35' : 'bg-white'} transition-colors hover:bg-cream/70"><td class="px-6 py-3.5 font-mono text-sm text-bronze-dark">${item.waktu || '--:--'}</td><td class="px-6 py-3.5"><span class="font-mono text-sm font-bold text-bronze-dark">${item.nomor || '—'}</span></td><td class="px-6 py-3.5 text-xs font-medium text-muted-foreground">${jenisLayananDariRiwayat(item)}</td><td class="px-6 py-3.5 text-xs font-semibold text-bronze">${item.catatan.split(' ke ')[1] || '—'}</td><td class="px-6 py-3.5 text-right"><span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.kelas}">${badge.teks}</span></td></tr>`;
+    return `<tr class="${i % 2 === 1 ? 'bg-cream/35' : 'bg-white'} transition-colors hover:bg-cream/70"><td class="px-6 py-3.5 font-mono text-sm text-bronze-dark">${item.waktu || '--:--'}</td><td class="px-6 py-3.5"><span class="font-mono text-sm font-bold text-bronze-dark">${item.nomor || '—'}</span></td><td class="px-6 py-3.5 text-xs font-medium text-muted-foreground">${jenisLayananDariRiwayat(item)}</td><td class="px-6 py-3.5 text-xs font-semibold text-bronze">${(item.catatan || '').split(' ke ')[1] || '—'}</td><td class="px-6 py-3.5 text-right"><span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.kelas}">${badge.teks}</span></td></tr>`;
   }).join('');
 }
 
 [elRiwayat.periode, elRiwayat.status].forEach(node => node.addEventListener('change', renderRiwayat)); elRiwayat.cari.addEventListener('input', renderRiwayat);
 elRiwayat.reset.addEventListener('click', () => { elRiwayat.periode.value = 'hari-ini'; elRiwayat.status.value = 'semua'; elRiwayat.cari.value = ''; renderRiwayat(); });
+elRiwayat.unduh.addEventListener('click', () => {
+  const baris = [['Waktu Panggil','Nomor Antrean','Jenis Layanan','Loket','Status']].concat(riwayatTersaring().map(item => [ item.waktu || '', item.nomor || '', jenisLayananDariRiwayat(item), (item.catatan || '').split(' ke ')[1] || '—', LABEL_STATUS[item.aksi]?.teks || item.aksi || '' ]));
+  const csv = baris.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a'); a.href = url; a.download = `riwayat-antrean-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+});
 
 const elLaporan = { periode: document.getElementById('filterPeriodeLaporan'), totalPengunjung: document.getElementById('lapTotalPengunjung'), rataTunggu: document.getElementById('lapRataTunggu'), loketTersibuk: document.getElementById('lapLoketTersibuk'), loketSub: document.getElementById('lapLoketTersibukSub'), totalBiometrik: document.getElementById('lapTotalBiometrik'), wadahKomposisi: document.getElementById('wadahKomposisiLayanan'), jamTersibuk: document.getElementById('lapJamTersibuk') };
 
@@ -1115,18 +1122,20 @@ function renderLaporan(){
   const stempel = panggilan.map(i => i.timestamp).filter(t => typeof t === 'number').sort((a,b) => a - b);
   elLaporan.rataTunggu.textContent = (stempel.length > 1) ? Math.round((stempel[stempel.length - 1] - stempel[0]) / (stempel.length - 1) / 60000) : 0;
 
-  const perLoket = {}; panggilan.forEach(i => { const loket = i.catatan.split(' ke ')[1]; if (loket) perLoket[loket] = (perLoket[loket] || 0) + 1; });
+  const perLoket = {}; panggilan.forEach(i => { const loket = (i.catatan || '').split(' ke ')[1]; if (loket) perLoket[loket] = (perLoket[loket] || 0) + 1; });
   const urutLoket = Object.entries(perLoket).sort((a,b) => b[1] - a[1]);
   elLaporan.loketTersibuk.textContent = urutLoket.length ? urutLoket[0][0] : '—'; elLaporan.loketSub.textContent = urutLoket.length ? `${urutLoket[0][1]} nomor dilayani` : 'belum ada data';
 
-  elLaporan.wadahKomposisi.innerHTML = '';
-  const rekapKat = {}; panggilan.forEach(p => { const k = p.kategori || 'lainnya'; rekapKat[k] = (rekapKat[k] || 0) + 1; });
-  Object.entries(NAMA_KATEGORI).forEach(([key, name]) => {
-      const jumlah = rekapKat[key] || 0; const persen = panggilan.length ? Math.round((jumlah / panggilan.length) * 100) : 0;
-      if (jumlah > 0 || panggilan.length === 0) {
-        elLaporan.wadahKomposisi.innerHTML += `<div><div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">${name}</p><p class="font-mono text-xs font-bold text-bronze-dark">${persen}%</p></div><div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div class="h-full rounded-full bg-gold transition-all" style="width:${persen}%"></div></div><p class="mt-1.5 text-[11px] text-muted-foreground">${jumlah} nomor</p></div>`;
-      }
-  });
+  if (elLaporan.wadahKomposisi) {
+    elLaporan.wadahKomposisi.innerHTML = '';
+    const rekapKat = {}; panggilan.forEach(p => { const k = p.kategori || 'Umum'; rekapKat[k] = (rekapKat[k] || 0) + 1; });
+    Object.entries(NAMA_KATEGORI).forEach(([key, name]) => {
+        const jumlah = rekapKat[key] || 0; const persen = panggilan.length ? Math.round((jumlah / panggilan.length) * 100) : 0;
+        if (jumlah > 0 || panggilan.length === 0) {
+          elLaporan.wadahKomposisi.innerHTML += `<div><div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">${name}</p><p class="font-mono text-xs font-bold text-bronze-dark">${persen}%</p></div><div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div class="h-full rounded-full bg-gold transition-all" style="width:${persen}%"></div></div><p class="mt-1.5 text-[11px] text-muted-foreground">${jumlah} nomor</p></div>`;
+        }
+    });
+  }
 
   const perJam = {}; panggilan.forEach(i => { const jam = String(i.waktu || '').slice(0, 2); if (/^\d\d$/.test(jam)) perJam[jam] = (perJam[jam] || 0) + 1; });
   const urutJam = Object.entries(perJam).sort((a,b) => b[1] - a[1]);
