@@ -15,7 +15,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-  html { font-size: 1.2vw; }
+  html { font-size: 1vw; } /* Diperkecil sedikit agar responsif terhadap layar besar */
 
   /* Animasi Denyut Kartu Loket */
   @keyframes card-pulse {
@@ -59,39 +59,47 @@
   <!-- HEADER -->
   <header class="relative z-10 flex items-center justify-between px-6 py-3 shadow-md md:px-8" style="border-bottom: 2px solid rgba(212,175,55,0.3); background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); flex-shrink: 0;">
     <div class="flex items-center gap-4 min-w-0">
-      <img src="logo.png" alt="Logo" class="rounded-full object-cover shadow-md shrink-0" style="height: 4.5rem; width: 4.5rem; border: 2px solid rgba(232,197,71,0.7);">
+      <img src="logo.png" alt="Logo" class="rounded-full object-cover shadow-md shrink-0" style="height: 5.5rem; width: 5.5rem; border: 2px solid rgba(232,197,71,0.7);">
       <div class="text-left min-w-0">
-        <h1 class="font-sans font-extrabold uppercase leading-none truncate" style="font-size: 2rem; letter-spacing: 0.1em; color: #e8c547; drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+        <h1 class="font-sans font-extrabold uppercase leading-none truncate" style="font-size: 2.5rem; letter-spacing: 0.1em; color: #e8c547; drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
           SIMANTRI V2
         </h1>
-        <p class="mt-1 font-sans font-semibold uppercase truncate" style="font-size: 0.85rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.8);">
+        <p class="mt-1 font-sans font-semibold uppercase truncate" style="font-size: 1rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.8);">
           Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
         </p>
       </div>
     </div>
     <div class="text-right shrink-0">
-      <p id="tvJam" class="font-mono font-extrabold leading-none drop-shadow-md" style="font-size: 2.5rem; letter-spacing: 0.05em; color: #e8c547;">00:00:00</p>
-      <p id="tvTanggal" class="mt-1.5 font-sans font-bold uppercase" style="font-size: 0.8rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.7);"></p>
+      <p id="tvJam" class="font-mono font-extrabold leading-none drop-shadow-md" style="font-size: 3rem; letter-spacing: 0.05em; color: #e8c547;">00:00:00</p>
+      <p id="tvTanggal" class="mt-1.5 font-sans font-bold uppercase" style="font-size: 1rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.7);"></p>
     </div>
   </header>
 
-  <!-- MAIN KONTEN (PENGGABUNGAN VIDEO & PANGGILAN) -->
-  <main class="relative z-10 flex-1 flex flex-col min-h-0 p-4 lg:p-5" style="gap: 1.5rem;">
+  <!-- MAIN KONTEN (TATA LETAK KIRI KANAN) -->
+  <main class="relative z-10 flex-1 flex flex-row min-h-0 p-5 lg:p-6" style="gap: 2rem;">
     
-    <!-- WADAH RAKSASA (VIDEO + OVERLAY PANGGILAN) -->
-    <div class="relative flex-1 w-full rounded-[2.5rem] border-2 border-[#d4af37]/40 shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden bg-black group transform translate-z-0">
+    <!-- KOTAK KIRI: Grid 6 Loket (3 Baris x 2 Kolom) -->
+    <!-- W-2/5 membuat kotak ini memakan 40% layar -->
+    <section aria-label="Nomor antrean per loket" class="shrink-0 grid w-2/5" style="grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 1.5rem;">
+      <!-- Kartu Loket di-generate oleh JS -->
+    </section>
+
+    <!-- KOTAK KANAN: WADAH RAKSASA (VIDEO + OVERLAY PANGGILAN) -->
+    <!-- Flex-1 memakan sisa ruang (sekitar 60%), membuatnya pas untuk proporsi Video Landscape -->
+    <div class="relative flex-1 rounded-[2.5rem] border-2 border-[#d4af37]/40 shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden bg-black group transform translate-z-0 flex flex-col justify-center items-center">
       
       <!-- LAYER 1: PEMUTAR VIDEO (DASAR) -->
+      <!-- object-cover akan memastikan video mengisi seluruh kotak 60% ini tanpa gepeng -->
       <video id="localVideoPlayer" preload="auto" playsinline webkit-playsinline disablePictureInPicture class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0 pointer-events-none"></video>
       <div class="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
 
       <!-- Indikator Loading Video -->
       <div id="indikatorLoading" class="absolute inset-0 hidden flex-col items-center justify-center z-20 bg-black/80 pointer-events-none">
         <i data-lucide="loader" class="h-12 w-12 animate-spin text-[#e8c547] mb-3"></i>
-        <p class="text-[#e8c547] font-bold tracking-widest">MEMUAT VIDEO...</p>
+        <p class="text-[#e8c547] font-bold tracking-widest text-xl">MEMUAT VIDEO...</p>
       </div>
       <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-[#110a05] pointer-events-none">
-        <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase tracking-widest text-white/30 text-xl">Playlist Video Kosong</p>
+        <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase tracking-widest text-white/30 text-2xl">Playlist Video Kosong</p>
       </div>
 
       <!-- LAYER 2: OVERLAY PANGGILAN RAKSASA (MUNCUL SAAT DIPANGGIL) -->
@@ -101,54 +109,49 @@
         <div class="absolute -top-40 -left-40 h-[40rem] w-[40rem] rounded-full bg-[#d4af37]/10 blur-[100px]"></div>
         <div class="absolute -bottom-40 -right-40 h-[40rem] w-[40rem] rounded-full bg-[#d4af37]/10 blur-[100px]"></div>
 
-        <p class="relative z-10 font-sans font-bold uppercase tracking-[0.4em] text-[#d4af37] text-2xl mb-2 animate-pulse">Panggilan Menuju</p>
-        <h2 id="highlightLoket" class="relative z-10 font-sans font-extrabold uppercase leading-tight text-center text-white drop-shadow-2xl" style="font-size: 5rem; letter-spacing: 0.1em; text-shadow: 0 0 30px rgba(212,175,55,0.5);">—</h2>
+        <p class="relative z-10 font-sans font-bold uppercase tracking-[0.4em] text-[#d4af37] text-3xl mb-2 animate-pulse">Panggilan Menuju</p>
+        <h2 id="highlightLoket" class="relative z-10 font-sans font-extrabold uppercase leading-tight text-center text-white drop-shadow-2xl" style="font-size: 4vw; letter-spacing: 0.1em; text-shadow: 0 0 30px rgba(212,175,55,0.5);">—</h2>
         
-        <div class="relative z-10 my-8 shrink-0 h-1 w-1/2 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent"></div>
+        <div class="relative z-10 my-10 shrink-0 h-1.5 w-1/2 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent"></div>
         
-        <p class="relative z-10 font-sans font-semibold uppercase tracking-[0.4em] text-white/60 text-xl mb-4">Nomor Antrean</p>
-        <p id="highlightNomor" class="relative z-10 font-mono font-black leading-none text-[#e8c547]" style="font-size: 18rem; letter-spacing: -0.05em; text-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 60px rgba(232,197,71,0.4);">---</p>
+        <p class="relative z-10 font-sans font-semibold uppercase tracking-[0.4em] text-white/60 text-2xl mb-4">Nomor Antrean</p>
+        <p id="highlightNomor" class="relative z-10 font-mono font-black leading-none text-[#e8c547]" style="font-size: 15vw; letter-spacing: -0.05em; text-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 60px rgba(232,197,71,0.4);">---</p>
       </div>
 
     </div>
-
-    <!-- BARIS BAWAH: Grid 6 Loket (V2) -->
-    <section aria-label="Nomor antrean per loket" class="shrink-0 grid" style="grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.25rem; height: 24vh; min-height: 9rem;">
-      <!-- Kartu Loket di-generate oleh JS -->
-    </section>
   </main>
 
-  <!-- Template Kartu 6 Loket -->
+  <!-- Template Kartu 6 Loket (Sekarang Tampil Kotak Besar) -->
   <template id="templateKartuLoket">
-    <article class="relative flex h-full flex-col items-center justify-between px-2 py-3 text-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-all duration-500 overflow-hidden" style="border-radius: 1.5rem; background: linear-gradient(145deg, #2b1b10, #1b1008); border: 1px solid rgba(232,197,71,0.15);">
-      <header class="relative z-10 w-full pb-2 shrink-0 border-b border-[#d4af37]/20">
-        <h2 class="nama-loket font-sans font-extrabold uppercase leading-tight break-words text-center" style="font-size: 1.1rem; letter-spacing: 0.15em; color: #f5eee0; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></h2>
+    <article class="relative flex h-full flex-col items-center justify-between px-4 py-4 text-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-all duration-500 overflow-hidden" style="border-radius: 1.5rem; background: linear-gradient(145deg, #2b1b10, #1b1008); border: 2px solid rgba(232,197,71,0.15);">
+      <header class="relative z-10 w-full pb-3 shrink-0 border-b border-[#d4af37]/20">
+        <h2 class="nama-loket font-sans font-extrabold uppercase leading-tight break-words text-center" style="font-size: 1.4vw; letter-spacing: 0.15em; color: #f5eee0; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></h2>
       </header>
       <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center w-full">
         <!-- Text 'Antrean' pengganti Label Seri -->
-        <p class="font-sans font-bold uppercase tracking-[0.3em] text-[#d4af37]/80 text-[0.7rem] mb-1">ANTREAN</p>
-        <p class="nomor-tampil font-mono font-black leading-none w-full truncate px-1" style="font-size: 3.5rem; letter-spacing: -0.02em; color: rgba(245,238,224,0.15); filter: drop-shadow(0 0 15px rgba(212,175,55,0.2));"></p>
+        <p class="font-sans font-bold uppercase tracking-[0.3em] text-[#d4af37]/80 text-[1vw] mb-2">ANTREAN</p>
+        <p class="nomor-tampil font-mono font-black leading-none w-full truncate px-1" style="font-size: 4.5vw; letter-spacing: -0.02em; color: rgba(245,238,224,0.15); filter: drop-shadow(0 0 15px rgba(212,175,55,0.2));"></p>
       </div>
       <div class="relative z-10 container-selesai hidden flex-1 flex-col items-center justify-center w-full">
-        <div class="lingkaran-ikon rounded-full p-3 bg-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.4)] opacity-0">
-          <i data-lucide="check-circle" class="h-10 w-10 text-green-400"></i>
+        <div class="lingkaran-ikon rounded-full p-4 bg-green-500/20 shadow-[0_0_30px_rgba(34,197,94,0.4)] opacity-0">
+          <i data-lucide="check-circle" class="h-16 w-16 text-green-400"></i>
         </div>
       </div>
-      <footer class="relative z-10 w-full pt-1.5 shrink-0 border-t border-[#d4af37]/20 bg-black/30 rounded-b-xl">
-        <p class="label-status font-sans font-bold uppercase tracking-[0.25em]" style="font-size: 0.8rem; color: rgba(245,238,224,0.45);">TERSEDIA</p>
+      <footer class="relative z-10 w-full pt-2.5 shrink-0 border-t border-[#d4af37]/20 bg-black/30 rounded-b-xl mt-auto">
+        <p class="label-status font-sans font-bold uppercase tracking-[0.25em]" style="font-size: 1vw; color: rgba(245,238,224,0.45);">TERSEDIA</p>
       </footer>
     </article>
   </template>
 
   <!-- TICKER PENGUMUMAN DI DASAR -->
-  <footer class="relative z-10 shrink-0 flex items-center px-6 py-2" style="background: linear-gradient(90deg, #a8842a, #e8c547, #a8842a); box-shadow: 0 -5px 25px rgba(0,0,0,0.6);">
-    <div class="flex items-center shrink-0 rounded-xl px-4 py-1.5" style="background-color: #1b1008; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);">
-      <p class="font-sans font-black uppercase tracking-[0.25em]" style="font-size: 0.9rem; color: #e8c547;">INFO KEMENHAJ</p>
+  <footer class="relative z-10 shrink-0 flex items-center px-6 py-2.5" style="background: linear-gradient(90deg, #a8842a, #e8c547, #a8842a); box-shadow: 0 -5px 25px rgba(0,0,0,0.6);">
+    <div class="flex items-center shrink-0 rounded-xl px-4 py-2" style="background-color: #1b1008; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);">
+      <p class="font-sans font-black uppercase tracking-[0.25em]" style="font-size: 1.1rem; color: #e8c547;">INFO KEMENHAJ</p>
     </div>
-    <div class="relative flex-1 overflow-hidden ml-4">
+    <div class="relative flex-1 overflow-hidden ml-5">
       <div class="ticker-track" id="tickerTrack">
-        <span class="shrink-0 font-sans font-extrabold uppercase text-[#1b1008]" style="font-size: 1.25rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.3);" id="tickerTeks1">Memuat pengumuman…</span>
-        <span class="shrink-0 font-sans font-extrabold uppercase text-[#1b1008] pl-16" style="font-size: 1.25rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.3);" id="tickerTeks2" aria-hidden="true">Memuat pengumuman…</span>
+        <span class="shrink-0 font-sans font-extrabold uppercase text-[#1b1008]" style="font-size: 1.5rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.3);" id="tickerTeks1">Memuat pengumuman…</span>
+        <span class="shrink-0 font-sans font-extrabold uppercase text-[#1b1008] pl-16" style="font-size: 1.5rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.3);" id="tickerTeks2" aria-hidden="true">Memuat pengumuman…</span>
       </div>
     </div>
   </footer>
@@ -170,7 +173,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 6 KONFIGURASI LOKET V2 SESUAI ADMIN
+// 6 KONFIGURASI LOKET V2 SESUAI ADMIN (Urutan 1 sampai 6)
 const KONFIGURASI_LOKET = [
   { id: 'loketA', nama: 'Loket A' },
   { id: 'loketB', nama: 'Loket B' },
@@ -198,7 +201,7 @@ const el = {
   videoPlayer: document.getElementById('localVideoPlayer') 
 };
 
-// GENERATE 6 KARTU LOKET
+// GENERATE 6 KARTU LOKET (Otomatis menyesuaikan Grid CSS: 3 Baris x 2 Kolom)
 const kartuLoket = {};
 KONFIGURASI_LOKET.forEach(loket => {
   const node = el.template.content.cloneNode(true);
@@ -235,7 +238,7 @@ let playlistVideo = [];
 let indeksVideoSekarang = 0;
 let timerAntiMacet = null;
 
-// SETTING VOLUME YANG DIMINTA
+// SETTING VOLUME
 const VOLUME_NORMAL = 0.15; 
 const VOLUME_MENGECIL = 0.05; 
 
