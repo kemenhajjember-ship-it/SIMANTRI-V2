@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIMANTRI V2 — Layar Ruang Tunggu Eksklusif</title>
+<title>SIMANTRI V2 — Layar Ruang Tunggu</title>
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -15,162 +15,182 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
-  html { font-size: 1.1vw; }
+  html { font-size: 1.2vw; }
 
-  /* Animasi Denyut Mewah Kartu Loket Aktif */
-  @keyframes card-glow {
-    0%, 100% { border-color: #d4af37; box-shadow: 0 0 25px rgba(212,175,55,0.4), inset 0 0 15px rgba(212,175,55,0.2); transform: scale(1); }
-    50% { border-color: #f3e5ab; box-shadow: 0 0 45px rgba(242,216,119,0.7), inset 0 0 25px rgba(242,216,119,0.4); transform: scale(1.015); }
+  @keyframes card-pulse {
+    0%, 100% { box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 0 0 1px #d4af37, 0 0 30px rgba(212,175,55,0.2); }
+    50% { box-shadow: inset 0 0 80px rgba(232,197,71,0.2), 0 0 0 3px #e8c547, 0 0 60px rgba(232,197,71,0.6); }
   }
-  .card-active { animation: card-glow 2s ease-in-out infinite; z-index: 10; background: linear-gradient(145deg, #3d2817, #22140a) !important; }
+  .card-active { animation: card-pulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; border-color: #d4af37 !important; }
   
-  .card-selesai { transition: all 0.5s ease; background: linear-gradient(145deg, #0f2d1a 0%, #06140b 100%) !important; border-color: #22c55e !important; }
+  .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%) !important; border-color: #22c55e !important; opacity: 0.95; }
   
-  @keyframes pop-bounce { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-  .animate-pop { animation: pop-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+  @keyframes pop-bounce { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  .animate-pop { animation: pop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
   @keyframes ticker-scroll{ 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
-  .ticker-track{ display:flex; width:max-content; white-space:nowrap; animation: ticker-scroll 30s linear infinite; }
+  .ticker-track{ display:flex; width:max-content; white-space:nowrap; animation: ticker-scroll 25s linear infinite; }
 
-  body { font-variant-numeric: tabular-nums; font-family: 'Plus Jakarta Sans', sans-serif; background-color: #120a05; color: #f5eee0; overflow: hidden; }
+  body { font-variant-numeric: tabular-nums; font-family: 'Manrope', sans-serif; background-color: #2b1b10; color: #f5eee0; }
   .font-mono { font-family: 'Courier New', monospace; }
+  .font-sans { font-family: 'Manrope', sans-serif; }
+  .hover-bg-gold:hover { background-color: #d4af37 !important; transform: scale(1.05); }
+  .active-scale:active { transform: scale(0.95); }
 
-  /* Pelumpuh Kontrol Video Samsung */
-  video::-webkit-media-controls, video::-webkit-media-controls-enclosure { display: none !important; opacity: 0 !important; }
+  /* PELUMPUH KONTROL NATIVE TV SAMSUNG & PICTURE-IN-PICTURE */
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-enclosure,
+  video::-webkit-media-controls-panel,
+  video::-webkit-media-controls-overlay-play-button,
+  video::-internal-media-controls {
+      display: none !important;
+      opacity: 0 !important;
+      -webkit-appearance: none !important;
+  }
 
-  /* Tekstur Pola Mewah */
-  .bg-luxury-pattern {
-    background-color: #120a05;
-    background-image: radial-gradient(rgba(212, 175, 55, 0.12) 1.5px, transparent 1.5px),
-                      radial-gradient(rgba(212, 175, 55, 0.08) 1.5px, #120a05 1.5px);
-    background-size: 60px 60px;
-    background-position: 0 0, 30px 30px;
+  /* Watermark Samping Khas V1 */
+  .watermark-img {
+    position: absolute; 
+    top: 0; right: 0; bottom: 0; left: 0;
+    background-size: cover;
+    opacity: 0.55;
+  }
+  .watermark-left {
+    background-position: left center;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 92%);
+            mask-image: linear-gradient(to right, #000 0%, #000 35%, transparent 92%);
+  }
+  .watermark-right {
+    background-position: right center;
+    -webkit-mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 92%);
+            mask-image: linear-gradient(to left, #000 0%, #000 35%, transparent 92%);
   }
 </style>
 </head>
-<body id="tvBody" class="relative flex w-full flex-col h-screen bg-luxury-pattern">
+<body id="tvBody" class="relative flex w-full flex-col overflow-hidden" style="height: 100vh;">
 
-  <!-- OVERLAY AKTIVASI SUARA -->
-  <div id="overlayAktifkan" class="fixed inset-0 flex flex-col items-center justify-center" style="z-index: 999; gap: 2rem; background: radial-gradient(circle, rgba(27,16,8,0.98) 0%, rgba(10,5,2,1) 100%); backdrop-blur: 15px;">
-    <div class="p-6 rounded-full bg-[#d4af37]/10 border-2 border-[#d4af37]/40 shadow-[0_0_50px_rgba(212,175,55,0.3)] animate-pulse">
-      <img src="logo.png" alt="Logo" class="rounded-full object-cover" style="height: 7rem; width: 7rem; border: 2px solid #d4af37;">
+  <!-- EFEK DEKORASI & WATERMARK (KEMBALI KE VERSI 1) -->
+  <div class="pointer-events-none absolute inset-0 z-0 flex items-center justify-center opacity-20">
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, transparent 30%, #1b1008 80%);"></div>
+  </div>
+  <div class="absolute top-0 right-0 bottom-0 left-0 z-0 flex pointer-events-none">
+    <div class="relative h-full w-1/2 overflow-hidden">
+      <div class="watermark-img watermark-left" style="background-image:url('kiri.png')"></div>
     </div>
-    <div class="text-center">
-      <p class="font-extrabold uppercase tracking-[0.25em] text-[#e8c547] text-3xl mb-2">SIMANTRI V2 — Ruang Tunggu</p>
-      <p class="text-white/60 uppercase tracking-widest text-sm">Kementerian Haji dan Umrah Kabupaten Jember</p>
+    <div class="relative h-full w-1/2 overflow-hidden">
+      <div class="watermark-img watermark-right" style="background-image:url('kanan.png')"></div>
     </div>
-    <button id="btnAktifkan" type="button" class="rounded-full px-14 py-6 font-extrabold uppercase tracking-widest transition-all transform hover:scale-105 active:scale-95 shadow-[0_10px_30px_rgba(232,197,71,0.5)]" style="font-size: 1.25rem; background: linear-gradient(135deg, #f2d877, #d4af37); color: #1b1008; cursor: pointer;">
-      🔊 Klik Untuk Mengaktifkan Layar &amp; Suara TV
+  </div>
+
+  <!-- OVERLAY AKTIVASI -->
+  <div id="overlayAktifkan" class="fixed inset-0 flex flex-col items-center justify-center" style="z-index: 100; gap: 1.5rem; background-color: rgba(0,0,0,0.95);">
+    <p class="font-sans font-extrabold uppercase" style="font-size: 2.5rem; letter-spacing: 0.1em; color: #e8c547;">SIMANTRI V2 — Layar Ruang Tunggu</p>
+    <button id="btnAktifkan" type="button" class="animate-bounce rounded-full px-12 py-5 font-extrabold transition-transform hover-bg-gold active-scale" style="font-size: 1.5rem; background-color: #e8c547; color: #2b1b10; box-shadow: 0 0 40px rgba(232,197,71,0.4); cursor: pointer;">
+      🔊 Klik Untuk Mengaktifkan Layar &amp; Suara
     </button>
   </div>
 
-  <!-- HEADER ELEGAN -->
-  <header class="relative z-10 flex items-center justify-between px-8 py-4 shadow-2xl shrink-0" style="border-bottom: 2px solid rgba(212,175,55,0.3); background: linear-gradient(to bottom, rgba(27,16,8,0.95), rgba(18,10,5,0.9)); backdrop-blur: 10px;">
-    <div class="flex items-center gap-5 min-w-0">
-      <div class="relative rounded-full p-1 bg-gradient-to-br from-[#d4af37] to-[#3d2817] shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-        <img src="logo.png" alt="Logo" class="rounded-full object-cover block" style="height: 5rem; width: 5rem;">
-      </div>
+  <!-- HEADER -->
+  <header class="relative z-10 flex items-center justify-between px-6 py-3 shadow-md md:px-8" style="border-bottom: 1px solid rgba(232,197,71,0.2); background-color: rgba(0,0,0,0.4); backdrop-filter: blur(8px); flex-shrink: 0;">
+    <div class="flex items-center gap-3 min-w-0" style="gap: 1rem;">
+      <img src="logo.png" alt="Logo" class="rounded-full object-cover shadow-md shrink-0" style="height: 4.5rem; width: 4.5rem; border: 1px solid rgba(232,197,71,0.7);">
       <div class="text-left min-w-0">
-        <h1 class="font-extrabold uppercase leading-none truncate" style="font-size: 2.25rem; letter-spacing: 0.15em; color: #f2d877; text-shadow: 0 2px 10px rgba(212,175,55,0.4);">
-          SIMANTRI <span class="text-white/40 text-lg font-semibold ml-2">V2.0</span>
+        <h1 class="font-sans font-extrabold uppercase leading-none truncate flex items-center gap-3" style="font-size: 2rem; letter-spacing: 0.1em; color: #e8c547;">
+          SIMANTRI <span class="font-bold" style="color: rgba(245,238,224,0.6); font-size: 1.2rem;">V2.0</span>
         </h1>
-        <p class="mt-1.5 font-bold uppercase truncate" style="font-size: 0.85rem; letter-spacing: 0.25em; color: rgba(245,238,224,0.7);">
+        <p class="mt-1 font-sans font-semibold uppercase truncate" style="font-size: 0.85rem; letter-spacing: 0.15em; color: rgba(245,238,224,0.7);">
           Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
         </p>
       </div>
     </div>
-    <div class="text-right shrink-0 bg-black/40 px-6 py-2.5 rounded-2xl border border-[#d4af37]/30 shadow-inner">
-      <p id="tvJam" class="font-mono font-black leading-none drop-shadow-md text-[#f2d877]" style="font-size: 2.75rem; letter-spacing: 0.05em;">00:00:00</p>
-      <p id="tvTanggal" class="mt-1 font-bold uppercase tracking-[0.2em] text-white/70" style="font-size: 0.75rem;"></p>
+    <div class="text-right shrink-0">
+      <p id="tvJam" class="font-mono font-extrabold leading-none drop-shadow-md" style="font-size: 2.5rem; letter-spacing: 0.08em; color: #e8c547;">00:00:00</p>
+      <p id="tvTanggal" class="mt-1 font-sans font-bold uppercase" style="font-size: 0.8rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.7);"></p>
     </div>
   </header>
 
-  <!-- MAIN KONTEN (KIRI: 6 LOKET, KANAN: VIDEO/OVERLAY) -->
-  <main class="relative z-10 flex-1 flex flex-row min-h-0 p-5 lg:p-6" style="gap: 1.75rem;">
+  <!-- MAIN KONTEN (KIRI 40%: KARTU LOKET, KANAN 60%: VIDEO) -->
+  <main class="relative z-10 flex-1 flex flex-row min-h-0 p-4 lg:p-5" style="gap: 1.5rem;">
     
-    <!-- KOTAK KIRI: Grid 6 Loket (3 Baris x 2 Kolom) -->
-    <section aria-label="Nomor antrean per loket" class="shrink-0 grid w-[38%]" style="grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 1.25rem;">
-      <!-- Di-generate otomatis oleh JS -->
+    <!-- KOTAK KIRI (Grid 3 Baris x 2 Kolom) -->
+    <section aria-label="Nomor antrean per loket" class="shrink-0 grid" style="flex: 0 0 38%; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 1.25rem;">
+      <!-- Kartu di-generate JS menggunakan style solid padat dari V1 -->
     </section>
 
-    <!-- KOTAK KANAN: WADAH VIDEO & OVERLAY PANGGILAN RAKSASA -->
-    <div class="relative flex-1 rounded-[2.5rem] border-2 border-[#d4af37]/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden bg-black flex flex-col justify-center items-center">
+    <!-- KOTAK KANAN (PEMUTAR VIDEO OFFLINE + OVERLAY) -->
+    <div class="h-full relative shrink-0" style="flex: 1; border-radius: 1.5rem; background-color: #110a05; border: 1px solid rgba(232,197,71,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.6); overflow: hidden; transform: translateZ(0);">
       
       <!-- LAYER 1: VIDEO -->
-      <video id="localVideoPlayer" preload="auto" playsinline webkit-playsinline disablePictureInPicture class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0 pointer-events-none"></video>
-      <div class="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none"></div>
-
-      <!-- Loading / Placeholder -->
-      <div id="indikatorLoading" class="absolute inset-0 hidden flex-col items-center justify-center z-20 bg-black/90 pointer-events-none">
-        <i data-lucide="loader" class="h-12 w-12 animate-spin text-[#d4af37] mb-3"></i>
-        <p class="text-[#d4af37] font-extrabold tracking-[0.2em] text-lg">MEMUAT VIDEO RUANG TUNGGU...</p>
-      </div>
-      <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-[#120a05] pointer-events-none">
-        <div class="p-6 rounded-full bg-[#d4af37]/10 mb-4 border border-[#d4af37]/20">
-          <i data-lucide="tv" class="h-16 w-16 text-[#d4af37]/60"></i>
-        </div>
-        <p id="teksPlaceholderVideo" class="font-bold uppercase tracking-[0.2em] text-white/40 text-lg">Playlist Video Offline Kosong</p>
+      <div style="position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 1.5rem; overflow: hidden; pointer-events: none; z-index: 1;">
+          <video id="localVideoPlayer" 
+                 preload="auto" 
+                 playsinline 
+                 webkit-playsinline 
+                 disablePictureInPicture 
+                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; -webkit-object-fit: cover; border-radius: 1.5rem; background-color: #000; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;">
+          </video>
       </div>
 
-      <!-- LAYER 2: OVERLAY PANGGILAN SINEMATIK -->
-      <div id="boxHighlight" class="absolute inset-0 z-30 flex flex-col items-center justify-center transition-all duration-700 pointer-events-none opacity-0 scale-105" style="background: linear-gradient(135deg, rgba(18,10,5,0.96), rgba(43,24,11,0.98)); backdrop-blur-2xl;">
-        
-        <!-- Ornamen Cahaya Belakang -->
-        <div class="absolute -top-32 -left-32 h-[35rem] w-[35rem] rounded-full bg-[#d4af37]/15 blur-[120px]"></div>
-        <div class="absolute -bottom-32 -right-32 h-[35rem] w-[35rem] rounded-full bg-[#d4af37]/15 blur-[120px]"></div>
+      <!-- TAMENG KACA TAK TERLIHAT -->
+      <div style="position: absolute; inset: 0; z-index: 2; background-color: transparent; cursor: default;"></div>
 
-        <div class="relative z-10 px-8 py-3 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/50 mb-4 shadow-lg animate-pulse">
-          <p class="font-extrabold uppercase tracking-[0.35em] text-[#f2d877] text-2xl">Panggilan Menuju</p>
-        </div>
+      <!-- Indikator Loading -->
+      <div id="indikatorLoading" style="position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 3; background-color: rgba(0,0,0,0.8); border-radius: 1.5rem; pointer-events: none;">
+        <i data-lucide="loader" class="h-10 w-10 animate-spin" style="color: #e8c547; margin-bottom: 8px;"></i>
+        <p style="color: #e8c547; font-size: 0.9rem; font-weight: bold; letter-spacing: 0.1em;">MEMUAT VIDEO...</p>
+      </div>
+
+      <!-- Wadah Placeholder Kosong -->
+      <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-4 p-4 text-center" style="border-radius: 1.5rem; background-color: #000; color: rgba(245,238,224,0.3); pointer-events: none;">
+        <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase" style="font-size: 1rem; letter-spacing: 0.1em;">Playlist Kosong</p>
+      </div>
+
+      <!-- LAYER 2: OVERLAY PANGGILAN RAKSASA (MUNCUL SAAT ADA PANGGILAN) -->
+      <!-- Menggunakan desain persis seperti "Box Highlight" versi 1 -->
+      <div id="boxHighlight" class="absolute inset-0 z-30 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden opacity-0 pointer-events-none" style="background: linear-gradient(to bottom right, rgba(27,16,8,0.95), rgba(35,21,13,0.98), rgba(27,16,8,0.95)); backdrop-filter: blur(10px);">
+        <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(232,197,71,0.1); filter: blur(60px);"></div>
+        <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(212,175,55,0.1); filter: blur(60px);"></div>
         
-        <h2 id="highlightLoket" class="relative z-10 font-extrabold uppercase leading-tight text-center text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.9)]" style="font-size: 4.5vw; letter-spacing: 0.15em; color: #ffffff; text-shadow: 0 0 35px rgba(212,175,55,0.6);">—</h2>
-        
-        <div class="relative z-10 my-8 shrink-0 h-1.5 w-1/3 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent shadow-[0_0_15px_#d4af37]"></div>
-        
-        <p class="relative z-10 font-bold uppercase tracking-[0.4em] text-white/60 text-xl mb-3">Nomor Antrean</p>
-        <p id="highlightNomor" class="relative z-10 font-mono font-black leading-none text-[#f2d877]" style="font-size: 16vw; letter-spacing: -0.04em; text-shadow: 0 15px 35px rgba(0,0,0,0.9), 0 0 50px rgba(242,216,119,0.5);">---</p>
+        <p class="relative z-10 font-sans font-bold uppercase shrink-0" style="font-size: 1.5rem; letter-spacing: 0.3em; color: rgba(232,197,71,0.8);">Panggilan Menuju</p>
+        <h2 id="highlightLoket" class="relative z-10 mt-2 font-sans font-extrabold uppercase leading-tight shrink-0 w-full px-2 break-words whitespace-normal text-center" style="font-size: 5rem; letter-spacing: 0.1em; color: #e8c547; filter: drop-shadow(0 0 15px rgba(212,175,55,0.4));">—</h2>
+        <div class="relative z-10 my-6 shrink-0" style="height: 3px; width: 60%; background: linear-gradient(to right, transparent, rgba(232,197,71,0.4), transparent);"></div>
+        <p class="relative z-10 font-sans font-semibold uppercase shrink-0" style="font-size: 1.2rem; letter-spacing: 0.4em; color: rgba(245,238,224,0.6);">Nomor Antrean</p>
+        <p id="highlightNomor" class="relative z-10 mt-2 font-mono font-black leading-none text-white shrink-0" style="font-size: 13rem; letter-spacing: -0.05em; filter: drop-shadow(0 0 30px rgba(255,255,255,0.3));">---</p>
       </div>
 
     </div>
   </main>
 
-  <!-- TEMPLATE KARTU 6 LOKET (DESAIN TINGKAT TERTINGGI) -->
+  <!-- TEMPLATE KARTU 6 LOKET DENGAN DESAIN SOLID V1 -->
   <template id="templateKartuLoket">
-    <article class="relative flex h-full flex-col items-center justify-between px-4 py-3.5 text-center shadow-[0_15px_30px_rgba(0,0,0,0.6)] transition-all duration-500 overflow-hidden" style="border-radius: 1.75rem; background: linear-gradient(145deg, #28180e, #170d07); border: 2px solid rgba(212,175,55,0.25); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);">
-      
-      <!-- Efek Cahaya Pojok Kartu -->
-      <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-[#d4af37]/10 to-transparent pointer-events-none rounded-bl-full"></div>
-
-      <header class="relative z-10 w-full pb-2.5 shrink-0 border-b border-[#d4af37]/20 flex items-center justify-center">
-        <h2 class="nama-loket font-extrabold uppercase leading-tight tracking-[0.2em] text-[#f5eee0]" style="font-size: 1.25vw; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></h2>
+    <article class="relative flex h-full flex-col items-center justify-between px-2 py-3 text-center shadow-lg transition-all duration-500 overflow-hidden" style="border-radius: 1rem; background-color: #23150d; border: 1px solid rgba(232,197,71,0.15); min-height: 0;">
+      <header class="relative z-10 w-full pb-2 shrink-0" style="border-bottom: 1px solid rgba(232,197,71,0.2);">
+        <h2 class="nama-loket font-sans font-extrabold uppercase leading-tight break-words whitespace-normal text-center" style="font-size: 1.2vw; letter-spacing: 0.15em; color: #f5eee0; text-shadow: 0 1px 2px rgba(0,0,0,0.5);"></h2>
       </header>
-
-      <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center w-full my-1">
-        <span class="px-3 py-0.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#d4af37] font-extrabold uppercase tracking-[0.25em] text-[0.65vw] mb-1.5 shadow-sm">ANTREAN</span>
-        <p class="nomor-tampil font-mono font-black leading-none w-full truncate px-1" style="font-size: 4.2vw; letter-spacing: -0.02em; color: rgba(245,238,224,0.2); filter: drop-shadow(0 0 12px rgba(212,175,55,0.25));">---</p>
+      <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center min-h-0 w-full" style="gap: 0.25rem;">
+        <p class="font-sans font-bold uppercase leading-none" style="font-size: 0.8vw; letter-spacing: 0.3em; color: rgba(232,197,71,0.8);">ANTREAN</p>
+        <p class="nomor-tampil font-mono font-bold leading-none mt-1 w-full truncate" style="font-size: 3.8vw; letter-spacing: -0.025em; color: rgba(245,238,224,0.2); filter: drop-shadow(0 0 10px rgba(212,175,55,0.3));"></p>
       </div>
-
-      <div class="relative z-10 container-selesai hidden flex-1 flex-col items-center justify-center w-full">
-        <div class="lingkaran-ikon rounded-full p-3.5 bg-emerald-500/20 border border-emerald-500/40 shadow-[0_0_25px_rgba(34,197,94,0.4)] opacity-0">
-          <i data-lucide="check" class="h-12 w-12 text-emerald-400"></i>
+      <div class="relative z-10 container-selesai hidden flex-1 flex-col items-center justify-center min-h-0">
+        <div class="lingkaran-ikon rounded-full p-2 opacity-0" style="background-color: rgba(34,197,94,0.2); box-shadow: 0 0 15px rgba(34,197,94,0.3);">
+          <span style="color: #22c55e; font-size: 3rem;">✓</span>
         </div>
       </div>
-
-      <footer class="relative z-10 w-full pt-2 shrink-0 border-t border-[#d4af37]/20 bg-black/40 rounded-b-xl flex items-center justify-center">
-        <span class="label-status font-extrabold uppercase tracking-[0.3em]" style="font-size: 0.75vw; color: rgba(245,238,224,0.5);">TERSEDIA</span>
+      <footer class="relative z-10 w-full pt-2 shrink-0" style="border-top: 1px solid rgba(232,197,71,0.2); background-color: rgba(0,0,0,0.2); border-bottom-left-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
+        <p class="label-status font-sans font-bold uppercase" style="font-size: 0.75vw; letter-spacing: 0.25em; color: rgba(245,238,224,0.45);">TERSEDIA</p>
       </footer>
     </article>
   </template>
 
-  <!-- TICKER PENGUMUMAN DI DASAR -->
-  <footer class="relative z-10 shrink-0 flex items-center px-6 py-3" style="background: linear-gradient(90deg, #826115, #d4af37, #f2d877, #d4af37, #826115); box-shadow: 0 -5px 30px rgba(0,0,0,0.8);">
-    <div class="flex items-center shrink-0 rounded-xl px-4 py-1.5 shadow-md border border-[#2b1b10]/40" style="background-color: #1b1008;">
-      <p class="font-black uppercase tracking-[0.25em] text-[#f2d877]" style="font-size: 0.95rem;">INFO KEMENHAJ</p>
+  <!-- TICKER PENGUMUMAN DI DASAR (KEMBALI KE VERSI 1) -->
+  <footer class="relative z-10 shrink-0 flex items-center px-4 py-2 md:px-6" style="gap: 0.75rem; background-color: #e8c547; box-shadow: 0 -5px 15px rgba(0,0,0,0.4);">
+    <div class="flex items-center shrink-0 rounded-lg px-3 py-1" style="gap: 0.5rem; background-color: #1b1008; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+      <p class="font-sans font-extrabold uppercase" style="font-size: 0.85rem; letter-spacing: 0.2em; color: #e8c547;">INFO</p>
     </div>
-    <div class="relative flex-1 overflow-hidden ml-5">
+    <div class="relative flex-1 overflow-hidden">
       <div class="ticker-track" id="tickerTrack">
-        <span class="shrink-0 font-extrabold uppercase text-[#120a05]" style="font-size: 1.25rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.4);" id="tickerTeks1">Memuat pengumuman…</span>
-        <span class="shrink-0 font-extrabold uppercase text-[#120a05] pl-16" style="font-size: 1.25rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.4);" id="tickerTeks2" aria-hidden="true">Memuat pengumuman…</span>
+        <span class="shrink-0 font-sans font-bold uppercase" style="font-size: 1.1rem; letter-spacing: 0.1em; color: #1b1008;" id="tickerTeks1">Memuat antrean…</span>
+        <span class="shrink-0 font-sans font-bold uppercase" style="font-size: 1.1rem; letter-spacing: 0.1em; color: #1b1008; padding-left: 2rem;" id="tickerTeks2" aria-hidden="true">Memuat antrean…</span>
       </div>
     </div>
   </footer>
@@ -178,6 +198,7 @@
 <script>
 try { lucide.createIcons(); } catch(e){}
 
+// KONEKSI FIREBASE V2
 const firebaseConfig = {
   apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
   authDomain: "simantri-jember.firebaseapp.com",
@@ -191,6 +212,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// 6 KONFIGURASI LOKET V2 SESUAI ADMIN (Akan Otomatis jadi 3 Baris x 2 Kolom)
 const KONFIGURASI_LOKET = [
   { id: 'loketA', nama: 'Loket A' },
   { id: 'loketB', nama: 'Loket B' },
@@ -218,6 +240,7 @@ const el = {
   videoPlayer: document.getElementById('localVideoPlayer') 
 };
 
+// GENERATE 6 KARTU LOKET V1 STYLE
 const kartuLoket = {};
 KONFIGURASI_LOKET.forEach(loket => {
   const node = el.template.content.cloneNode(true);
@@ -246,12 +269,18 @@ function perbaruiJam(){
 }
 perbaruiJam(); setInterval(perbaruiJam, 1000);
 
-/* SISTEM VIDEO & AUDIO */
+
+/* =========================================================================
+   SISTEM VIDEO & OVERLAY PANGGILAN
+   ========================================================================= */
 let playlistVideo = [];
 let indeksVideoSekarang = 0;
 let timerAntiMacet = null;
+
+// SETTING VOLUME YANG DIMINTA
 const VOLUME_NORMAL = 0.15; 
 const VOLUME_MENGECIL = 0.05; 
+
 let statusPanggilanBerjalan = false;
 let antreanGantiVideo = false;
 
@@ -269,7 +298,7 @@ function putarVideoSekarang() {
     el.videoPlayer.style.opacity = '0';
     el.indikatorLoading.style.display = 'none';
     el.videoPlaceholder.style.display = 'flex';
-    el.teksPlaceholderVideo.innerHTML = 'Playlist Video Offline Kosong';
+    el.teksPlaceholderVideo.innerHTML = 'Playlist Kosong';
     el.videoPlayer.pause();
     return;
   }
@@ -325,6 +354,8 @@ let failsafeSuara = null;
 function pulihkanSuaraVideo() { 
   clearTimeout(failsafeSuara);
   statusPanggilanBerjalan = false;
+  
+  // SEMBUNYIKAN OVERLAY RAKSASA
   el.boxHighlight.style.opacity = '0';
   el.boxHighlight.style.transform = 'scale(1.05)';
 
@@ -339,8 +370,12 @@ function pulihkanSuaraVideo() {
   }
 }
 
+/* =========================================================================
+   KLIK AKTIFKAN
+   ========================================================================= */
 let suaraDiizinkan = false;
 let konteksAudio = null;
+
 function ambilKonteksAudio(){
   if (!konteksAudio) { const AC = window.AudioContext || window.webkitAudioContext; konteksAudio = new AC(); }
   if (konteksAudio.state === 'suspended') konteksAudio.resume();
@@ -360,6 +395,9 @@ el.btnAktifkan.addEventListener('click', () => {
   }
 });
 
+/* =========================================================================
+   SISA LOGIKA (PANGGILAN, LOKET)
+   ========================================================================= */
 KONFIGURASI_LOKET.forEach(loket => {
   db.ref(`status_loket/${loket.id}`).on('value', (snap) => {
     const kartu = kartuLoket[loket.id];
@@ -377,8 +415,9 @@ KONFIGURASI_LOKET.forEach(loket => {
       kartu.containerIsi.classList.remove('hidden'); kartu.containerIsi.style.display = 'flex';
       kartu.containerSelesai.classList.add('hidden'); kartu.containerSelesai.style.display = 'none';
       kartu.nomorTampil.textContent = data.nomor; 
-      kartu.nomorTampil.style.color = '#f2d877'; 
-      kartu.labelStatus.textContent = 'SEDANG DILAYANI'; kartu.labelStatus.style.color = '#f2d877';
+      kartu.nomorTampil.style.color = '#e8c547'; 
+      kartu.nomorTampil.style.transform = 'scale(1)'; 
+      kartu.labelStatus.textContent = 'SEDANG DILAYANI'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.9)';
     }
   });
 });
@@ -388,7 +427,7 @@ function jalankanAnimasiSelesai(kartu) {
   kartu.containerIsi.style.display = 'none';
   kartu.containerSelesai.classList.remove('hidden'); kartu.containerSelesai.style.display = 'flex';
   kartu.ikonSelesai.classList.remove('animate-pop'); void kartu.ikonSelesai.offsetWidth; kartu.ikonSelesai.classList.add('animate-pop');
-  kartu.labelStatus.textContent = 'SELESAI'; kartu.labelStatus.style.color = '#4ade80';
+  kartu.labelStatus.textContent = 'SELESAI LAYANAN'; kartu.labelStatus.style.color = '#4ade80';
   kartu.artikel.classList.add('card-selesai');
   setTimeout(() => { if(!kartu.sedangDilayani) resetTampilanKosong(kartu); }, 3500);
 }
@@ -398,8 +437,8 @@ function resetTampilanKosong(kartu) {
   kartu.artikel.classList.remove('card-selesai');
   kartu.containerSelesai.style.display = 'none'; kartu.containerSelesai.classList.add('hidden');
   kartu.containerIsi.classList.remove('hidden'); kartu.containerIsi.style.display = 'flex';
-  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
-  kartu.labelStatus.textContent = 'TERSEDIA'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.5)';
+  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)';
+  kartu.labelStatus.textContent = 'TERSEDIA'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.45)';
 }
 
 const PETA_NAMA_KE_ID = {
@@ -416,9 +455,11 @@ db.ref('panggilan_aktif').on('value', (snapshot) => {
   if (idPanggilan === idPanggilanTerakhir) return;
   idPanggilanTerakhir = idPanggilan;
 
+  // GANTI TEKS DI OVERLAY RAKSASA
   el.highlightLoket.textContent = data.loket.toUpperCase();
   el.highlightNomor.textContent = data.nomor;
   
+  // MUNCULKAN OVERLAY
   el.boxHighlight.style.opacity = '1';
   el.boxHighlight.style.transform = 'scale(1)';
 
@@ -445,10 +486,10 @@ function terapkanStatusTutupLoket(loketId, aktif){
   if (!kartu) return;
   kartu.tutup = !aktif;
   if (aktif) { kartu.artikel.style.opacity = '1'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)'; return; }
-  kartu.artikel.classList.remove('card-active', 'card-selesai'); kartu.artikel.style.opacity = '0.3';
+  kartu.artikel.classList.remove('card-active', 'card-selesai'); kartu.artikel.style.opacity = '0.4';
   kartu.containerSelesai.style.display = 'none'; kartu.containerIsi.style.display = 'flex';
-  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.1)';
-  kartu.labelStatus.textContent = 'TUTUP'; kartu.labelStatus.style.color = '#ef4444';
+  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
+  kartu.labelStatus.textContent = 'TUTUP / OFFLINE'; kartu.labelStatus.style.color = '#ef4444';
 }
 
 db.ref('pengaturan/loket_aktif').on('value', (snap) => {
@@ -490,7 +531,7 @@ function mainkanPanggilan(nomor, namaLoket){
   
   setTimeout(() => {
     clearTimeout(failsafeSuara);
-    failsafeSuara = setTimeout(pulihkanSuaraVideo, 10000);
+    failsafeSuara = setTimeout(pulihkanSuaraVideo, 10000); // Overlay bertahan 10 detik
 
     if (typeof responsiveVoice !== 'undefined') { 
       responsiveVoice.speak(teks, "Indonesian Female", { 
