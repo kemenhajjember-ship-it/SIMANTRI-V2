@@ -17,7 +17,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
   body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #faf7f2; overflow: hidden; user-select: none; }
-  .btn-klik:active { transform: scale(0.95); }
+  .btn-klik:active { transform: scale(0.95); transition: transform 0.1s; }
   /* Custom Scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
@@ -28,7 +28,7 @@
   <!-- Header Widget -->
   <header class="flex shrink-0 items-center justify-between bg-bronze-dark px-4 py-3 text-cream shadow-md">
     <div class="flex items-center gap-2">
-      <img src="logo.png" alt="Logo" class="h-6 w-6 rounded-full border border-gold/50">
+      <img src="logo.png" alt="Logo" class="h-6 w-6 rounded-full border border-gold/50 object-cover">
       <h1 class="text-xs font-bold tracking-widest text-gold">SIMANTRI V2</h1>
     </div>
     <select id="pilihPeran" class="max-w-[140px] rounded border border-gold/40 bg-bronze px-2 py-1 text-[10px] font-semibold text-cream focus:outline-none">
@@ -97,13 +97,13 @@
     <div class="w-full rounded-xl bg-white p-5 text-center shadow-2xl">
       <p class="text-sm font-bold text-bronze-dark">Jumlah orang dalam rombongan ini?</p>
       <div class="my-4 flex items-center justify-center gap-4">
-        <button id="btnMinBio" class="h-10 w-10 rounded-full border border-bronze bg-cream text-lg font-bold">−</button>
+        <button id="btnMinBio" class="h-10 w-10 rounded-full border border-bronze bg-cream text-lg font-bold transition-transform active:scale-90">−</button>
         <span id="angkaBio" class="font-mono text-2xl font-black">1</span>
-        <button id="btnPlusBio" class="h-10 w-10 rounded-full border border-bronze bg-cream text-lg font-bold">+</button>
+        <button id="btnPlusBio" class="h-10 w-10 rounded-full border border-bronze bg-cream text-lg font-bold transition-transform active:scale-90">+</button>
       </div>
       <div class="flex gap-2">
-        <button id="btnBatalBio" class="flex-1 rounded-lg border border-border bg-cream py-2 text-xs font-bold">Batal</button>
-        <button id="btnKirimBio" class="flex-1 rounded-lg bg-gold py-2 text-xs font-bold text-bronze-dark">Kirim</button>
+        <button id="btnBatalBio" class="flex-1 rounded-lg border border-border bg-cream py-2 text-xs font-bold transition-transform active:scale-95">Batal</button>
+        <button id="btnKirimBio" class="flex-1 rounded-lg bg-gold py-2 text-xs font-bold text-bronze-dark transition-transform active:scale-95 shadow-md">Kirim</button>
       </div>
     </div>
   </div>
@@ -163,6 +163,15 @@ function aturKunci(terkunci) {
 
 el.peran.addEventListener('change', async () => {
   peranAktif = el.peran.value || null; dataDilayani = null; aturKunci(false);
+  
+  // ----- FITUR PENGINGAT LOGIN (MEMORY) -----
+  if (peranAktif) {
+    localStorage.setItem('simantri_peran_widget', peranAktif);
+  } else {
+    localStorage.removeItem('simantri_peran_widget');
+  }
+  // ------------------------------------------
+
   el.kosong.classList.toggle('hidden', !!peranAktif);
   el.konten.classList.toggle('hidden', !peranAktif); el.konten.classList.toggle('flex', !!peranAktif);
   if (unsubAntrean) { unsubAntrean(); unsubAntrean = null; }
@@ -245,9 +254,19 @@ el.bioKirim.addEventListener('click', async () => {
     await push(ref(db, 'antrean_biometrik'), { nomorAsal: dataDilayani.nomor, asalLoket: KONFIGURASI[peranAktif].nama, jumlahOrang: angkaTeruskan, timestamp: serverTimestamp() });
     catatLog(dataDilayani.nomor, 'Biometrik', `Diteruskan ke Foto via Widget (${angkaTeruskan} org)`);
     el.modal.classList.add('hidden'); el.modal.classList.remove('flex');
-    el.btnSelesai.click(); // Auto Selesai
+    el.btnSelesai.click(); 
   } catch(e) { alert('Gagal meneruskan!'); } finally { el.bioKirim.disabled = false; }
 });
+
+// ----- CEK MEMORI SAAT WIDGET DIBUKA ULANG -----
+window.addEventListener('DOMContentLoaded', () => {
+  const peranTersimpan = localStorage.getItem('simantri_peran_widget');
+  if (peranTersimpan && KONFIGURASI[peranTersimpan]) {
+    el.peran.value = peranTersimpan;
+    el.peran.dispatchEvent(new Event('change'));
+  }
+});
+// ------------------------------------------------
 </script>
 </body>
 </html>
