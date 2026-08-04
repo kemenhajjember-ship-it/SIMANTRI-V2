@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIMANTRI V2 — Layar Ruang Tunggu</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script src="https://code.responsivevoice.org/responsivevoice.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  html { font-size: 1.2vw; }
+
+  /* Animasi Denyut Kartu Loket */
+  @keyframes card-pulse {
+    0%, 100% { box-shadow: inset 0 0 60px rgba(212,175,55,0.05), 0 0 0 1px #d4af37, 0 0 30px rgba(212,175,55,0.2); transform: scale(1); }
+    50% { box-shadow: inset 0 0 80px rgba(232,197,71,0.2), 0 0 0 3px #e8c547, 0 0 60px rgba(232,197,71,0.6); transform: scale(1.02); }
+  }
+  .card-active { animation: card-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: 10; border-color: #d4af37 !important; }
+  
+  .card-selesai { transition: all 0.5s ease; transform: scale(0.96); background: linear-gradient(145deg, #1b2e1b 0%, #111a11 100%) !important; border-color: #22c55e !important; opacity: 0.95; }
+  
+  @keyframes pop-bounce { 0% { transform: scale(0.5) translateY(20px); opacity: 0; } 60% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  .animate-pop { animation: pop-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  @keyframes ticker-scroll{ 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+  .ticker-track{ display:flex; width:max-content; white-space:nowrap; animation: ticker-scroll 25s linear infinite; }
+
+  body { font-variant-numeric: tabular-nums; font-family: 'Manrope', sans-serif; background-color: #1b1008; color: #f5eee0; }
+  .font-mono { font-family: 'Courier New', monospace; }
+  .font-sans { font-family: 'Manrope', sans-serif; }
+
+  /* PELUMPUH KONTROL NATIVE TV SAMSUNG */
+  video::-webkit-media-controls, video::-webkit-media-controls-enclosure, video::-webkit-media-controls-panel, video::-webkit-media-controls-overlay-play-button, video::-internal-media-controls { display: none !important; opacity: 0 !important; -webkit-appearance: none !important; }
+
+  /* Pola Latar Belakang */
+  .bg-pattern {
+    background-image: radial-gradient(rgba(212, 175, 55, 0.1) 2px, transparent 2px);
+    background-size: 30px 30px;
+  }
+</style>
+</head>
+<body id="tvBody" class="relative flex w-full flex-col overflow-hidden bg-pattern" style="height: 100vh;">
+
+  <!-- OVERLAY AKTIVASI (Wajib Diklik Pertama Kali) -->
+  <div id="overlayAktifkan" class="fixed inset-0 flex flex-col items-center justify-center" style="z-index: 999; gap: 1.5rem; background-color: rgba(27,16,8,0.95); backdrop-filter: blur(10px);">
+    <p class="font-sans font-extrabold uppercase" style="font-size: 2.5rem; letter-spacing: 0.1em; color: #e8c547;">SIMANTRI V2 — Ruang Tunggu</p>
+    <button id="btnAktifkan" type="button" class="animate-bounce rounded-full px-12 py-5 font-extrabold transition-transform hover:scale-105 active:scale-95" style="font-size: 1.5rem; background-color: #e8c547; color: #2b1b10; box-shadow: 0 0 40px rgba(232,197,71,0.4); cursor: pointer;">
+      🔊 Klik Untuk Mengaktifkan Layar &amp; Suara TV
+    </button>
+  </div>
+
+  <!-- HEADER -->
+  <header class="relative z-10 flex items-center justify-between px-6 py-3 shadow-md md:px-8" style="border-bottom: 2px solid rgba(212,175,55,0.3); background-color: rgba(0,0,0,0.6); backdrop-filter: blur(8px); flex-shrink: 0;">
+    <div class="flex items-center gap-4 min-w-0">
+      <img src="logo.png" alt="Logo" class="rounded-full object-cover shadow-md shrink-0" style="height: 4.5rem; width: 4.5rem; border: 2px solid rgba(232,197,71,0.7);">
+      <div class="text-left min-w-0">
+        <h1 class="font-sans font-extrabold uppercase leading-none truncate" style="font-size: 2rem; letter-spacing: 0.1em; color: #e8c547; drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+          SIMANTRI V2
+        </h1>
+        <p class="mt-1 font-sans font-semibold uppercase truncate" style="font-size: 0.85rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.8);">
+          Kantor Kementerian Layanan Haji &amp; Umrah &middot; Kab. Jember
+        </p>
+      </div>
+    </div>
+    <div class="text-right shrink-0">
+      <p id="tvJam" class="font-mono font-extrabold leading-none drop-shadow-md" style="font-size: 2.5rem; letter-spacing: 0.05em; color: #e8c547;">00:00:00</p>
+      <p id="tvTanggal" class="mt-1.5 font-sans font-bold uppercase" style="font-size: 0.8rem; letter-spacing: 0.2em; color: rgba(245,238,224,0.7);"></p>
+    </div>
+  </header>
+
+  <!-- MAIN KONTEN (PENGGABUNGAN VIDEO & PANGGILAN) -->
+  <main class="relative z-10 flex-1 flex flex-col min-h-0 p-4 lg:p-5" style="gap: 1.5rem;">
+    
+    <!-- WADAH RAKSASA (VIDEO + OVERLAY PANGGILAN) -->
+    <div class="relative flex-1 w-full rounded-[2.5rem] border-2 border-[#d4af37]/40 shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden bg-black group transform translate-z-0">
+      
+      <!-- LAYER 1: PEMUTAR VIDEO (DASAR) -->
+      <video id="localVideoPlayer" preload="auto" playsinline webkit-playsinline disablePictureInPicture class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 opacity-0 pointer-events-none"></video>
+      <div class="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+
+      <!-- Indikator Loading Video -->
+      <div id="indikatorLoading" class="absolute inset-0 hidden flex-col items-center justify-center z-20 bg-black/80 pointer-events-none">
+        <i data-lucide="loader" class="h-12 w-12 animate-spin text-[#e8c547] mb-3"></i>
+        <p class="text-[#e8c547] font-bold tracking-widest">MEMUAT VIDEO...</p>
+      </div>
+      <div id="videoPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-[#110a05] pointer-events-none">
+        <p id="teksPlaceholderVideo" class="font-sans font-semibold uppercase tracking-widest text-white/30 text-xl">Playlist Video Kosong</p>
+      </div>
+
+      <!-- LAYER 2: OVERLAY PANGGILAN RAKSASA (MUNCUL SAAT DIPANGGIL) -->
+      <div id="boxHighlight" class="absolute inset-0 z-30 flex flex-col items-center justify-center transition-all duration-700 pointer-events-none opacity-0 scale-105" style="background: linear-gradient(135deg, rgba(27,16,8,0.95), rgba(43,27,16,0.98)); backdrop-filter: blur(15px);">
+        
+        <!-- Ornamen Latar Overlay -->
+        <div class="absolute -top-40 -left-40 h-[40rem] w-[40rem] rounded-full bg-[#d4af37]/10 blur-[100px]"></div>
+        <div class="absolute -bottom-40 -right-40 h-[40rem] w-[40rem] rounded-full bg-[#d4af37]/10 blur-[100px]"></div>
+
+        <p class="relative z-10 font-sans font-bold uppercase tracking-[0.4em] text-[#d4af37] text-2xl mb-2 animate-pulse">Panggilan Menuju</p>
+        <h2 id="highlightLoket" class="relative z-10 font-sans font-extrabold uppercase leading-tight text-center text-white drop-shadow-2xl" style="font-size: 5rem; letter-spacing: 0.1em; text-shadow: 0 0 30px rgba(212,175,55,0.5);">—</h2>
+        
+        <div class="relative z-10 my-8 shrink-0 h-1 w-1/2 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent"></div>
+        
+        <p class="relative z-10 font-sans font-semibold uppercase tracking-[0.4em] text-white/60 text-xl mb-4">Nomor Antrean</p>
+        <p id="highlightNomor" class="relative z-10 font-mono font-black leading-none text-[#e8c547]" style="font-size: 18rem; letter-spacing: -0.05em; text-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 60px rgba(232,197,71,0.4);">---</p>
+      </div>
+
+    </div>
+
+    <!-- BARIS BAWAH: Grid 6 Loket (V2) -->
+    <section aria-label="Nomor antrean per loket" class="shrink-0 grid" style="grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1.25rem; height: 24vh; min-height: 9rem;">
+      <!-- Kartu Loket di-generate oleh JS -->
+    </section>
+  </main>
+
+  <!-- Template Kartu 6 Loket -->
+  <template id="templateKartuLoket">
+    <article class="relative flex h-full flex-col items-center justify-between px-2 py-3 text-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] transition-all duration-500 overflow-hidden" style="border-radius: 1.5rem; background: linear-gradient(145deg, #2b1b10, #1b1008); border: 1px solid rgba(232,197,71,0.15);">
+      <header class="relative z-10 w-full pb-2 shrink-0 border-b border-[#d4af37]/20">
+        <h2 class="nama-loket font-sans font-extrabold uppercase leading-tight break-words text-center" style="font-size: 1.1rem; letter-spacing: 0.15em; color: #f5eee0; text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></h2>
+      </header>
+      <div class="relative z-10 container-isi flex flex-1 flex-col items-center justify-center w-full">
+        <!-- Text 'Antrean' pengganti Label Seri -->
+        <p class="font-sans font-bold uppercase tracking-[0.3em] text-[#d4af37]/80 text-[0.7rem] mb-1">ANTREAN</p>
+        <p class="nomor-tampil font-mono font-black leading-none w-full truncate px-1" style="font-size: 3.5rem; letter-spacing: -0.02em; color: rgba(245,238,224,0.15); filter: drop-shadow(0 0 15px rgba(212,175,55,0.2));"></p>
+      </div>
+      <div class="relative z-10 container-selesai hidden flex-1 flex-col items-center justify-center w-full">
+        <div class="lingkaran-ikon rounded-full p-3 bg-green-500/20 shadow-[0_0_20px_rgba(34,197,94,0.4)] opacity-0">
+          <i data-lucide="check-circle" class="h-10 w-10 text-green-400"></i>
+        </div>
+      </div>
+      <footer class="relative z-10 w-full pt-1.5 shrink-0 border-t border-[#d4af37]/20 bg-black/30 rounded-b-xl">
+        <p class="label-status font-sans font-bold uppercase tracking-[0.25em]" style="font-size: 0.8rem; color: rgba(245,238,224,0.45);">TERSEDIA</p>
+      </footer>
+    </article>
+  </template>
+
+  <!-- TICKER PENGUMUMAN DI DASAR -->
+  <footer class="relative z-10 shrink-0 flex items-center px-6 py-2" style="background: linear-gradient(90deg, #a8842a, #e8c547, #a8842a); box-shadow: 0 -5px 25px rgba(0,0,0,0.6);">
+    <div class="flex items-center shrink-0 rounded-xl px-4 py-1.5" style="background-color: #1b1008; box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);">
+      <p class="font-sans font-black uppercase tracking-[0.25em]" style="font-size: 0.9rem; color: #e8c547;">INFO KEMENHAJ</p>
+    </div>
+    <div class="relative flex-1 overflow-hidden ml-4">
+      <div class="ticker-track" id="tickerTrack">
+        <span class="shrink-0 font-sans font-extrabold uppercase text-[#1b1008]" style="font-size: 1.25rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.3);" id="tickerTeks1">Memuat pengumuman…</span>
+        <span class="shrink-0 font-sans font-extrabold uppercase text-[#1b1008] pl-16" style="font-size: 1.25rem; letter-spacing: 0.1em; text-shadow: 0 1px 1px rgba(255,255,255,0.3);" id="tickerTeks2" aria-hidden="true">Memuat pengumuman…</span>
+      </div>
+    </div>
+  </footer>
+
+<script>
+try { lucide.createIcons(); } catch(e){}
+
+// KONEKSI FIREBASE V2
+const firebaseConfig = {
+  apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
+  authDomain: "simantri-jember.firebaseapp.com",
+  databaseURL: "https://simantri-jember-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "simantri-jember",
+  storageBucket: "simantri-jember.firebasestorage.app",
+  messagingSenderId: "507271630488",
+  appId: "1:507271630488:web:dcc347a35334c6f3a84aed"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// 6 KONFIGURASI LOKET V2 SESUAI ADMIN
+const KONFIGURASI_LOKET = [
+  { id: 'loketA', nama: 'Loket A' },
+  { id: 'loketB', nama: 'Loket B' },
+  { id: 'loketC', nama: 'Loket C' },
+  { id: 'loketD', nama: 'Loket D' },
+  { id: 'biometrik', nama: 'Foto Wajah' },
+  { id: 'biovisa', nama: 'Bio Visa' }
+];
+
+const el = {
+  grid: document.querySelector('section[aria-label="Nomor antrean per loket"]'),
+  template: document.getElementById('templateKartuLoket'),
+  overlay: document.getElementById('overlayAktifkan'),
+  btnAktifkan: document.getElementById('btnAktifkan'),
+  tvJam: document.getElementById('tvJam'),
+  tvTanggal: document.getElementById('tvTanggal'),
+  tickerTeks1: document.getElementById('tickerTeks1'),
+  tickerTeks2: document.getElementById('tickerTeks2'),
+  boxHighlight: document.getElementById('boxHighlight'),
+  highlightLoket: document.getElementById('highlightLoket'),
+  highlightNomor: document.getElementById('highlightNomor'),
+  videoPlaceholder: document.getElementById('videoPlaceholder'),
+  teksPlaceholderVideo: document.getElementById('teksPlaceholderVideo'),
+  indikatorLoading: document.getElementById('indikatorLoading'),
+  videoPlayer: document.getElementById('localVideoPlayer') 
+};
+
+// GENERATE 6 KARTU LOKET
+const kartuLoket = {};
+KONFIGURASI_LOKET.forEach(loket => {
+  const node = el.template.content.cloneNode(true);
+  const artikel = node.querySelector('article');
+  artikel.dataset.loketId = loket.id;
+  node.querySelector('.nama-loket').textContent = loket.nama;
+  node.querySelector('.nomor-tampil').textContent = '---';
+  
+  el.grid.appendChild(node);
+  const artikelReal = el.grid.querySelector(`[data-loket-id="${loket.id}"]`);
+  kartuLoket[loket.id] = {
+    artikel: artikelReal, 
+    containerIsi: artikelReal.querySelector('.container-isi'),
+    containerSelesai: artikelReal.querySelector('.container-selesai'),
+    ikonSelesai: artikelReal.querySelector('.lingkaran-ikon'), 
+    nomorTampil: artikelReal.querySelector('.nomor-tampil'), 
+    labelStatus: artikelReal.querySelector('.label-status'),
+    tutup: false, sedangDilayani: false
+  };
+});
+
+function perbaruiJam(){
+  const sekarang = new Date();
+  el.tvJam.textContent = sekarang.toLocaleTimeString('id-ID', { hour12:false });
+  el.tvTanggal.textContent = sekarang.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+perbaruiJam(); setInterval(perbaruiJam, 1000);
+
+
+/* =========================================================================
+   SISTEM VIDEO & OVERLAY PANGGILAN
+   ========================================================================= */
+let playlistVideo = [];
+let indeksVideoSekarang = 0;
+let timerAntiMacet = null;
+
+// SETTING VOLUME YANG DIMINTA
+const VOLUME_NORMAL = 0.15; 
+const VOLUME_MENGECIL = 0.05; 
+
+let statusPanggilanBerjalan = false;
+let antreanGantiVideo = false;
+
+function lanjutKeVideoBerikutnya() {
+  if (statusPanggilanBerjalan) { antreanGantiVideo = true; return; }
+  if (playlistVideo.length > 0) {
+    indeksVideoSekarang = (indeksVideoSekarang + 1) % playlistVideo.length;
+    putarVideoSekarang();
+  }
+}
+
+function putarVideoSekarang() {
+  clearTimeout(timerAntiMacet);
+  if (playlistVideo.length === 0) {
+    el.videoPlayer.style.opacity = '0';
+    el.indikatorLoading.style.display = 'none';
+    el.videoPlaceholder.style.display = 'flex';
+    el.teksPlaceholderVideo.innerHTML = 'Playlist Video Kosong';
+    el.videoPlayer.pause();
+    return;
+  }
+  
+  el.videoPlaceholder.style.display = 'none';
+  el.indikatorLoading.style.display = 'flex';
+  el.videoPlayer.style.opacity = '0'; 
+  
+  let namaFileUtuh = playlistVideo[indeksVideoSekarang].trim();
+  let urlTV = "https://kemenhajjember-ship-it.github.io/SIMANTRI-V2/" + encodeURIComponent(namaFileUtuh);
+  if(namaFileUtuh.startsWith('http')) { urlTV = namaFileUtuh; }
+
+  el.videoPlayer.src = urlTV;
+  el.videoPlayer.muted = !suaraDiizinkan; 
+  el.videoPlayer.load();
+  
+  setTimeout(() => {
+    let p = el.videoPlayer.play();
+    if (p !== undefined) p.catch(e => console.warn("TV Memblokir Play:", e));
+  }, 150);
+
+  timerAntiMacet = setTimeout(() => {
+    if (el.videoPlayer.currentTime === 0 || el.videoPlayer.paused) {
+      el.videoPlayer.src = ""; el.videoPlayer.style.opacity = '0';
+      el.indikatorLoading.style.display = 'none'; el.videoPlaceholder.style.display = 'flex';
+      el.teksPlaceholderVideo.innerHTML = `<span style="color:#ef4444;">KONEKSI LAMBAT</span><br><span style="font-size:1rem;">Melewati video ini...</span>`;
+      setTimeout(lanjutKeVideoBerikutnya, 3000);
+    }
+  }, 25000); 
+}
+
+el.videoPlayer.addEventListener('playing', function() {
+  clearTimeout(timerAntiMacet);
+  el.indikatorLoading.style.display = 'none'; 
+  el.videoPlayer.style.opacity = '1';
+});
+
+el.videoPlayer.addEventListener('ended', function() {
+  if (statusPanggilanBerjalan) antreanGantiVideo = true;
+  else { el.videoPlayer.style.opacity = '0'; setTimeout(lanjutKeVideoBerikutnya, 500); }
+});
+
+db.ref('pengaturan/playlist_video').on('value', (snap) => {
+  const dataBaru = snap.exists() ? snap.val() : [];
+  if (JSON.stringify(playlistVideo) !== JSON.stringify(dataBaru)) {
+    playlistVideo = dataBaru; indeksVideoSekarang = 0; putarVideoSekarang();
+  }
+});
+
+function redamSuaraVideo() { if (el.videoPlayer) el.videoPlayer.volume = VOLUME_MENGECIL; }
+
+let failsafeSuara = null;
+function pulihkanSuaraVideo() { 
+  clearTimeout(failsafeSuara);
+  statusPanggilanBerjalan = false;
+  
+  // SEMBUNYIKAN OVERLAY RAKSASA
+  el.boxHighlight.style.opacity = '0';
+  el.boxHighlight.style.transform = 'scale(1.05)';
+
+  if (antreanGantiVideo) {
+    antreanGantiVideo = false; el.videoPlayer.style.opacity = '0';
+    setTimeout(lanjutKeVideoBerikutnya, 500); return;
+  }
+  if (el.videoPlayer) {
+    el.videoPlayer.volume = VOLUME_NORMAL; 
+    let p = el.videoPlayer.play();
+    if (p !== undefined) p.catch(e => setTimeout(() => el.videoPlayer.play(), 1000));
+  }
+}
+
+/* =========================================================================
+   KLIK AKTIFKAN
+   ========================================================================= */
+let suaraDiizinkan = false;
+let konteksAudio = null;
+
+function ambilKonteksAudio(){
+  if (!konteksAudio) { const AC = window.AudioContext || window.webkitAudioContext; konteksAudio = new AC(); }
+  if (konteksAudio.state === 'suspended') konteksAudio.resume();
+  return konteksAudio;
+}
+
+el.btnAktifkan.addEventListener('click', () => {
+  suaraDiizinkan = true; el.overlay.style.display = 'none';
+  try { ambilKonteksAudio(); } catch(e) {}
+  if (typeof responsiveVoice !== 'undefined') responsiveVoice.speak(" ", "Indonesian Female", { volume: 0 }); 
+  
+  if (playlistVideo.length > 0) {
+    el.videoPlayer.pause(); el.videoPlayer.muted = false; el.videoPlayer.volume = VOLUME_NORMAL;
+    el.videoPlayer.load();
+    let p = el.videoPlayer.play();
+    if(p !== undefined) p.then(() => { el.videoPlayer.style.opacity = '1'; el.indikatorLoading.style.display = 'none'; }).catch(e => console.log(e));
+  }
+});
+
+/* =========================================================================
+   SISA LOGIKA (PANGGILAN, LOKET)
+   ========================================================================= */
+KONFIGURASI_LOKET.forEach(loket => {
+  db.ref(`status_loket/${loket.id}`).on('value', (snap) => {
+    const kartu = kartuLoket[loket.id];
+    if (kartu.tutup) return; 
+    if (!snap.exists()) { if(kartu.sedangDilayani) resetTampilanKosong(kartu); return; }
+    
+    const data = snap.val();
+    if (data.sedangDilayani === false) {
+      if (kartu.sedangDilayani === true) jalankanAnimasiSelesai(kartu); else resetTampilanKosong(kartu);
+      return;
+    }
+    if(data.sedangDilayani === true || data.sedangDilayani === undefined) {
+      kartu.sedangDilayani = true;
+      kartu.artikel.classList.remove('card-selesai');
+      kartu.containerIsi.classList.remove('hidden'); kartu.containerIsi.style.display = 'flex';
+      kartu.containerSelesai.classList.add('hidden'); kartu.containerSelesai.style.display = 'none';
+      kartu.nomorTampil.textContent = data.nomor; 
+      kartu.nomorTampil.style.color = '#e8c547'; 
+      kartu.nomorTampil.style.transform = 'scale(1)'; 
+      kartu.labelStatus.textContent = 'SEDANG DILAYANI'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.9)';
+    }
+  });
+});
+
+function jalankanAnimasiSelesai(kartu) {
+  kartu.sedangDilayani = false;
+  kartu.containerIsi.style.display = 'none';
+  kartu.containerSelesai.classList.remove('hidden'); kartu.containerSelesai.style.display = 'flex';
+  kartu.ikonSelesai.classList.remove('animate-pop'); void kartu.ikonSelesai.offsetWidth; kartu.ikonSelesai.classList.add('animate-pop');
+  kartu.labelStatus.textContent = 'SELESAI LAYANAN'; kartu.labelStatus.style.color = '#4ade80';
+  kartu.artikel.classList.add('card-selesai');
+  setTimeout(() => { if(!kartu.sedangDilayani) resetTampilanKosong(kartu); }, 3500);
+}
+
+function resetTampilanKosong(kartu) {
+  kartu.sedangDilayani = false;
+  kartu.artikel.classList.remove('card-selesai');
+  kartu.containerSelesai.style.display = 'none'; kartu.containerSelesai.classList.add('hidden');
+  kartu.containerIsi.classList.remove('hidden'); kartu.containerIsi.style.display = 'flex';
+  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
+  kartu.labelStatus.textContent = 'TERSEDIA'; kartu.labelStatus.style.color = 'rgba(245,238,224,0.45)';
+}
+
+const PETA_NAMA_KE_ID = {
+  'Loket A': 'loketA', 'Loket B': 'loketB', 'Loket C': 'loketC', 'Loket D': 'loketD', 'Ruang Foto Biometrik': 'biometrik', 'Ruang Bio Visa': 'biovisa'
+};
+
+let iniPembacaanPertama = true;
+let idPanggilanTerakhir = null;
+
+db.ref('panggilan_aktif').on('value', (snapshot) => {
+  if (!snapshot.exists()) return;
+  const data = snapshot.val();
+  const idPanggilan = `${data.nomor}-${data.timestamp}`;
+  if (idPanggilan === idPanggilanTerakhir) return;
+  idPanggilanTerakhir = idPanggilan;
+
+  // GANTI TEKS DI OVERLAY RAKSASA
+  el.highlightLoket.textContent = data.loket.toUpperCase();
+  el.highlightNomor.textContent = data.nomor;
+  
+  // MUNCULKAN OVERLAY
+  el.boxHighlight.style.opacity = '1';
+  el.boxHighlight.style.transform = 'scale(1)';
+
+  const loketId = PETA_NAMA_KE_ID[data.loket];
+  if (loketId && kartuLoket[loketId] && !kartuLoket[loketId].tutup) {
+    const artikel = kartuLoket[loketId].artikel;
+    kartuLoket[loketId].sedangDilayani = true; artikel.classList.remove('card-selesai');
+    artikel.classList.remove('card-active'); void artikel.offsetWidth; artikel.classList.add('card-active');
+    setTimeout(() => { artikel.classList.remove('card-active'); }, 10000); 
+  }
+  
+  if (iniPembacaanPertama) { iniPembacaanPertama = false; setTimeout(pulihkanSuaraVideo, 2000); return; }
+  if (suaraDiizinkan) mainkanPanggilan(data.nomor, data.loket);
+});
+
+db.ref('pengaturan/ticker/teks_berjalan').on('value', (snap) => {
+  const teksAsli = snap.exists() && snap.val() ? snap.val() : 'Selamat datang di SIMANTRI — Sistem Manajemen Antrean Kemenhaj Jember.';
+  const teksPanjang = `${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; ${teksAsli} &nbsp;&nbsp;&middot;&nbsp;&nbsp; `;
+  el.tickerTeks1.innerHTML = teksPanjang; el.tickerTeks2.innerHTML = teksPanjang;
+});
+
+function terapkanStatusTutupLoket(loketId, aktif){
+  const kartu = kartuLoket[loketId];
+  if (!kartu) return;
+  kartu.tutup = !aktif;
+  if (aktif) { kartu.artikel.style.opacity = '1'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)'; return; }
+  kartu.artikel.classList.remove('card-active', 'card-selesai'); kartu.artikel.style.opacity = '0.3';
+  kartu.containerSelesai.style.display = 'none'; kartu.containerIsi.style.display = 'flex';
+  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.1)';
+  kartu.labelStatus.textContent = 'TUTUP / OFFLINE'; kartu.labelStatus.style.color = '#ef4444';
+}
+
+db.ref('pengaturan/loket_aktif').on('value', (snap) => {
+  const status = snap.exists() ? snap.val() : {};
+  KONFIGURASI_LOKET.forEach(loket => {
+    if (loket.id === 'biometrik' || loket.id === 'biovisa') return; 
+    const aktif = status[loket.id] !== undefined ? !!status[loket.id] : true;
+    terapkanStatusTutupLoket(loket.id, aktif);
+  });
+});
+
+function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
+  const osc = konteks.createOscillator(); const gain = konteks.createGain();
+  osc.type = 'sine'; osc.frequency.value = frekuensi;
+  osc.connect(gain); gain.connect(konteks.destination);
+  gain.gain.setValueAtTime(0, waktuMulai); 
+  gain.gain.linearRampToValueAtTime(1.0, waktuMulai + 0.03); 
+  gain.gain.exponentialRampToValueAtTime(0.0001, waktuMulai + durasi);
+  osc.start(waktuMulai); osc.stop(waktuMulai + durasi);
+}
+
+function mainkanBel(){
+  try {
+    const konteks = ambilKonteksAudio(); const sekarang = konteks.currentTime;
+    mainkanNada(880, sekarang, 0.35, konteks); mainkanNada(659, sekarang + 0.32, 0.45, konteks);
+  } catch (e) { console.warn('Audio bel gagal dimainkan:', e); }
+}
+
+const PETA_ANGKA = { '0':'kosong','1':'satu','2':'dua','3':'tiga','4':'empat','5':'lima','6':'enam','7':'tujuh','8':'delapan','9':'sembilan' };
+function ejaNomorAntrean(nomor){
+  // DI V2 NOMOR ADALAH ANGKA MURNI ("001")
+  return String(nomor).split('').map(d => PETA_ANGKA[d] || d).join(', ');
+}
+
+function mainkanPanggilan(nomor, namaLoket){
+  statusPanggilanBerjalan = true; 
+  redamSuaraVideo(); 
+  mainkanBel();
+  const teks = `Nomor Antrean. ${ejaNomorAntrean(nomor)}. Silakan menuju. ${namaLoket}.`;
+  
+  setTimeout(() => {
+    clearTimeout(failsafeSuara);
+    failsafeSuara = setTimeout(pulihkanSuaraVideo, 10000); // Overlay bertahan 10 detik
+
+    if (typeof responsiveVoice !== 'undefined') { 
+      responsiveVoice.speak(teks, "Indonesian Female", { 
+        pitch: 1.05, rate: 1.0, volume: 1.0, 
+        onend: pulihkanSuaraVideo 
+      }); 
+    } else { setTimeout(pulihkanSuaraVideo, 5000); }
+  }, 1200); 
+}
+</script>
+</body>
+</html>
