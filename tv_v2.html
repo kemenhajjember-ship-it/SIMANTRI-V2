@@ -146,7 +146,6 @@
       </div>
 
       <!-- LAYER 2: OVERLAY PANGGILAN RAKSASA (MUNCUL SAAT ADA PANGGILAN) -->
-      <!-- Menggunakan desain persis seperti "Box Highlight" versi 1 -->
       <div id="boxHighlight" class="absolute inset-0 z-30 flex flex-col items-center justify-center transition-all duration-500 overflow-hidden opacity-0 pointer-events-none" style="background: linear-gradient(to bottom right, rgba(27,16,8,0.95), rgba(35,21,13,0.98), rgba(27,16,8,0.95)); backdrop-filter: blur(10px);">
         <div class="absolute -top-20 -left-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(232,197,71,0.1); filter: blur(60px);"></div>
         <div class="absolute -bottom-20 -right-20 h-64 w-64 rounded-full pointer-events-none" style="background-color: rgba(212,175,55,0.1); filter: blur(60px);"></div>
@@ -182,7 +181,7 @@
     </article>
   </template>
 
-  <!-- TICKER PENGUMUMAN DI DASAR (KEMBALI KE VERSI 1) -->
+  <!-- TICKER PENGUMUMAN DI DASAR -->
   <footer class="relative z-10 shrink-0 flex items-center px-4 py-2 md:px-6" style="gap: 0.75rem; background-color: #e8c547; box-shadow: 0 -5px 15px rgba(0,0,0,0.4);">
     <div class="flex items-center shrink-0 rounded-lg px-3 py-1" style="gap: 0.5rem; background-color: #1b1008; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
       <p class="font-sans font-extrabold uppercase" style="font-size: 0.85rem; letter-spacing: 0.2em; color: #e8c547;">INFO</p>
@@ -212,7 +211,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 6 KONFIGURASI LOKET V2 SESUAI ADMIN (Akan Otomatis jadi 3 Baris x 2 Kolom)
+// 6 KONFIGURASI LOKET V2
 const KONFIGURASI_LOKET = [
   { id: 'loketA', nama: 'Loket A' },
   { id: 'loketB', nama: 'Loket B' },
@@ -277,7 +276,6 @@ let playlistVideo = [];
 let indeksVideoSekarang = 0;
 let timerAntiMacet = null;
 
-// SETTING VOLUME YANG DIMINTA
 const VOLUME_NORMAL = 0.15; 
 const VOLUME_MENGECIL = 0.05; 
 
@@ -355,7 +353,6 @@ function pulihkanSuaraVideo() {
   clearTimeout(failsafeSuara);
   statusPanggilanBerjalan = false;
   
-  // SEMBUNYIKAN OVERLAY RAKSASA
   el.boxHighlight.style.opacity = '0';
   el.boxHighlight.style.transform = 'scale(1.05)';
 
@@ -433,6 +430,7 @@ function jalankanAnimasiSelesai(kartu) {
 }
 
 function resetTampilanKosong(kartu) {
+  if(kartu.tutup) return;
   kartu.sedangDilayani = false;
   kartu.artikel.classList.remove('card-selesai');
   kartu.containerSelesai.style.display = 'none'; kartu.containerSelesai.classList.add('hidden');
@@ -455,11 +453,9 @@ db.ref('panggilan_aktif').on('value', (snapshot) => {
   if (idPanggilan === idPanggilanTerakhir) return;
   idPanggilanTerakhir = idPanggilan;
 
-  // GANTI TEKS DI OVERLAY RAKSASA
   el.highlightLoket.textContent = data.loket.toUpperCase();
   el.highlightNomor.textContent = data.nomor;
   
-  // MUNCULKAN OVERLAY
   el.boxHighlight.style.opacity = '1';
   el.boxHighlight.style.transform = 'scale(1)';
 
@@ -481,25 +477,41 @@ db.ref('pengaturan/ticker/teks_berjalan').on('value', (snap) => {
   el.tickerTeks1.innerHTML = teksPanjang; el.tickerTeks2.innerHTML = teksPanjang;
 });
 
+// =========================================================================
+// PERBAIKAN: RESET STATUS LOKET TV
+// =========================================================================
 function terapkanStatusTutupLoket(loketId, aktif){
   const kartu = kartuLoket[loketId];
   if (!kartu) return;
+  
   kartu.tutup = !aktif;
-  if (aktif) { kartu.artikel.style.opacity = '1'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.2)'; return; }
-  kartu.artikel.classList.remove('card-active', 'card-selesai'); kartu.artikel.style.opacity = '0.4';
-  kartu.containerSelesai.style.display = 'none'; kartu.containerIsi.style.display = 'flex';
-  kartu.nomorTampil.textContent = '---'; kartu.nomorTampil.style.transform = 'scale(1)'; kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
-  kartu.labelStatus.textContent = 'TUTUP / OFFLINE'; kartu.labelStatus.style.color = '#ef4444';
+  
+  if (aktif) { 
+    kartu.artikel.style.opacity = '1'; 
+    if (!kartu.sedangDilayani) {
+       resetTampilanKosong(kartu);
+    }
+  } else {
+    kartu.artikel.classList.remove('card-active', 'card-selesai'); 
+    kartu.artikel.style.opacity = '0.4';
+    kartu.containerSelesai.style.display = 'none'; 
+    kartu.containerIsi.style.display = 'flex';
+    kartu.nomorTampil.textContent = '---'; 
+    kartu.nomorTampil.style.transform = 'scale(1)'; 
+    kartu.nomorTampil.style.color = 'rgba(245,238,224,0.15)';
+    kartu.labelStatus.textContent = 'TUTUP / OFFLINE'; 
+    kartu.labelStatus.style.color = '#ef4444';
+  }
 }
 
 db.ref('pengaturan/loket_aktif').on('value', (snap) => {
   const status = snap.exists() ? snap.val() : {};
   KONFIGURASI_LOKET.forEach(loket => {
-    if (loket.id === 'biometrik' || loket.id === 'biovisa') return; 
     const aktif = status[loket.id] !== undefined ? !!status[loket.id] : true;
     terapkanStatusTutupLoket(loket.id, aktif);
   });
 });
+// =========================================================================
 
 function mainkanNada(frekuensi, waktuMulai, durasi, konteks){
   const osc = konteks.createOscillator(); const gain = konteks.createGain();
@@ -531,7 +543,7 @@ function mainkanPanggilan(nomor, namaLoket){
   
   setTimeout(() => {
     clearTimeout(failsafeSuara);
-    failsafeSuara = setTimeout(pulihkanSuaraVideo, 10000); // Overlay bertahan 10 detik
+    failsafeSuara = setTimeout(pulihkanSuaraVideo, 10000);
 
     if (typeof responsiveVoice !== 'undefined') { 
       responsiveVoice.speak(teks, "Indonesian Female", { 
