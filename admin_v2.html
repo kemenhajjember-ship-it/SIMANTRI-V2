@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMANTRI V2 — Konsol Petugas</title>
 
-<!-- LIBRARY SUARA PREMIUM -->
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -1205,6 +1204,42 @@ function perbaruiTampilanTicker() { elPlaylist.counter.textContent = elPlaylist.
 elPlaylist.ticker.addEventListener('input', perbaruiTampilanTicker);
 get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => { if(s.exists()) elPlaylist.ticker.value = s.val(); perbaruiTampilanTicker(); });
 elPlaylist.btnSimpanTicker.addEventListener('click', async () => { await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elPlaylist.ticker.value); tampilkanAlert('Berhasil', 'Teks berjalan diperbarui.'); });
+
+// =========================================================================
+// PERBAIKAN: EVENT LISTENER UNTUK 6 SAKLAR LOKET
+// =========================================================================
+const elLoket = { 
+  checkboxes: Array.from(document.querySelectorAll('input[type="checkbox"][data-loket]')), 
+  jumlahAktif: document.getElementById('jumlahLoketAktif') 
+};
+
+function perbaruiJumlahLoketAktif() { 
+  if (elLoket.jumlahAktif) {
+    elLoket.jumlahAktif.textContent = elLoket.checkboxes.filter(cb => cb.checked).length; 
+  }
+}
+
+if (elLoket.checkboxes.length > 0) {
+  onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => { 
+    const status = snap.exists() ? snap.val() : {}; 
+    elLoket.checkboxes.forEach(cb => { 
+      cb.checked = status[cb.dataset.loket] !== undefined ? !!status[cb.dataset.loket] : true; 
+    }); 
+    perbaruiJumlahLoketAktif(); 
+  });
+
+  elLoket.checkboxes.forEach(cb => { 
+    cb.addEventListener('change', async () => { 
+      try {
+        await set(ref(db, `pengaturan/loket_aktif/${cb.dataset.loket}`), cb.checked); 
+        perbaruiJumlahLoketAktif(); 
+      } catch(e) {
+        console.error("Gagal mengupdate status loket", e);
+      }
+    }); 
+  });
+}
+// =========================================================================
 
 </script>
 </body>
