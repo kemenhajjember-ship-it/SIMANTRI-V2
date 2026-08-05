@@ -18,7 +18,6 @@
 <style>
   body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #faf7f2; overflow: hidden; user-select: none; }
   .btn-klik:active { transform: scale(0.95); transition: transform 0.1s; }
-  /* Custom Scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
 </style>
@@ -51,7 +50,6 @@
   <!-- Area Konsol -->
   <main id="kontenPeran" class="hidden flex-1 flex-col p-4 overflow-y-auto">
     
-    <!-- Informasi Layanan -->
     <div class="mb-4 text-center">
       <h2 id="namaLoketTampil" class="text-sm font-extrabold uppercase tracking-widest">LOKET</h2>
       <p id="targetLayananTampil" class="text-[10px] font-medium text-bronze-dark/60">Melayani: -</p>
@@ -109,8 +107,9 @@
   </div>
 
 <script type="module">
+// PERBAIKAN: Menambahkan runTransaction ke dalam import Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, set, remove, onValue, push, query, orderByChild, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, get, set, remove, onValue, push, query, orderByChild, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 lucide.createIcons();
 
@@ -164,17 +163,17 @@ function aturKunci(terkunci) {
 el.peran.addEventListener('change', async () => {
   peranAktif = el.peran.value || null; dataDilayani = null; aturKunci(false);
   
-  // ----- FITUR PENGINGAT LOGIN (MEMORY) -----
-  if (peranAktif) {
-    localStorage.setItem('simantri_peran_widget', peranAktif);
-  } else {
-    localStorage.removeItem('simantri_peran_widget');
-  }
-  // ------------------------------------------
+  if (peranAktif) localStorage.setItem('simantri_peran_widget', peranAktif);
+  else localStorage.removeItem('simantri_peran_widget');
 
   el.kosong.classList.toggle('hidden', !!peranAktif);
   el.konten.classList.toggle('hidden', !peranAktif); el.konten.classList.toggle('flex', !!peranAktif);
-  if (unsubAntrean) { unsubAntrean(); unsubAntrean = null; }
+  
+  if (unsubAntrean) {
+     if (typeof unsubAntrean === 'function') unsubAntrean();
+     else if (Array.isArray(unsubAntrean)) unsubAntrean.forEach(fn => fn());
+     unsubAntrean = null;
+  }
   
   if (peranAktif) {
     const k = KONFIGURASI[peranAktif];
@@ -182,9 +181,22 @@ el.peran.addEventListener('change', async () => {
     el.btnTeruskan.classList.toggle('hidden', !k.bisaTeruskan);
     el.nomor.textContent = '—';
     
+    // PERBAIKAN BUG SINKRONISASI PENGHITUNG ANTREAN
     if (peranAktif === 'biometrik') {
       el.target.textContent = "Menerima Foto Baru & Lemparan";
-      unsubAntrean = onValue(ref(db, 'antrean_biometrik'), snap => { el.stat.textContent = snap.exists() ? Object.keys(snap.val()).length : 0; });
+      let countLemparan = 0, countLangsung = 0;
+      const renderCount = () => { el.stat.textContent = countLemparan + countLangsung; };
+      
+      const unsub1 = onValue(ref(db, 'antrean_biometrik'), snap => { 
+        countLemparan = snap.exists() ? Object.keys(snap.val()).length : 0; 
+        renderCount(); 
+      });
+      const unsub2 = onValue(ref(db, 'antrean_menunggu'), snap => { 
+        countLangsung = 0;
+        if(snap.exists()) snap.forEach(c => { if(c.val().kategori === 'foto_biometrik') countLangsung++; });
+        renderCount(); 
+      });
+      unsubAntrean = [unsub1, unsub2];
     } else {
       el.target.textContent = `Melayani: ${k.target.map(t=>NAMA_KATEGORI[t]).join(', ')}`;
       unsubAntrean = onValue(ref(db, 'antrean_menunggu'), snap => {
@@ -210,10 +222,20 @@ el.btnPanggil.addEventListener('click', async () => {
     
     if (peranAktif === 'biometrik') {
       const snap = await get(query(ref(db, 'antrean_biometrik'), orderByChild('timestamp')));
-      snap.forEach(c => { if(!key) { targetNomor = { nomor: c.val().nomorAsal, jumlahOrang: c.val().jumlahOrang }; key = c.key; pathDelete = 'antrean_biometrik'; } });
+      snap.forEach(c => { if(!key) { targetNomor = { nomor: c.val().nomorAsal, jumlahOrang: c.val().jumlahOrang, kategori: 'foto_biometrik' }; key = c.key; pathDelete = 'antrean_biometrik'; } });
       if(!key) {
         const snap2 = await get(query(ref(db, 'antrean_menunggu'), orderByChild('timestamp')));
         snap2.forEach(c => { if(!key && c.val().kategori === 'foto_biometrik') { targetNomor = c.val(); key = c.key; pathDelete = 'antrean_menunggu'; } });
+      }
+
+      // PERBAIKAN BUG CEK KAPASITAS RUANG FOTO
+      if (targetNomor) {
+         const snapKap = await get(ref(db, 'kapasitas_biometrik/saat_ini'));
+         const kapSkg = snapKap.exists() ? snapKap.val() : 0;
+         if (kapSkg + (targetNomor.jumlahOrang || 1) > 8) {
+            alert(`Kapasitas Penuh!\nSaat ini ada ${kapSkg} orang di dalam.\nRombongan berikutnya berjumlah ${targetNomor.jumlahOrang} orang.\nMaksimal Ruangan: 8 Orang.\n\nSilakan selesaikan jemaah yang ada terlebih dahulu.`);
+            el.btnPanggil.disabled = false; return;
+         }
       }
     } else {
       const snap = await get(query(ref(db, 'antrean_menunggu'), orderByChild('timestamp')));
@@ -223,22 +245,42 @@ el.btnPanggil.addEventListener('click', async () => {
     if(!key) { alert('Antrean kosong!'); el.btnPanggil.disabled = false; return; }
 
     await remove(ref(db, `${pathDelete}/${key}`));
+    
+    // PERBAIKAN BUG TAMBAH KAPASITAS RUANG FOTO
+    if (peranAktif === 'biometrik') {
+        await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (kap) => (kap || 0) + (targetNomor.jumlahOrang || 1));
+    }
+
     const payload = { nomor: targetNomor.nomor, loket: k.nama, kategori: targetNomor.kategori || 'foto_biometrik', jumlahOrang: targetNomor.jumlahOrang || 1, sedangDilayani: true, timestamp: serverTimestamp() };
     await set(ref(db, 'panggilan_aktif'), payload); await set(ref(db, `status_loket/${peranAktif}`), payload);
     dataDilayani = payload; el.nomor.textContent = payload.nomor; aturKunci(true);
     catatLog(payload.nomor, 'Panggil', `Dipanggil via Widget ke ${k.nama}`);
-  } catch(e) { alert('Gagal memanggil!'); } finally { el.btnPanggil.disabled = false; }
+  } catch(e) { alert('Gagal memanggil! Periksa Koneksi.'); console.error(e); } finally { el.btnPanggil.disabled = false; }
 });
 
 el.btnUlangi.addEventListener('click', () => {
   if (dataDilayani) set(ref(db, 'panggilan_aktif'), { nomor: dataDilayani.nomor, loket: KONFIGURASI[peranAktif].nama, kategori: dataDilayani.kategori, timestamp: serverTimestamp() });
 });
 
-el.btnSelesai.addEventListener('click', () => {
+el.btnSelesai.addEventListener('click', async () => {
   if(!dataDilayani) return;
-  catatLog(dataDilayani.nomor, 'Selesai', 'Selesai dilayani via Widget');
-  set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false);
-  dataDilayani = null; el.nomor.textContent = '—'; aturKunci(false);
+  el.btnSelesai.disabled = true; 
+  
+  try {
+      // PERBAIKAN BUG PENGURANGAN KAPASITAS RUANG FOTO OTOMATIS
+      if (peranAktif === 'biometrik') {
+         const jmlKeluar = dataDilayani.jumlahOrang || 1;
+         await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - jmlKeluar));
+      }
+
+      catatLog(dataDilayani.nomor, 'Selesai', 'Selesai dilayani via Widget');
+      await set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false);
+      dataDilayani = null; el.nomor.textContent = '—'; aturKunci(false);
+  } catch(e) {
+      console.error(e);
+  } finally {
+      el.btnSelesai.disabled = !terkunci; 
+  }
 });
 
 el.btnTeruskan.addEventListener('click', () => {
@@ -258,7 +300,6 @@ el.bioKirim.addEventListener('click', async () => {
   } catch(e) { alert('Gagal meneruskan!'); } finally { el.bioKirim.disabled = false; }
 });
 
-// ----- CEK MEMORI SAAT WIDGET DIBUKA ULANG -----
 window.addEventListener('DOMContentLoaded', () => {
   const peranTersimpan = localStorage.getItem('simantri_peran_widget');
   if (peranTersimpan && KONFIGURASI[peranTersimpan]) {
@@ -266,7 +307,6 @@ window.addEventListener('DOMContentLoaded', () => {
     el.peran.dispatchEvent(new Event('change'));
   }
 });
-// ------------------------------------------------
 </script>
 </body>
 </html>
