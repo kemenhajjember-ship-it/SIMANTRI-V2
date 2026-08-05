@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SIMANTRI V2 — Konsol Petugas</title>
 
-<!-- LIBRARY SUARA PREMIUM (DIKEMBALIKAN KE VERSI 1) -->
+<!-- LIBRARY SUARA PREMIUM -->
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -509,15 +509,16 @@
               </div>
             </div>
 
+            <!-- ==================== MANAJEMEN LOKET V2 (6 SAKLAR) ==================== -->
             <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)] xl:col-span-2">
               <div class="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
                 <div class="flex items-start gap-3">
                   <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="layout-panel-left" class="h-5 w-5"></i></span>
                   <div><h2 class="text-sm font-semibold text-bronze-dark">Manajemen Loket</h2><p class="text-xs text-muted-foreground">Aktifkan atau nonaktifkan loket pelayanan yang beroperasi hari ini</p></div>
                 </div>
-                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark"><span class="h-1.5 w-1.5 rounded-full bg-gold"></span> <span id="jumlahLoketAktif">4</span> Loket Aktif</span>
+                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark"><span class="h-1.5 w-1.5 rounded-full bg-gold"></span> <span id="jumlahLoketAktif">6</span> Loket Aktif</span>
               </div>
-              <div class="grid gap-4 border-t border-border/60 px-6 py-5 sm:grid-cols-2 xl:grid-cols-4">
+              <div class="grid gap-4 border-t border-border/60 px-6 py-5 sm:grid-cols-3 xl:grid-cols-3">
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
                   <div><p class="text-sm font-bold text-bronze-dark">Loket A</p><p class="text-[11px] text-muted-foreground">Verifikasi</p></div>
                   <label for="aturLoketA" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoketA" data-loket="loketA" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
@@ -533,6 +534,14 @@
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
                   <div><p class="text-sm font-bold text-bronze-dark">Loket D</p><p class="text-[11px] text-muted-foreground">Batal & Limpah</p></div>
                   <label for="aturLoketD" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoketD" data-loket="loketD" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Foto Wajah</p><p class="text-[11px] text-muted-foreground">Verifikasi & Foto</p></div>
+                  <label for="aturBiometrik" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturBiometrik" data-loket="biometrik" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Bio Visa</p><p class="text-[11px] text-muted-foreground">Saudi Visa Bio</p></div>
+                  <label for="aturBiovisa" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturBiovisa" data-loket="biovisa" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
                 </div>
               </div>
             </div>
@@ -827,7 +836,7 @@ el.pilihPeran.addEventListener('change', async () => {
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
   const status = snap.exists() ? snap.val() : {};
   Array.from(el.pilihPeran.options).forEach((opt) => {
-    if (!opt.value || opt.value === 'biometrik' || opt.value === 'biovisa') return;
+    if (!opt.value) return; // Hanya mengecualikan pilihan kosong pertama
     const aktif = status[opt.value] !== undefined ? !!status[opt.value] : true;
     opt.disabled = !aktif; opt.textContent = opt.textContent.replace(/ \(Tutup\)$/, '') + (aktif ? '' : ' (Tutup)');
   });
@@ -1161,9 +1170,6 @@ function perbaruiChartKunjungan(perJam) {
 
 const elAudio = { volume: document.getElementById('aturVolume'), nilaiVolume: document.getElementById('nilaiVolume'), kecepatan: document.getElementById('aturKecepatanTTS'), nilaiKecepatan: document.getElementById('nilaiKecepatanTTS'), tesSuara: document.getElementById('btnTesSuara') };
 
-// =========================================================================
-// FITUR AUDIO: DIKEMBALIKAN 100% SEPERTI VERSI 1 (MENGGUNAKAN RESPONSIVEVOICE)
-// =========================================================================
 if (elAudio.volume) {
   elAudio.volume.value = localStorage.getItem('simantri_volume') || 80; 
   elAudio.kecepatan.value = localStorage.getItem('simantri_kecepatan_tts') || 1;
@@ -1200,12 +1206,6 @@ elPlaylist.ticker.addEventListener('input', perbaruiTampilanTicker);
 get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => { if(s.exists()) elPlaylist.ticker.value = s.val(); perbaruiTampilanTicker(); });
 elPlaylist.btnSimpanTicker.addEventListener('click', async () => { await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elPlaylist.ticker.value); tampilkanAlert('Berhasil', 'Teks berjalan diperbarui.'); });
 
-const elLoket = { checkboxes: Array.from(document.querySelectorAll('[id^="aturLoket"]')), jumlahAktif: document.getElementById('jumlahLoketAktif') };
-function perbaruiJumlahLoketAktif() { if (elLoket.jumlahAktif) elLoket.jumlahAktif.textContent = elLoket.checkboxes.filter(cb => cb.checked).length; }
-if (elLoket.checkboxes.length) {
-  onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => { const status = snap.exists() ? snap.val() : {}; elLoket.checkboxes.forEach(cb => { cb.checked = status[cb.dataset.loket] !== undefined ? !!status[cb.dataset.loket] : true; }); perbaruiJumlahLoketAktif(); });
-  elLoket.checkboxes.forEach(cb => { cb.addEventListener('change', async () => { await set(ref(db, `pengaturan/loket_aktif/${cb.dataset.loket}`), cb.checked); perbaruiJumlahLoketAktif(); }); });
-}
 </script>
 </body>
 </html>
