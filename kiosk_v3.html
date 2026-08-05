@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- ============================================================
+     META TAGS KIOSK & PWA
+     ============================================================ -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="display" content="standalone">
+<meta name="theme-color" content="#1b1008">
+
+<title>SIMANTRI V2 — Kiosk Premium</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bronze: '#3d2817',
+          'bronze-deep': '#2b1b10',
+          'bronze-ink': '#1b1008',
+          gold: '#d4af37',
+          'gold-light': '#e8c547',
+          'gold-deep': '#a8842a',
+          cream: '#f5eee0',
+          'cream-light': '#faf7f2', 
+        },
+        fontFamily: {
+          sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          serif: ['"Lora"', 'serif'],
+        },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  html { font-size: 14px; width: 100%; height: 100%; }
+  @media (min-width: 1024px) { html { font-size: 16px; } }
+  @media (min-width: 1366px) { html { font-size: 18px; } }
+  @media (min-width: 1920px) { html { font-size: 22px; } }
+
+  html, body { 
+    width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
+    user-select: none; touch-action: manipulation; -webkit-touch-callout: none; 
+    background-color: #1b1008;
+  }
+
+  button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; transition: all 0.3s ease; }
+  
+  /* Saat tombol disable */
+  button:disabled { cursor: not-allowed !important; transform: scale(1) !important; }
+
+  @media (pointer: coarse) { *, button, a { cursor: none !important; } }
+  .hilangkan-kursor, .hilangkan-kursor * { cursor: none !important; }
+
+  .kiosk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
+
+  /* Pola Latar Belakang Elegan (Arabesque/Geometric) */
+  .bg-pattern {
+    background-image: radial-gradient(rgba(212, 175, 55, 0.15) 2px, transparent 2px),
+                      radial-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px, 20px 20px;
+    background-position: 0 0, 20px 20px;
+  }
+
+  /* Animasi Kilap Tombol */
+  .btn-kilap::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 60%, rgba(255,255,255,0) 100%);
+    transform: rotate(30deg) translate(-100%, -100%);
+    transition: transform 0.8s ease-in-out;
+    pointer-events: none;
+  }
+  .group:active:not(:disabled) .btn-kilap::after { transform: rotate(30deg) translate(100%, 100%); transition: transform 0s; }
+
+  /* Area Cetak */
+  #areaStruk{ display:none; }
+  @media print {
+    @page{ size:58mm auto; margin:0; }
+    html{ font-size:16px !important; }
+    html, body{ width:58mm; margin:0; padding:0; background:#fff !important; overflow:visible; }
+    body > *:not(#areaStruk){ display:none !important; }
+    #areaStruk{
+      display:block !important; width:58mm; max-width:58mm; margin:0 auto; padding:3mm 2.5mm;
+      font-family:'Courier New',monospace; color:#000; background:#fff;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    }
+    #areaStruk *{ color:#000 !important; background:transparent !important; box-shadow:none !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .struk-garis{ border-top:1px dashed #000; margin:5px 0; }
+    .struk-kop{ text-align:center; font-size:11px; font-weight:700; line-height:1.3; text-transform:uppercase; }
+    .struk-kategori{ text-align:center; font-size:12px; font-weight:700; margin-top:5px; }
+    .struk-judul-kecil{ text-align:center; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin:6px 0 2px; }
+    .struk-nomor{ text-align:center; font-size:64px; font-weight:900; letter-spacing:1px; line-height:1; margin:2px 0 6px; -webkit-text-stroke:0.6px #000; }
+    .struk-jumlah{ text-align:center; font-size:11px; font-weight:bold; margin-bottom:5px; }
+    .struk-waktu{ text-align:center; font-size:10px; margin-bottom:3px; }
+    .struk-pesan{ text-align:center; font-size:10px; font-weight:bold; margin-top:5px; }
+  }
+</style>
+</head>
+<body class="font-sans text-[#2b1b10]">
+
+  <!-- Latar Belakang Mewah -->
+  <div class="absolute inset-0 z-0 bg-pattern opacity-40"></div>
+  <div class="absolute inset-0 z-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_30%,rgba(212,175,55,0.25),transparent_80%)] pointer-events-none"></div>
+
+  <!-- Panggung Utama -->
+  <main id="kioskPanel" class="absolute inset-[1.5rem] lg:inset-[2.5rem] z-20 flex flex-col overflow-hidden rounded-[2.5rem] border border-[#d4af37]/40 bg-[#faf7f2]/95 backdrop-blur-xl shadow-[0_2rem_5rem_-1rem_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)]">
+
+    <!-- Aksen Emas Atas -->
+    <div class="h-2.5 w-full bg-[linear-gradient(90deg,#a8842a,#f2d877_30%,#d4af37_50%,#f2d877_70%,#a8842a)] shrink-0 shadow-[0_2px_10px_rgba(212,175,55,0.5)]"></div>
+
+    <!-- Header Elegan -->
+    <header class="relative z-10 flex shrink-0 items-center justify-between border-b border-[#2b1b10]/10 bg-white/40 px-12 py-5 shadow-sm">
+      <div class="flex items-center gap-6" id="btnRahasiaFullscreen">
+        <div class="relative rounded-full bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(212,175,55,0.6)] border border-[#d4af37]/30">
+          <img src="logo.png" alt="Logo Instansi" class="h-16 w-16 rounded-full object-cover pointer-events-none">
+        </div>
+        <div>
+          <p class="font-serif text-sm font-bold uppercase tracking-[0.25em] text-[#a8842a]">Kemenhaj Kab. Jember</p>
+          <p class="text-[2.25rem] font-extrabold tracking-widest text-[#2b1b10] drop-shadow-sm leading-none mt-1">SIMANTRI V2</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-end text-right">
+        <span id="footerJam" class="font-mono text-[2.5rem] font-black text-[#2b1b10] leading-none drop-shadow-sm">--:--:--</span>
+        <span id="footerTanggal" class="mt-1.5 text-xs font-bold uppercase text-[#a8842a] tracking-widest bg-[#d4af37]/10 px-3 py-1 rounded-full">memuat tanggal...</span>
+      </div>
+    </header>
+
+    <!-- Konten Pilihan Layanan -->
+    <section class="relative z-10 flex flex-1 flex-col px-12 py-8">
+      
+      <div class="flex items-center justify-center gap-6 mb-8 shrink-0">
+        <div class="h-px w-24 bg-gradient-to-r from-transparent to-[#d4af37]"></div>
+        <h1 class="text-center font-serif text-3xl font-black uppercase tracking-[0.2em] text-[#2b1b10]">
+          Silakan Pilih Layanan
+        </h1>
+        <div class="h-px w-24 bg-gradient-to-l from-transparent to-[#d4af37]"></div>
+      </div>
+
+      <!-- Grid Tombol Modern 3D -->
+      <div class="kiosk-grid flex-1">
+        
+        <!-- 1. Verifikasi -->
+        <button type="button" id="btn-verifikasi" onclick="bukaModal('verifikasi', 'Verifikasi Pendaftaran')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#3d2817]/20 bg-[linear-gradient(145deg,#3d2817,#1b1008)] text-white shadow-[0_15px_35px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 mb-5 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+            <i data-lucide="file-check-2" stroke-width="1.5" class="h-10 w-10 text-[#f2d877]"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-[#f5eee0] drop-shadow-lg">VERIFIKASI</span>
+          <span class="text-sm text-[#f5eee0]/60 mt-2 font-medium tracking-wide">Pendaftaran Haji/Umrah</span>
+        </button>
+
+        <!-- 2. Informasi -->
+        <button type="button" id="btn-informasi" onclick="bukaModal('informasi', 'Informasi Layanan')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#d4af37]/50 bg-[linear-gradient(145deg,#fceabb,#f8b500)] text-[#2b1b10] shadow-[0_15px_35px_rgba(212,175,55,0.2),inset_0_2px_5px_rgba(255,255,255,0.6)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(212,175,55,0.3),inset_0_2px_5px_rgba(255,255,255,0.6)] overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/40 blur-2xl pointer-events-none"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-white/30 border border-white/50 mb-5 shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+            <i data-lucide="info" stroke-width="2" class="h-10 w-10 text-[#2b1b10]"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest drop-shadow-[0_2px_2px_rgba(255,255,255,0.5)]">INFORMASI</span>
+          <span class="text-sm text-[#2b1b10]/70 mt-2 font-bold tracking-wide">Tanya Jadwal & Status</span>
+        </button>
+
+        <!-- 3. Pembatalan -->
+        <button type="button" id="btn-pembatalan" onclick="bukaModal('pembatalan', 'Pembatalan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-red-900/50 bg-[linear-gradient(145deg,#991b1b,#450a0a)] text-white shadow-[0_15px_35px_rgba(153,27,27,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(153,27,27,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-red-500/20 blur-xl pointer-events-none"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-red-400/10 border border-red-400/30 mb-5 shadow-[0_0_20px_rgba(248,113,113,0.2)]">
+            <i data-lucide="x-octagon" stroke-width="1.5" class="h-10 w-10 text-red-200"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-red-50 drop-shadow-lg">PEMBATALAN</span>
+          <span class="text-sm text-red-200/70 mt-2 font-medium tracking-wide">Proses Batal Porsi Haji</span>
+        </button>
+
+        <!-- 4. Pelimpahan -->
+        <button type="button" id="btn-pelimpahan" onclick="bukaModal('pelimpahan', 'Pelimpahan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-orange-900/50 bg-[linear-gradient(145deg,#c2410c,#7c2d12)] text-white shadow-[0_15px_35px_rgba(194,65,12,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(194,65,12,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-orange-400/10 border border-orange-400/30 mb-5 shadow-[0_0_20px_rgba(251,146,60,0.2)]">
+            <i data-lucide="users" stroke-width="1.5" class="h-10 w-10 text-orange-200"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-orange-50 drop-shadow-lg">PELIMPAHAN</span>
+          <span class="text-sm text-orange-200/70 mt-2 font-medium tracking-wide">Pelimpahan Porsi Keluarga</span>
+        </button>
+
+        <!-- 5. Foto Wajah -->
+        <button type="button" id="btn-foto_biometrik" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-slate-700/50 bg-[linear-gradient(145deg,#334155,#0f172a)] text-white shadow-[0_15px_35px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-slate-400/10 border border-slate-400/30 mb-5 shadow-[0_0_20px_rgba(148,163,184,0.2)]">
+            <i data-lucide="camera" stroke-width="1.5" class="h-10 w-10 text-[#e8c547]"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-slate-50 drop-shadow-lg text-center leading-none">FOTO WAJAH</span>
+          <span class="text-sm text-slate-300/70 mt-2 font-medium tracking-wide text-center">Verifikasi Data & Foto</span>
+        </button>
+
+        <!-- 6. Bio Visa -->
+        <button type="button" id="btn-bio_visa" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-teal-900/50 bg-[linear-gradient(145deg,#0f766e,#134e4a)] text-white shadow-[0_15px_35px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
+          <div class="btn-kilap"></div>
+          <div class="h-20 w-20 flex items-center justify-center rounded-full bg-teal-400/10 border border-teal-400/30 mb-5 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
+            <i data-lucide="scan-face" stroke-width="1.5" class="h-10 w-10 text-teal-100"></i>
+          </div>
+          <span class="text-2xl font-black tracking-widest text-teal-50 drop-shadow-lg">BIO VISA</span>
+          <span class="text-sm text-teal-200/70 mt-2 font-medium tracking-wide">Perekaman Saudi Visa Bio</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- FOOTER KONEKSI -->
+    <footer class="relative z-10 flex shrink-0 items-center justify-center border-t border-[#2b1b10]/10 bg-[#faf7f2] px-10 py-3 shadow-inner">
+      <span id="statusFirebaseFooter" class="flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] text-[#a8842a]">
+        <i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i> MENGHUBUNGKAN...
+      </span>
+    </footer>
+  </main>
+
+  <!-- ==================== MODAL ROMBONGAN ELEGAN ==================== -->
+  <div id="overlayRombongan" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-[#1b1008]/85 px-10 backdrop-blur-md transition-opacity">
+    <div class="relative flex w-full max-w-2xl flex-col items-center overflow-hidden rounded-[2.5rem] bg-[#faf7f2] px-10 py-12 text-center shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-[#d4af37]/30">
+      
+      <div class="absolute top-0 inset-x-0 h-3 bg-gradient-to-r from-[#a8842a] via-[#e8c547] to-[#a8842a]"></div>
+
+      <p id="labelLayanan" class="rounded-full bg-[#d4af37]/15 border border-[#d4af37]/30 px-6 py-2 text-xs font-black uppercase tracking-[0.2em] text-[#a8842a] mb-6 shadow-sm">Layanan</p>
+
+      <h2 class="font-serif text-3xl font-extrabold leading-snug text-[#2b1b10] mb-8">
+        Berapa jumlah jemaah<br>dalam rombongan Anda?
+      </h2>
+
+      <div class="flex items-center justify-center gap-10 mb-8">
+        <button type="button" id="btnKurang" class="flex h-20 w-20 items-center justify-center rounded-full border-4 border-[#e7dcc8] bg-white text-5xl font-bold text-[#a8842a] shadow-sm transition-all active:bg-[#faf7f2] active:scale-90 disabled:opacity-30 disabled:active:scale-100">−</button>
+        
+        <div class="relative w-36 h-36 flex items-center justify-center bg-white rounded-[2rem] shadow-inner border border-[#e7dcc8]">
+          <div id="angkaRombongan" class="font-mono text-[6rem] font-black leading-none text-[#2b1b10] drop-shadow-sm">1</div>
+        </div>
+        
+        <button type="button" id="btnTambah" class="flex h-20 w-20 items-center justify-center rounded-full border-4 border-[#e7dcc8] bg-white text-5xl font-bold text-[#a8842a] shadow-sm transition-all active:bg-[#faf7f2] active:scale-90 disabled:opacity-30 disabled:active:scale-100">+</button>
+      </div>
+
+      <p class="text-xs font-bold uppercase tracking-widest text-[#2b1b10]/40 mb-10"><i data-lucide="info" class="inline h-4 w-4 mr-1 -mt-0.5"></i> Maksimal 8 orang per rombongan</p>
+
+      <div class="flex w-full gap-5">
+        <button type="button" id="btnBatal" class="flex-1 rounded-2xl border-2 border-[#2b1b10]/10 bg-white py-5 text-xl font-bold tracking-wide text-[#2b1b10]/60 hover:bg-gray-50 transition-all active:scale-95 shadow-sm">BATAL</button>
+        <button type="button" id="btnCetak" class="flex-1 rounded-2xl bg-[linear-gradient(145deg,#d4af37,#a8842a)] py-5 text-xl font-black tracking-widest text-white shadow-[0_10px_20px_rgba(212,175,55,0.3)] transition-all active:scale-95">CETAK TIKET</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL TIKET (GLOBAL QUEUE) ==================== -->
+  <div id="overlayTiket" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-[#1b1008]/95 px-10 backdrop-blur-md">
+    <div class="relative flex w-full max-w-2xl flex-col items-center overflow-hidden rounded-[3rem] bg-white px-10 py-14 text-center shadow-[0_0_100px_rgba(212,175,55,0.2)]">
+      
+      <div class="absolute -top-20 -left-20 h-40 w-40 rounded-full bg-[#d4af37]/20 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-[#d4af37]/20 blur-3xl pointer-events-none"></div>
+
+      <p class="font-serif text-sm font-bold uppercase tracking-[0.3em] text-[#a8842a]">Nomor Antrean Anda</p>
+
+      <!-- NOMOR MURNI -->
+      <p id="tiketKode" class="mt-6 text-[10rem] font-black leading-none tracking-tighter text-[#2b1b10] drop-shadow-md">001</p>
+
+      <div class="mt-10 w-full rounded-[2rem] bg-[#faf7f2] border border-[#e7dcc8] px-8 py-8 shadow-inner relative overflow-hidden">
+        <div class="absolute left-0 top-0 bottom-0 w-2 bg-[#d4af37]"></div>
+        <p id="tiketLayanan" class="text-2xl font-black tracking-widest text-[#2b1b10] uppercase mb-2">Layanan</p>
+        <p id="tiketJumlah" class="text-sm font-bold text-gray-500 uppercase tracking-widest">Rombongan: 1 orang</p>
+      </div>
+
+      <div class="mt-10 flex items-center justify-center gap-3 text-sm font-bold tracking-widest text-[#a8842a] bg-[#d4af37]/10 px-8 py-4 rounded-full animate-pulse">
+        <i data-lucide="printer" stroke-width="2.5" class="h-6 w-6"></i>
+        <span>MENCETAK STRUK DI BAWAH LAYAR...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== AREA CETAK STRUK FISIK ==================== -->
+  <div id="areaStruk">
+    <div class="struk-kop">Kementerian Haji & Umrah<br>Kab. Jember</div>
+    <div class="struk-garis"></div>
+    <div class="struk-kategori" id="strukKategori">Layanan: -</div>
+    <div class="struk-judul-kecil">Nomor Antrean:</div>
+    <!-- STRUK NOMOR MURNI -->
+    <div class="struk-nomor" id="strukNomor">000</div>
+    <div class="struk-jumlah" id="strukJumlah">Rombongan: 1 Orang</div>
+    <div class="struk-garis"></div>
+    <div class="struk-waktu" id="strukWaktu">--/--/----</div>
+    <div class="struk-pesan">Silakan tunggu panggilan ke Loket</div>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, set, runTransaction, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// Init UI
+try { lucide.createIcons(); } catch (e) {}
+
+// Rahasia Fullscreen
+const btnRahasia = document.getElementById('btnRahasiaFullscreen');
+if(btnRahasia) {
+  btnRahasia.addEventListener('dblclick', () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+}
+
+// Anti-Ghost Touch / Hide Cursor
+let kursorTersembunyi = false;
+let jedaMouse = null;
+document.addEventListener('touchstart', () => {
+  document.documentElement.classList.add('hilangkan-kursor'); kursorTersembunyi = true;
+  clearTimeout(jedaMouse); jedaMouse = setTimeout(() => { jedaMouse = null; }, 2000);
+}, {passive: true});
+document.addEventListener('mousemove', (e) => {
+  if (jedaMouse) return; 
+  if (Math.abs(e.movementX) > 1 || Math.abs(e.movementY) > 1) {
+    if (kursorTersembunyi) { document.documentElement.classList.remove('hilangkan-kursor'); kursorTersembunyi = false; }
+  }
+}, {passive: true});
+
+// Waktu Realtime
+function perbaruiJam(){
+  const d = new Date();
+  document.getElementById('footerJam').textContent = d.toLocaleTimeString('id-ID', { hour12:false });
+  document.getElementById('footerTanggal').textContent = d.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+perbaruiJam(); setInterval(perbaruiJam, 1000);
+
+// Init Firebase
+const app = initializeApp({
+  apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
+  authDomain: "simantri-jember.firebaseapp.com",
+  databaseURL: "https://simantri-jember-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "simantri-jember"
+});
+const db = getDatabase(app);
+
+// Indikator Koneksi & Auto Ping
+const elStatus = document.getElementById('statusFirebaseFooter');
+if(elStatus) elStatus.innerHTML = `<svg class="h-4 w-4 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span class="pt-0.5">SISTEM TERHUBUNG</span>`;
+setInterval(() => { set(ref(db, 'system_ping/kiosk_terakhir_aktif'), serverTimestamp()).catch(()=>{}); }, 180000);
+
+// =====================================================================
+// LOGIKA SENSOR LAYANAN OTOMATIS (MENDETEKSI STATUS LOKET ADMIN)
+// =====================================================================
+const refLoketAktif = ref(db, 'pengaturan/loket_aktif');
+onValue(refLoketAktif, (snap) => {
+  const status = snap.exists() ? snap.val() : {};
+  
+  // Jika admin belum pernah menyentuh saklar, anggap semuanya aktif (true)
+  const isAktif = (id) => status[id] !== undefined ? !!status[id] : true;
+
+  // Pemetaan Layanan Kiosk -> Tergantung pada Loket Mana?
+  const statusLayanan = {
+    'verifikasi': isAktif('loketA'),
+    'informasi': isAktif('loketB'),
+    'pembatalan': isAktif('loketC') || isAktif('loketD'), // Buka jika C atau D aktif
+    'pelimpahan': isAktif('loketC') || isAktif('loketD'), // Buka jika C atau D aktif
+    'foto_biometrik': isAktif('biometrik'),
+    'bio_visa': isAktif('biovisa')
+  };
+
+  for (const [kat, aktif] of Object.entries(statusLayanan)) {
+    const btn = document.getElementById(`btn-${kat}`);
+    if (!btn) continue;
+    
+    if (aktif) {
+      // Nyalakan Layanan
+      btn.disabled = false;
+      btn.classList.remove('opacity-40', 'grayscale');
+      const badge = btn.querySelector('.badge-tutup');
+      if (badge) badge.remove();
+    } else {
+      // Matikan Layanan (Disable UI)
+      btn.disabled = true;
+      btn.classList.add('opacity-40', 'grayscale');
+      
+      // Tambahkan Stempel "TUTUP" jika belum ada
+      if (!btn.querySelector('.badge-tutup')) {
+        const badgeHtml = `
+        <div class="badge-tutup absolute inset-0 z-50 flex items-center justify-center bg-[#1b1008]/80 backdrop-blur-sm rounded-[2rem]">
+          <span class="transform -rotate-12 border-4 border-red-500 text-red-500 font-black text-3xl tracking-[0.2em] px-6 py-2 rounded-2xl shadow-[0_0_30px_rgba(239,68,68,0.5)]">TUTUP</span>
+        </div>`;
+        btn.insertAdjacentHTML('beforeend', badgeHtml);
+      }
+    }
+  }
+});
+
+
+// Logika Modal Rombongan
+let kategoriDipilih = null;
+let namaLayananLengkap = null;
+let jumlahRombongan = 1;
+const MAKS_ROMBONGAN = 8;
+
+const el = {
+  overlayRombongan: document.getElementById('overlayRombongan'),
+  labelLayanan: document.getElementById('labelLayanan'),
+  angkaRombongan: document.getElementById('angkaRombongan'),
+  btnKurang: document.getElementById('btnKurang'),
+  btnTambah: document.getElementById('btnTambah'),
+  btnBatal: document.getElementById('btnBatal'),
+  btnCetak: document.getElementById('btnCetak'),
+  overlayTiket: document.getElementById('overlayTiket'),
+  tiketKode: document.getElementById('tiketKode'),
+  tiketLayanan: document.getElementById('tiketLayanan'),
+  tiketJumlah: document.getElementById('tiketJumlah')
+};
+
+function perbaruiAngkaRombongan() {
+  el.angkaRombongan.textContent = jumlahRombongan;
+  el.btnKurang.disabled = jumlahRombongan <= 1;
+  el.btnTambah.disabled = jumlahRombongan >= MAKS_ROMBONGAN;
+}
+
+window.bukaModal = (kategoriID, namaLengkap) => {
+  kategoriDipilih = kategoriID;
+  namaLayananLengkap = namaLengkap;
+  jumlahRombongan = 1;
+  perbaruiAngkaRombongan();
+  el.labelLayanan.textContent = namaLayananLengkap;
+  el.overlayRombongan.classList.remove('hidden'); el.overlayRombongan.classList.add('flex');
+};
+
+el.btnKurang.onclick = () => { jumlahRombongan = Math.max(1, jumlahRombongan - 1); perbaruiAngkaRombongan(); };
+el.btnTambah.onclick = () => { jumlahRombongan = Math.min(MAKS_ROMBONGAN, jumlahRombongan + 1); perbaruiAngkaRombongan(); };
+el.btnBatal.onclick = () => { el.overlayRombongan.classList.add('hidden'); el.overlayRombongan.classList.remove('flex'); kategoriDipilih = null; };
+
+// Timer Idle Modal
+let timerIdle = null;
+function resetIdle() {
+  clearTimeout(timerIdle);
+  timerIdle = setTimeout(() => {
+    if(!el.overlayRombongan.classList.contains('hidden')) el.btnBatal.click();
+  }, 30000);
+}
+document.addEventListener('click', resetIdle); document.addEventListener('touchstart', resetIdle, {passive:true});
+
+// Logika Cetak Antrean (SISTEM GLOBAL QUEUE)
+el.btnCetak.onclick = async () => {
+  if (!kategoriDipilih) return;
+  const teksAsli = el.btnCetak.textContent;
+  el.btnCetak.disabled = true; el.btnCetak.textContent = "MEMPROSES...";
+
+  try {
+    // 1. Ambil nomor dari 1 SUMBER GLOBAL
+    const counterRef = ref(db, 'counter_nomor/global_v2');
+    const txn = await runTransaction(counterRef, (val) => (val || 0) + 1);
+    
+    // Format nomor jadi 3 digit murni
+    const angkaMurni = txn.snapshot.val();
+    const nomorFormat = String(angkaMurni).padStart(3, '0');
+
+    // 2. Simpan ke database
+    await set(push(ref(db, 'antrean_menunggu')), { 
+      nomor: nomorFormat, 
+      kategori: kategoriDipilih, 
+      jumlahOrang: jumlahRombongan, 
+      timestamp: serverTimestamp() 
+    });
+
+    // 3. Tampilkan Tiket Layar & Cetak
+    el.overlayRombongan.classList.add('hidden'); el.overlayRombongan.classList.remove('flex');
+    
+    el.tiketKode.textContent = nomorFormat;
+    el.tiketLayanan.textContent = namaLayananLengkap;
+    el.tiketJumlah.textContent = `Rombongan: ${jumlahRombongan} orang`;
+    el.overlayTiket.classList.remove('hidden'); el.overlayTiket.classList.add('flex');
+
+    // 4. Siapkan Data Struk
+    document.getElementById('strukKategori').textContent = `Layanan: ${namaLayananLengkap}`;
+    document.getElementById('strukNomor').textContent = nomorFormat;
+    document.getElementById('strukJumlah').textContent = `Rombongan: ${jumlahRombongan} Orang`;
+    document.getElementById('strukWaktu').textContent = new Date().toLocaleString('id-ID');
+
+    setTimeout(() => { window.print(); }, 200);
+
+    // Sembunyikan tiket di layar
+    setTimeout(() => {
+      el.overlayTiket.classList.add('hidden'); el.overlayTiket.classList.remove('flex');
+      el.btnCetak.disabled = false; el.btnCetak.textContent = teksAsli;
+    }, 5000);
+
+  } catch (err) {
+    console.error(err); alert('Gagal memproses antrean. Silakan periksa koneksi internet.');
+    el.btnCetak.disabled = false; el.btnCetak.textContent = teksAsli;
+  }
+};
+</script>
+</body>
+</html>
