@@ -55,7 +55,10 @@
     background-color: #1b1008;
   }
 
-  button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; }
+  button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; transition: all 0.3s ease; }
+  
+  /* Saat tombol disable */
+  button:disabled { cursor: not-allowed !important; transform: scale(1) !important; }
 
   @media (pointer: coarse) { *, button, a { cursor: none !important; } }
   .hilangkan-kursor, .hilangkan-kursor * { cursor: none !important; }
@@ -81,7 +84,7 @@
     transition: transform 0.8s ease-in-out;
     pointer-events: none;
   }
-  .group:active .btn-kilap::after { transform: rotate(30deg) translate(100%, 100%); transition: transform 0s; }
+  .group:active:not(:disabled) .btn-kilap::after { transform: rotate(30deg) translate(100%, 100%); transition: transform 0s; }
 
   /* Area Cetak */
   #areaStruk{ display:none; }
@@ -113,7 +116,7 @@
   <div class="absolute inset-0 z-0 bg-pattern opacity-40"></div>
   <div class="absolute inset-0 z-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_30%,rgba(212,175,55,0.25),transparent_80%)] pointer-events-none"></div>
 
-  <!-- Panggung Utama (Efek Kaca / Glassmorphism) -->
+  <!-- Panggung Utama -->
   <main id="kioskPanel" class="absolute inset-[1.5rem] lg:inset-[2.5rem] z-20 flex flex-col overflow-hidden rounded-[2.5rem] border border-[#d4af37]/40 bg-[#faf7f2]/95 backdrop-blur-xl shadow-[0_2rem_5rem_-1rem_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)]">
 
     <!-- Aksen Emas Atas -->
@@ -152,7 +155,7 @@
       <div class="kiosk-grid flex-1">
         
         <!-- 1. Verifikasi -->
-        <button type="button" onclick="bukaModal('verifikasi', 'Verifikasi Pendaftaran')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#3d2817]/20 bg-[linear-gradient(145deg,#3d2817,#1b1008)] text-white shadow-[0_15px_35px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] transition-all overflow-hidden">
+        <button type="button" id="btn-verifikasi" onclick="bukaModal('verifikasi', 'Verifikasi Pendaftaran')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#3d2817]/20 bg-[linear-gradient(145deg,#3d2817,#1b1008)] text-white shadow-[0_15px_35px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 mb-5 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
@@ -163,7 +166,7 @@
         </button>
 
         <!-- 2. Informasi -->
-        <button type="button" onclick="bukaModal('informasi', 'Informasi Layanan')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#d4af37]/50 bg-[linear-gradient(145deg,#fceabb,#f8b500)] text-[#2b1b10] shadow-[0_15px_35px_rgba(212,175,55,0.2),inset_0_2px_5px_rgba(255,255,255,0.6)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(212,175,55,0.3),inset_0_2px_5px_rgba(255,255,255,0.6)] transition-all overflow-hidden">
+        <button type="button" id="btn-informasi" onclick="bukaModal('informasi', 'Informasi Layanan')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#d4af37]/50 bg-[linear-gradient(145deg,#fceabb,#f8b500)] text-[#2b1b10] shadow-[0_15px_35px_rgba(212,175,55,0.2),inset_0_2px_5px_rgba(255,255,255,0.6)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(212,175,55,0.3),inset_0_2px_5px_rgba(255,255,255,0.6)] overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/40 blur-2xl pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-white/30 border border-white/50 mb-5 shadow-[0_0_20px_rgba(255,255,255,0.4)]">
@@ -174,7 +177,7 @@
         </button>
 
         <!-- 3. Pembatalan -->
-        <button type="button" onclick="bukaModal('pembatalan', 'Pembatalan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-red-900/50 bg-[linear-gradient(145deg,#991b1b,#450a0a)] text-white shadow-[0_15px_35px_rgba(153,27,27,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(153,27,27,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
+        <button type="button" id="btn-pembatalan" onclick="bukaModal('pembatalan', 'Pembatalan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-red-900/50 bg-[linear-gradient(145deg,#991b1b,#450a0a)] text-white shadow-[0_15px_35px_rgba(153,27,27,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(153,27,27,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-red-500/20 blur-xl pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-red-400/10 border border-red-400/30 mb-5 shadow-[0_0_20px_rgba(248,113,113,0.2)]">
@@ -185,7 +188,7 @@
         </button>
 
         <!-- 4. Pelimpahan -->
-        <button type="button" onclick="bukaModal('pelimpahan', 'Pelimpahan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-orange-900/50 bg-[linear-gradient(145deg,#c2410c,#7c2d12)] text-white shadow-[0_15px_35px_rgba(194,65,12,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(194,65,12,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
+        <button type="button" id="btn-pelimpahan" onclick="bukaModal('pelimpahan', 'Pelimpahan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-orange-900/50 bg-[linear-gradient(145deg,#c2410c,#7c2d12)] text-white shadow-[0_15px_35px_rgba(194,65,12,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(194,65,12,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-orange-400/10 border border-orange-400/30 mb-5 shadow-[0_0_20px_rgba(251,146,60,0.2)]">
             <i data-lucide="users" stroke-width="1.5" class="h-10 w-10 text-orange-200"></i>
@@ -194,22 +197,20 @@
           <span class="text-sm text-orange-200/70 mt-2 font-medium tracking-wide">Pelimpahan Porsi Keluarga</span>
         </button>
 
-        <!-- 5. Foto Wajah (Revisi Ikon Camera) -->
-        <button type="button" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-slate-700/50 bg-[linear-gradient(145deg,#334155,#0f172a)] text-white shadow-[0_15px_35px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] transition-all overflow-hidden">
+        <!-- 5. Foto Wajah -->
+        <button type="button" id="btn-foto_biometrik" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-slate-700/50 bg-[linear-gradient(145deg,#334155,#0f172a)] text-white shadow-[0_15px_35px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-slate-400/10 border border-slate-400/30 mb-5 shadow-[0_0_20px_rgba(148,163,184,0.2)]">
-            <!-- Diganti menjadi ikon kamera -->
             <i data-lucide="camera" stroke-width="1.5" class="h-10 w-10 text-[#e8c547]"></i>
           </div>
           <span class="text-2xl font-black tracking-widest text-slate-50 drop-shadow-lg text-center leading-none">FOTO WAJAH</span>
           <span class="text-sm text-slate-300/70 mt-2 font-medium tracking-wide text-center">Verifikasi Data & Foto</span>
         </button>
 
-        <!-- 6. Bio Visa (Revisi Ikon Scan Face) -->
-        <button type="button" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-teal-900/50 bg-[linear-gradient(145deg,#0f766e,#134e4a)] text-white shadow-[0_15px_35px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] transition-all overflow-hidden">
+        <!-- 6. Bio Visa -->
+        <button type="button" id="btn-bio_visa" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-teal-900/50 bg-[linear-gradient(145deg,#0f766e,#134e4a)] text-white shadow-[0_15px_35px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
           <div class="btn-kilap"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-teal-400/10 border border-teal-400/30 mb-5 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
-            <!-- Diganti menjadi ikon scan-face -->
             <i data-lucide="scan-face" stroke-width="1.5" class="h-10 w-10 text-teal-100"></i>
           </div>
           <span class="text-2xl font-black tracking-widest text-teal-50 drop-shadow-lg">BIO VISA</span>
@@ -299,7 +300,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, push, set, runTransaction, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // Init UI
 try { lucide.createIcons(); } catch (e) {}
@@ -348,6 +349,54 @@ const db = getDatabase(app);
 const elStatus = document.getElementById('statusFirebaseFooter');
 if(elStatus) elStatus.innerHTML = `<svg class="h-4 w-4 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span class="pt-0.5">SISTEM TERHUBUNG</span>`;
 setInterval(() => { set(ref(db, 'system_ping/kiosk_terakhir_aktif'), serverTimestamp()).catch(()=>{}); }, 180000);
+
+// =====================================================================
+// LOGIKA SENSOR LAYANAN OTOMATIS (MENDETEKSI STATUS LOKET ADMIN)
+// =====================================================================
+const refLoketAktif = ref(db, 'pengaturan/loket_aktif');
+onValue(refLoketAktif, (snap) => {
+  const status = snap.exists() ? snap.val() : {};
+  
+  // Jika admin belum pernah menyentuh saklar, anggap semuanya aktif (true)
+  const isAktif = (id) => status[id] !== undefined ? !!status[id] : true;
+
+  // Pemetaan Layanan Kiosk -> Tergantung pada Loket Mana?
+  const statusLayanan = {
+    'verifikasi': isAktif('loketA'),
+    'informasi': isAktif('loketB'),
+    'pembatalan': isAktif('loketC') || isAktif('loketD'), // Buka jika C atau D aktif
+    'pelimpahan': isAktif('loketC') || isAktif('loketD'), // Buka jika C atau D aktif
+    'foto_biometrik': isAktif('biometrik'),
+    'bio_visa': isAktif('biovisa')
+  };
+
+  for (const [kat, aktif] of Object.entries(statusLayanan)) {
+    const btn = document.getElementById(`btn-${kat}`);
+    if (!btn) continue;
+    
+    if (aktif) {
+      // Nyalakan Layanan
+      btn.disabled = false;
+      btn.classList.remove('opacity-40', 'grayscale');
+      const badge = btn.querySelector('.badge-tutup');
+      if (badge) badge.remove();
+    } else {
+      // Matikan Layanan (Disable UI)
+      btn.disabled = true;
+      btn.classList.add('opacity-40', 'grayscale');
+      
+      // Tambahkan Stempel "TUTUP" jika belum ada
+      if (!btn.querySelector('.badge-tutup')) {
+        const badgeHtml = `
+        <div class="badge-tutup absolute inset-0 z-50 flex items-center justify-center bg-[#1b1008]/80 backdrop-blur-sm rounded-[2rem]">
+          <span class="transform -rotate-12 border-4 border-red-500 text-red-500 font-black text-3xl tracking-[0.2em] px-6 py-2 rounded-2xl shadow-[0_0_30px_rgba(239,68,68,0.5)]">TUTUP</span>
+        </div>`;
+        btn.insertAdjacentHTML('beforeend', badgeHtml);
+      }
+    }
+  }
+});
+
 
 // Logika Modal Rombongan
 let kategoriDipilih = null;
