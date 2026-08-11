@@ -51,13 +51,10 @@
 
   html, body { 
     width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
-    user-select: none; touch-action: manipulation; -webkit-touch-callout: none; 
-    background-color: #1b1008;
+    user-select: none; background-color: #1b1008;
   }
 
-  button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; outline: none; transition: all 0.3s ease; }
-  
-  /* Saat tombol disable */
+  button { outline: none; transition: all 0.3s ease; cursor: pointer; }
   button:disabled { cursor: not-allowed !important; transform: scale(1) !important; }
 
   @media (pointer: coarse) { *, button, a { cursor: none !important; } }
@@ -65,7 +62,6 @@
 
   .kiosk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; }
 
-  /* Pola Latar Belakang Elegan (Arabesque/Geometric) */
   .bg-pattern {
     background-image: radial-gradient(rgba(212, 175, 55, 0.15) 2px, transparent 2px),
                       radial-gradient(rgba(212, 175, 55, 0.1) 1px, transparent 1px);
@@ -73,16 +69,10 @@
     background-position: 0 0, 20px 20px;
   }
 
-  /* Animasi Kilap Tombol */
   .btn-kilap::after {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
+    content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
     background: linear-gradient(to bottom right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 60%, rgba(255,255,255,0) 100%);
-    transform: rotate(30deg) translate(-100%, -100%);
-    transition: transform 0.8s ease-in-out;
-    pointer-events: none;
+    transform: rotate(30deg) translate(-100%, -100%); transition: transform 0.8s ease-in-out; pointer-events: none;
   }
   .group:active:not(:disabled) .btn-kilap::after { transform: rotate(30deg) translate(100%, 100%); transition: transform 0s; }
 
@@ -112,17 +102,13 @@
 </head>
 <body class="font-sans text-[#2b1b10]">
 
-  <!-- Latar Belakang Mewah -->
-  <div class="absolute inset-0 z-0 bg-pattern opacity-40"></div>
+  <div class="absolute inset-0 z-0 bg-pattern opacity-40 pointer-events-none"></div>
   <div class="absolute inset-0 z-0 bg-[radial-gradient(ellipse_70%_70%_at_50%_30%,rgba(212,175,55,0.25),transparent_80%)] pointer-events-none"></div>
 
-  <!-- Panggung Utama -->
   <main id="kioskPanel" class="absolute inset-[1.5rem] lg:inset-[2.5rem] z-20 flex flex-col overflow-hidden rounded-[2.5rem] border border-[#d4af37]/40 bg-[#faf7f2]/95 backdrop-blur-xl shadow-[0_2rem_5rem_-1rem_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.6)]">
 
-    <!-- Aksen Emas Atas -->
     <div class="h-2.5 w-full bg-[linear-gradient(90deg,#a8842a,#f2d877_30%,#d4af37_50%,#f2d877_70%,#a8842a)] shrink-0 shadow-[0_2px_10px_rgba(212,175,55,0.5)]"></div>
 
-    <!-- Header Elegan -->
     <header class="relative z-10 flex shrink-0 items-center justify-between border-b border-[#2b1b10]/10 bg-white/40 px-12 py-5 shadow-sm">
       <div class="flex items-center gap-6" id="btnRahasiaFullscreen">
         <div class="relative rounded-full bg-white p-1.5 shadow-[0_0.5rem_1.5rem_-0.5rem_rgba(212,175,55,0.6)] border border-[#d4af37]/30">
@@ -140,7 +126,6 @@
       </div>
     </header>
 
-    <!-- Konten Pilihan Layanan -->
     <section class="relative z-10 flex flex-1 flex-col px-12 py-8">
       
       <div class="flex items-center justify-center gap-6 mb-8 shrink-0">
@@ -151,70 +136,63 @@
         <div class="h-px w-24 bg-gradient-to-l from-transparent to-[#d4af37]"></div>
       </div>
 
-      <!-- Grid Tombol Modern 3D -->
-      <div class="kiosk-grid flex-1">
+      <div class="kiosk-grid flex-1 relative z-30">
         
-        <!-- 1. Verifikasi -->
         <button type="button" id="btn-verifikasi" onclick="bukaModal('verifikasi', 'Verifikasi Pendaftaran')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#3d2817]/20 bg-[linear-gradient(145deg,#3d2817,#1b1008)] text-white shadow-[0_15px_35px_rgba(0,0,0,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] overflow-hidden">
-          <div class="btn-kilap"></div>
+          <div class="btn-kilap absolute inset-0 pointer-events-none"></div>
           <div class="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 mb-5 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
             <i data-lucide="file-check-2" stroke-width="1.5" class="h-10 w-10 text-[#f2d877]"></i>
           </div>
-          <span class="text-2xl font-black tracking-widest text-[#f5eee0] drop-shadow-lg">VERIFIKASI</span>
-          <span class="text-sm text-[#f5eee0]/60 mt-2 font-medium tracking-wide">Pendaftaran Haji/Umrah</span>
+          <span class="text-2xl font-black tracking-widest text-[#f5eee0] drop-shadow-lg pointer-events-none">VERIFIKASI</span>
+          <span class="text-sm text-[#f5eee0]/60 mt-2 font-medium tracking-wide pointer-events-none">Pendaftaran Haji/Umrah</span>
         </button>
 
-        <!-- 2. Informasi -->
         <button type="button" id="btn-informasi" onclick="bukaModal('informasi', 'Informasi Layanan')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-[#d4af37]/50 bg-[linear-gradient(145deg,#fceabb,#f8b500)] text-[#2b1b10] shadow-[0_15px_35px_rgba(212,175,55,0.2),inset_0_2px_5px_rgba(255,255,255,0.6)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(212,175,55,0.3),inset_0_2px_5px_rgba(255,255,255,0.6)] overflow-hidden">
-          <div class="btn-kilap"></div>
+          <div class="btn-kilap absolute inset-0 pointer-events-none"></div>
           <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white/40 blur-2xl pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-white/30 border border-white/50 mb-5 shadow-[0_0_20px_rgba(255,255,255,0.4)]">
             <i data-lucide="info" stroke-width="2" class="h-10 w-10 text-[#2b1b10]"></i>
           </div>
-          <span class="text-2xl font-black tracking-widest drop-shadow-[0_2px_2px_rgba(255,255,255,0.5)]">INFORMASI</span>
-          <span class="text-sm text-[#2b1b10]/70 mt-2 font-bold tracking-wide">Tanya Jadwal & Status</span>
+          <span class="text-2xl font-black tracking-widest drop-shadow-[0_2px_2px_rgba(255,255,255,0.5)] pointer-events-none">INFORMASI</span>
+          <span class="text-sm text-[#2b1b10]/70 mt-2 font-bold tracking-wide pointer-events-none">Tanya Jadwal & Status</span>
         </button>
 
-        <!-- 3. Pembatalan -->
         <button type="button" id="btn-pembatalan" onclick="bukaModal('pembatalan', 'Pembatalan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-red-900/50 bg-[linear-gradient(145deg,#991b1b,#450a0a)] text-white shadow-[0_15px_35px_rgba(153,27,27,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(153,27,27,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
-          <div class="btn-kilap"></div>
+          <div class="btn-kilap absolute inset-0 pointer-events-none"></div>
           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-32 w-32 rounded-full bg-red-500/20 blur-xl pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-red-400/10 border border-red-400/30 mb-5 shadow-[0_0_20px_rgba(248,113,113,0.2)]">
             <i data-lucide="x-octagon" stroke-width="1.5" class="h-10 w-10 text-red-200"></i>
           </div>
-          <span class="text-2xl font-black tracking-widest text-red-50 drop-shadow-lg">PEMBATALAN</span>
-          <span class="text-sm text-red-200/70 mt-2 font-medium tracking-wide">Proses Batal Porsi Haji</span>
+          <span class="text-2xl font-black tracking-widest text-red-50 drop-shadow-lg pointer-events-none">PEMBATALAN</span>
+          <span class="text-sm text-red-200/70 mt-2 font-medium tracking-wide pointer-events-none">Proses Batal Porsi Haji</span>
         </button>
 
-        <!-- 4. Pelimpahan -->
         <button type="button" id="btn-pelimpahan" onclick="bukaModal('pelimpahan', 'Pelimpahan Porsi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-orange-900/50 bg-[linear-gradient(145deg,#c2410c,#7c2d12)] text-white shadow-[0_15px_35px_rgba(194,65,12,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(194,65,12,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
-          <div class="btn-kilap"></div>
+          <div class="btn-kilap absolute inset-0 pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-orange-400/10 border border-orange-400/30 mb-5 shadow-[0_0_20px_rgba(251,146,60,0.2)]">
             <i data-lucide="users" stroke-width="1.5" class="h-10 w-10 text-orange-200"></i>
           </div>
-          <span class="text-2xl font-black tracking-widest text-orange-50 drop-shadow-lg">PELIMPAHAN</span>
-          <span class="text-sm text-orange-200/70 mt-2 font-medium tracking-wide">Pelimpahan Porsi Keluarga</span>
+          <span class="text-2xl font-black tracking-widest text-orange-50 drop-shadow-lg pointer-events-none">PELIMPAHAN</span>
+          <span class="text-sm text-orange-200/70 mt-2 font-medium tracking-wide pointer-events-none">Pelimpahan Porsi Keluarga</span>
         </button>
 
-        <!-- 5. Foto Wajah -->
         <button type="button" id="btn-foto_biometrik" onclick="bukaModal('foto_biometrik', 'Foto Wajah & Verifikasi')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-slate-700/50 bg-[linear-gradient(145deg,#334155,#0f172a)] text-white shadow-[0_15px_35px_rgba(15,23,42,0.4),inset_0_2px_5px_rgba(255,255,255,0.1)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,23,42,0.5),inset_0_2px_5px_rgba(255,255,255,0.1)] overflow-hidden">
-          <div class="btn-kilap"></div>
+          <div class="btn-kilap absolute inset-0 pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-slate-400/10 border border-slate-400/30 mb-5 shadow-[0_0_20px_rgba(148,163,184,0.2)]">
             <i data-lucide="camera" stroke-width="1.5" class="h-10 w-10 text-[#e8c547]"></i>
           </div>
-          <span class="text-2xl font-black tracking-widest text-slate-50 drop-shadow-lg text-center leading-none">FOTO WAJAH</span>
-          <span class="text-sm text-slate-300/70 mt-2 font-medium tracking-wide text-center">Verifikasi Data & Foto</span>
+          <span class="text-2xl font-black tracking-widest text-slate-50 drop-shadow-lg text-center leading-none pointer-events-none">FOTO WAJAH</span>
+          <span class="text-sm text-slate-300/70 mt-2 font-medium tracking-wide text-center pointer-events-none">Verifikasi Data & Foto</span>
         </button>
 
-        <!-- 6. Bio Visa -->
         <button type="button" id="btn-bio_visa" onclick="bukaModal('bio_visa', 'Perekaman Bio Visa')" class="group relative flex flex-col items-center justify-center p-6 rounded-[2rem] border border-teal-900/50 bg-[linear-gradient(145deg,#0f766e,#134e4a)] text-white shadow-[0_15px_35px_rgba(15,118,110,0.3),inset_0_2px_5px_rgba(255,255,255,0.15)] active:translate-y-[6px] active:shadow-[0_5px_15px_rgba(15,118,110,0.4),inset_0_2px_5px_rgba(255,255,255,0.15)] overflow-hidden">
-          <div class="btn-kilap"></div>
+          <div class="btn-kilap absolute inset-0 pointer-events-none"></div>
           <div class="h-20 w-20 flex items-center justify-center rounded-full bg-teal-400/10 border border-teal-400/30 mb-5 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
             <i data-lucide="scan-face" stroke-width="1.5" class="h-10 w-10 text-teal-100"></i>
           </div>
-          <span class="text-2xl font-black tracking-widest text-teal-50 drop-shadow-lg">BIO VISA</span>
-          <span class="text-sm text-teal-200/70 mt-2 font-medium tracking-wide">Perekaman Saudi Visa Bio</span>
+          <span class="text-2xl font-black tracking-widest text-teal-50 drop-shadow-lg pointer-events-none">BIO VISA</span>
+          <span class="text-sm text-teal-200/70 mt-2 font-medium tracking-wide pointer-events-none">Perekaman Saudi Visa Bio</span>
         </button>
 
       </div>
@@ -259,7 +237,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL TIKET (GLOBAL QUEUE) ==================== -->
+  <!-- ==================== MODAL TIKET ==================== -->
   <div id="overlayTiket" class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-[#1b1008]/95 px-10 backdrop-blur-md">
     <div class="relative flex w-full max-w-2xl flex-col items-center overflow-hidden rounded-[3rem] bg-white px-10 py-14 text-center shadow-[0_0_100px_rgba(212,175,55,0.2)]">
       
@@ -268,8 +246,7 @@
 
       <p class="font-serif text-sm font-bold uppercase tracking-[0.3em] text-[#a8842a]">Nomor Antrean Anda</p>
 
-      <!-- NOMOR MURNI -->
-      <p id="tiketKode" class="mt-6 text-[10rem] font-black leading-none tracking-tighter text-[#2b1b10] drop-shadow-md">001</p>
+      <p id="tiketKode" class="mt-6 text-[10rem] font-black leading-none tracking-tighter text-[#2b1b10] drop-shadow-md">A001</p>
 
       <div class="mt-10 w-full rounded-[2rem] bg-[#faf7f2] border border-[#e7dcc8] px-8 py-8 shadow-inner relative overflow-hidden">
         <div class="absolute left-0 top-0 bottom-0 w-2 bg-[#d4af37]"></div>
@@ -290,8 +267,7 @@
     <div class="struk-garis"></div>
     <div class="struk-kategori" id="strukKategori">Layanan: -</div>
     <div class="struk-judul-kecil">Nomor Antrean:</div>
-    <!-- STRUK NOMOR MURNI -->
-    <div class="struk-nomor" id="strukNomor">000</div>
+    <div class="struk-nomor" id="strukNomor">A000</div>
     <div class="struk-jumlah" id="strukJumlah">Rombongan: 1 Orang</div>
     <div class="struk-garis"></div>
     <div class="struk-waktu" id="strukWaktu">--/--/----</div>
@@ -305,7 +281,6 @@ import { getDatabase, ref, push, set, runTransaction, onValue, serverTimestamp }
 // Init UI
 try { lucide.createIcons(); } catch (e) {}
 
-// Rahasia Fullscreen
 const btnRahasia = document.getElementById('btnRahasiaFullscreen');
 if(btnRahasia) {
   btnRahasia.addEventListener('dblclick', () => {
@@ -350,22 +325,17 @@ const elStatus = document.getElementById('statusFirebaseFooter');
 if(elStatus) elStatus.innerHTML = `<svg class="h-4 w-4 text-gold-deep" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg> <span class="pt-0.5">SISTEM TERHUBUNG</span>`;
 setInterval(() => { set(ref(db, 'system_ping/kiosk_terakhir_aktif'), serverTimestamp()).catch(()=>{}); }, 180000);
 
-// =====================================================================
-// LOGIKA SENSOR LAYANAN OTOMATIS (MENDETEKSI STATUS LOKET ADMIN)
-// =====================================================================
+// Logika Sensor Layanan Otomatis
 const refLoketAktif = ref(db, 'pengaturan/loket_aktif');
 onValue(refLoketAktif, (snap) => {
   const status = snap.exists() ? snap.val() : {};
-  
-  // Jika admin belum pernah menyentuh saklar, anggap semuanya aktif (true)
   const isAktif = (id) => status[id] !== undefined ? !!status[id] : true;
 
-  // Pemetaan Layanan Kiosk -> Tergantung pada Loket Mana?
   const statusLayanan = {
     'verifikasi': isAktif('loketA'),
     'informasi': isAktif('loketB'),
-    'pembatalan': isAktif('loketC') || isAktif('loketD'), // Buka jika C atau D aktif
-    'pelimpahan': isAktif('loketC') || isAktif('loketD'), // Buka jika C atau D aktif
+    'pembatalan': isAktif('loketC') || isAktif('loketD'), 
+    'pelimpahan': isAktif('loketC') || isAktif('loketD'), 
     'foto_biometrik': isAktif('biometrik'),
     'bio_visa': isAktif('biovisa')
   };
@@ -375,20 +345,16 @@ onValue(refLoketAktif, (snap) => {
     if (!btn) continue;
     
     if (aktif) {
-      // Nyalakan Layanan
       btn.disabled = false;
       btn.classList.remove('opacity-40', 'grayscale');
       const badge = btn.querySelector('.badge-tutup');
       if (badge) badge.remove();
     } else {
-      // Matikan Layanan (Disable UI)
       btn.disabled = true;
       btn.classList.add('opacity-40', 'grayscale');
-      
-      // Tambahkan Stempel "TUTUP" jika belum ada
       if (!btn.querySelector('.badge-tutup')) {
         const badgeHtml = `
-        <div class="badge-tutup absolute inset-0 z-50 flex items-center justify-center bg-[#1b1008]/80 backdrop-blur-sm rounded-[2rem]">
+        <div class="badge-tutup absolute inset-0 z-50 flex items-center justify-center bg-[#1b1008]/80 backdrop-blur-sm rounded-[2rem] pointer-events-none">
           <span class="transform -rotate-12 border-4 border-red-500 text-red-500 font-black text-3xl tracking-[0.2em] px-6 py-2 rounded-2xl shadow-[0_0_30px_rgba(239,68,68,0.5)]">TUTUP</span>
         </div>`;
         btn.insertAdjacentHTML('beforeend', badgeHtml);
@@ -398,11 +364,21 @@ onValue(refLoketAktif, (snap) => {
 });
 
 
-// Logika Modal Rombongan
+// Logika Modal Rombongan & Pencetakan
 let kategoriDipilih = null;
 let namaLayananLengkap = null;
 let jumlahRombongan = 1;
 const MAKS_ROMBONGAN = 8;
+
+// KODE PREFIX (A-F) UNTUK SETIAP LAYANAN
+const PREFIX_KATEGORI = {
+  'verifikasi': 'A',
+  'informasi': 'B',
+  'pembatalan': 'C',
+  'pelimpahan': 'D',
+  'foto_biometrik': 'E',
+  'bio_visa': 'F'
+};
 
 const el = {
   overlayRombongan: document.getElementById('overlayRombongan'),
@@ -437,7 +413,6 @@ el.btnKurang.onclick = () => { jumlahRombongan = Math.max(1, jumlahRombongan - 1
 el.btnTambah.onclick = () => { jumlahRombongan = Math.min(MAKS_ROMBONGAN, jumlahRombongan + 1); perbaruiAngkaRombongan(); };
 el.btnBatal.onclick = () => { el.overlayRombongan.classList.add('hidden'); el.overlayRombongan.classList.remove('flex'); kategoriDipilih = null; };
 
-// Timer Idle Modal
 let timerIdle = null;
 function resetIdle() {
   clearTimeout(timerIdle);
@@ -447,22 +422,23 @@ function resetIdle() {
 }
 document.addEventListener('click', resetIdle); document.addEventListener('touchstart', resetIdle, {passive:true});
 
-// Logika Cetak Antrean (SISTEM GLOBAL QUEUE)
+// Logika Cetak Antrean (SISTEM PREFIX A-F)
 el.btnCetak.onclick = async () => {
   if (!kategoriDipilih) return;
   const teksAsli = el.btnCetak.textContent;
   el.btnCetak.disabled = true; el.btnCetak.textContent = "MEMPROSES...";
 
   try {
-    // 1. Ambil nomor dari 1 SUMBER GLOBAL
-    const counterRef = ref(db, 'counter_nomor/global_v2');
+    // 1. Ambil Huruf Prefix dan jalankan Transaksi spesifik per Kategori
+    const hurufPrefix = PREFIX_KATEGORI[kategoriDipilih];
+    const counterRef = ref(db, `counter_nomor/${kategoriDipilih}`);
     const txn = await runTransaction(counterRef, (val) => (val || 0) + 1);
     
-    // Format nomor jadi 3 digit murni
+    // Format nomor jadi Huruf + 3 Angka (contoh: A001)
     const angkaMurni = txn.snapshot.val();
-    const nomorFormat = String(angkaMurni).padStart(3, '0');
+    const nomorFormat = hurufPrefix + String(angkaMurni).padStart(3, '0');
 
-    // 2. Simpan ke database
+    // 2. Simpan ke database antrean
     await set(push(ref(db, 'antrean_menunggu')), { 
       nomor: nomorFormat, 
       kategori: kategoriDipilih, 
@@ -470,15 +446,14 @@ el.btnCetak.onclick = async () => {
       timestamp: serverTimestamp() 
     });
 
-    // 3. Tampilkan Tiket Layar & Cetak
+    // 3. Tampilkan Tiket di Layar
     el.overlayRombongan.classList.add('hidden'); el.overlayRombongan.classList.remove('flex');
-    
     el.tiketKode.textContent = nomorFormat;
     el.tiketLayanan.textContent = namaLayananLengkap;
     el.tiketJumlah.textContent = `Rombongan: ${jumlahRombongan} orang`;
     el.overlayTiket.classList.remove('hidden'); el.overlayTiket.classList.add('flex');
 
-    // 4. Siapkan Data Struk
+    // 4. Siapkan Data Struk Fisik
     document.getElementById('strukKategori').textContent = `Layanan: ${namaLayananLengkap}`;
     document.getElementById('strukNomor').textContent = nomorFormat;
     document.getElementById('strukJumlah').textContent = `Rombongan: ${jumlahRombongan} Orang`;
@@ -486,7 +461,7 @@ el.btnCetak.onclick = async () => {
 
     setTimeout(() => { window.print(); }, 200);
 
-    // Sembunyikan tiket di layar
+    // Sembunyikan tiket di layar Kiosk setelah 5 detik
     setTimeout(() => {
       el.overlayTiket.classList.add('hidden'); el.overlayTiket.classList.remove('flex');
       el.btnCetak.disabled = false; el.btnCetak.textContent = teksAsli;
