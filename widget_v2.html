@@ -107,7 +107,6 @@
   </div>
 
 <script type="module">
-// PERBAIKAN: Menambahkan runTransaction ke dalam import Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, get, set, remove, onValue, push, query, orderByChild, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
@@ -160,6 +159,24 @@ function aturKunci(terkunci) {
   else { el.badge.textContent = "AKTIF"; el.badge.className = "rounded-full bg-green-100 px-3 py-0.5 text-[9px] font-bold text-green-700"; }
 }
 
+async function muatStatusLoket() {
+    if (!peranAktif) return;
+    try {
+      const snap = await get(ref(db, `status_loket/${peranAktif}`));
+      if (snap.exists() && snap.val().sedangDilayani) {
+        dataDilayani = snap.val(); 
+        el.nomor.textContent = dataDilayani.nomor; 
+        aturKunci(true);
+      } else {
+        dataDilayani = null;
+        el.nomor.textContent = '—';
+        aturKunci(false);
+      }
+    } catch(e){
+        console.error("Gagal memuat status:", e);
+    }
+}
+
 el.peran.addEventListener('change', async () => {
   peranAktif = el.peran.value || null; dataDilayani = null; aturKunci(false);
   
@@ -179,9 +196,10 @@ el.peran.addEventListener('change', async () => {
     const k = KONFIGURASI[peranAktif];
     el.nama.textContent = k.nama;
     el.btnTeruskan.classList.toggle('hidden', !k.bisaTeruskan);
-    el.nomor.textContent = '—';
+    el.nomor.textContent = 'Memuat...'; 
+
+    await muatStatusLoket();
     
-    // PERBAIKAN BUG SINKRONISASI PENGHITUNG ANTREAN
     if (peranAktif === 'biometrik') {
       el.target.textContent = "Menerima Foto Baru & Lemparan";
       let countLemparan = 0, countLangsung = 0;
@@ -204,13 +222,6 @@ el.peran.addEventListener('change', async () => {
         el.stat.textContent = count;
       });
     }
-
-    try {
-      const snap = await get(ref(db, `status_loket/${peranAktif}`));
-      if (snap.exists() && snap.val().sedangDilayani) {
-        dataDilayani = snap.val(); el.nomor.textContent = dataDilayani.nomor; aturKunci(true);
-      }
-    } catch(e){}
   }
 });
 
@@ -228,7 +239,6 @@ el.btnPanggil.addEventListener('click', async () => {
         snap2.forEach(c => { if(!key && c.val().kategori === 'foto_biometrik') { targetNomor = c.val(); key = c.key; pathDelete = 'antrean_menunggu'; } });
       }
 
-      // PERBAIKAN BUG CEK KAPASITAS RUANG FOTO
       if (targetNomor) {
          const snapKap = await get(ref(db, 'kapasitas_biometrik/saat_ini'));
          const kapSkg = snapKap.exists() ? snapKap.val() : 0;
@@ -246,7 +256,6 @@ el.btnPanggil.addEventListener('click', async () => {
 
     await remove(ref(db, `${pathDelete}/${key}`));
     
-    // PERBAIKAN BUG TAMBAH KAPASITAS RUANG FOTO
     if (peranAktif === 'biometrik') {
         await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (kap) => (kap || 0) + (targetNomor.jumlahOrang || 1));
     }
@@ -267,7 +276,6 @@ el.btnSelesai.addEventListener('click', async () => {
   el.btnSelesai.disabled = true; 
   
   try {
-      // PERBAIKAN BUG PENGURANGAN KAPASITAS RUANG FOTO OTOMATIS
       if (peranAktif === 'biometrik') {
          const jmlKeluar = dataDilayani.jumlahOrang || 1;
          await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - jmlKeluar));
