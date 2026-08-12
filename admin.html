@@ -651,10 +651,10 @@ get(refTanggal).then(async (snap) => {
 // PEMETAAN LOKET & TARGET LAYANAN (GLOBAL QUEUE)
 // =========================================================================
 const KONFIGURASI_PERAN = {
-  loketA: { nama: "Loket A", target: ["verifikasi"], bisaTeruskanBiometrik: true },
-  loketB: { nama: "Loket B", target: ["informasi"], bisaTeruskanBiometrik: false },
-  loketC: { nama: "Loket C", target: ["pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
-  loketD: { nama: "Loket D", target: ["pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
+  loketA: { nama: "Loket A", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
+  loketB: { nama: "Loket B", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
+  loketC: { nama: "Loket C", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
+  loketD: { nama: "Loket D", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
   biovisa: { nama: "Ruang Bio Visa", target: ["bio_visa"], bisaTeruskanBiometrik: false },
   biometrik: { nama: "Ruang Foto Biometrik", target: ["foto_biometrik"] }
 };
