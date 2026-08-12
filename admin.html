@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIMANTRI — Konsol Petugas</title>
+<title>SIMANTRI V2 — Konsol Petugas</title>
 
-<!-- LIBRARY SUARA PREMIUM -->
 <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -41,8 +40,8 @@
     <div class="flex items-center gap-3">
       <img src="logo.png" alt="Logo Instansi" class="h-10 w-10 rounded-full border border-gold/40 object-cover">
       <div class="leading-tight">
-        <p class="text-sm font-semibold tracking-[0.18em] text-gold">SIMANTRI</p>
-        <p class="text-[11px] text-cream/60">Kementerian Haji dan Umrah Kabupaten Jember</p>
+        <p class="text-sm font-semibold tracking-[0.18em] text-gold">SIMANTRI V2</p>
+        <p class="text-[11px] text-cream/60">Sistem Antrean Global &middot; Kemenhaj Jember</p>
       </div>
     </div>
 
@@ -54,12 +53,13 @@
       <div class="h-8 w-px bg-cream/15"></div>
       <div class="flex items-center gap-3">
         <select id="pilihPeran" class="rounded-lg border border-gold/40 bg-bronze px-3 py-2 text-sm font-semibold text-cream focus:outline-none">
-          <option value="">— Pilih Peran —</option>
-          <option value="loket1">Loket 1 (Verifikasi · Kode A)</option>
-          <option value="loket2">Loket 2 (Informasi · Kode B)</option>
-          <option value="loket3">Loket 3 (Verifikasi · Kode A)</option>
-          <option value="loket4">Loket 4 (Informasi · Kode B)</option>
-          <option value="biometrik">Ruang Biometrik</option>
+          <option value="">— Pilih Akses Login —</option>
+          <option value="loketA">Loket A (Pak Samhadi)</option>
+          <option value="loketB">Loket B (Pak Wahib)</option>
+          <option value="loketC">Loket C (Bu Yanti)</option>
+          <option value="loketD">Loket D (Pak Irvan)</option>
+          <option value="biometrik">Ruang Foto Biometrik</option>
+          <option value="biovisa">Ruang Bio Visa</option>
         </select>
         <div class="flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 bg-bronze">
           <i data-lucide="user-round" class="h-4 w-4 text-gold"></i>
@@ -108,7 +108,7 @@
         <!-- ==================== VIEW: DASHBOARD ==================== -->
         <div id="viewDashboard" class="flex flex-col gap-5">
           <div id="panelKosong" class="rounded-2xl border border-border bg-white px-6 py-16 text-center text-muted-foreground">
-            👋 Silakan pilih peran di pojok kanan atas untuk mulai bertugas.
+            👋 Silakan pilih akses login di pojok kanan atas untuk mulai bertugas.
           </div>
 
           <div id="kontenPeran" class="hidden flex-col gap-5">
@@ -213,7 +213,7 @@
                     </button>
                   </div>
                   <div class="flex items-center gap-2 border-t border-border bg-cream/50 px-7 py-3 text-[11px] text-muted-foreground">
-                    <span id="pesanBiometrik"></span>
+                    <span id="pesanBiometrik">Panggilan mencakup foto murni & lemparan dari loket lain.</span>
                   </div>
                 </section>
 
@@ -228,7 +228,7 @@
                     <thead>
                       <tr class="text-[11px] uppercase tracking-wider text-muted-foreground">
                         <th scope="col" class="px-5 py-2.5 font-medium">Nomor</th>
-                        <th scope="col" class="px-5 py-2.5 font-medium">Rombongan</th>
+                        <th scope="col" class="px-5 py-2.5 font-medium">Layanan / Rombongan</th>
                         <th scope="col" class="px-5 py-2.5 text-right font-medium">Status</th>
                       </tr>
                     </thead>
@@ -291,7 +291,7 @@
                 <label for="cariNomorRiwayat" class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Cari Nomor Antrean</label>
                 <div class="relative">
                   <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bronze-soft"></i>
-                  <input type="search" id="cariNomorRiwayat" placeholder="Contoh: A012 atau B007" autocomplete="off" class="h-11 w-full rounded-xl bg-cream/70 pl-10 pr-4 font-mono text-sm font-semibold text-bronze-dark placeholder:font-sans placeholder:font-medium placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
+                  <input type="search" id="cariNomorRiwayat" placeholder="Contoh: 012" autocomplete="off" class="h-11 w-full rounded-xl bg-cream/70 pl-10 pr-4 font-mono text-sm font-semibold text-bronze-dark placeholder:font-sans placeholder:font-medium placeholder:text-bronze-soft/70 focus:outline-none focus:ring-2 focus:ring-gold/50">
                 </div>
               </div>
               <button type="button" id="btnResetFilterRiwayat" class="h-11 rounded-xl px-4 text-xs font-semibold uppercase tracking-wider text-bronze-soft transition-colors hover:bg-cream hover:text-bronze-dark">Bersihkan</button>
@@ -399,16 +399,11 @@
                 <p class="text-xs text-muted-foreground">Perbandingan kategori antrean</p>
               </div>
               <div class="flex flex-col gap-5 px-6 pb-6">
-                <div>
-                  <div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">Verifikasi · Kode A</p><p class="font-mono text-xs font-bold text-bronze-dark"><span id="lapPersenA">0</span>%</p></div>
-                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div id="lapBarA" class="h-full rounded-full bg-gold transition-all" style="width:0%"></div></div>
-                  <p id="lapJumlahA" class="mt-1.5 text-[11px] text-muted-foreground">0 nomor</p>
+                
+                <div id="wadahKomposisiLayanan" class="flex flex-col gap-4">
+                  <!-- JS Dynamic Content -->
                 </div>
-                <div>
-                  <div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">Informasi · Kode B</p><p class="font-mono text-xs font-bold text-bronze-dark"><span id="lapPersenB">0</span>%</p></div>
-                  <div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div id="lapBarB" class="h-full rounded-full bg-bronze-soft transition-all" style="width:0%"></div></div>
-                  <p id="lapJumlahB" class="mt-1.5 text-[11px] text-muted-foreground">0 nomor</p>
-                </div>
+
                 <div class="rounded-xl bg-cream/50 px-4 py-3.5">
                   <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Jam Tersibuk</p>
                   <p id="lapJamTersibuk" class="mt-1 font-mono text-xl font-bold text-bronze-dark">—</p>
@@ -513,30 +508,39 @@
               </div>
             </div>
 
+            <!-- ==================== MANAJEMEN LOKET V2 (6 SAKLAR) ==================== -->
             <div class="flex flex-col rounded-2xl bg-white shadow-[0_2px_14px_rgba(61,40,23,0.07)] xl:col-span-2">
               <div class="flex flex-wrap items-start justify-between gap-3 px-6 py-5">
                 <div class="flex items-start gap-3">
                   <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cream text-gold-dark"><i data-lucide="layout-panel-left" class="h-5 w-5"></i></span>
                   <div><h2 class="text-sm font-semibold text-bronze-dark">Manajemen Loket</h2><p class="text-xs text-muted-foreground">Aktifkan atau nonaktifkan loket pelayanan yang beroperasi hari ini</p></div>
                 </div>
-                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark"><span class="h-1.5 w-1.5 rounded-full bg-gold"></span> <span id="jumlahLoketAktif">4</span> Loket Aktif</span>
+                <span class="inline-flex items-center gap-2 rounded-full bg-cream/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-gold-dark"><span class="h-1.5 w-1.5 rounded-full bg-gold"></span> <span id="jumlahLoketAktif">6</span> Loket Aktif</span>
               </div>
-              <div class="grid gap-4 border-t border-border/60 px-6 py-5 sm:grid-cols-2 xl:grid-cols-4">
+              <div class="grid gap-4 border-t border-border/60 px-6 py-5 sm:grid-cols-3 xl:grid-cols-3">
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-                  <div><p class="text-sm font-bold text-bronze-dark">Loket 1</p><p class="text-[11px] text-muted-foreground">Verifikasi Dokumen</p></div>
-                  <label for="aturLoket1" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket1" data-loket="1" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket A</p><p class="text-[11px] text-muted-foreground">Verifikasi</p></div>
+                  <label for="aturLoketA" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoketA" data-loket="loketA" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
                 </div>
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-                  <div><p class="text-sm font-bold text-bronze-dark">Loket 2</p><p class="text-[11px] text-muted-foreground">Verifikasi Dokumen</p></div>
-                  <label for="aturLoket2" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket2" data-loket="2" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket B</p><p class="text-[11px] text-muted-foreground">Informasi</p></div>
+                  <label for="aturLoketB" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoketB" data-loket="loketB" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
                 </div>
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-                  <div><p class="text-sm font-bold text-bronze-dark">Loket 3</p><p class="text-[11px] text-muted-foreground">Informasi Layanan</p></div>
-                  <label for="aturLoket3" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket3" data-loket="3" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket C</p><p class="text-[11px] text-muted-foreground">Batal & Limpah</p></div>
+                  <label for="aturLoketC" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoketC" data-loket="loketC" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
                 </div>
                 <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
-                  <div><p class="text-sm font-bold text-bronze-dark">Loket 4</p><p class="text-[11px] text-muted-foreground">Informasi Layanan</p></div>
-                  <label for="aturLoket4" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoket4" data-loket="4" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                  <div><p class="text-sm font-bold text-bronze-dark">Loket D</p><p class="text-[11px] text-muted-foreground">Batal & Limpah</p></div>
+                  <label for="aturLoketD" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturLoketD" data-loket="loketD" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Foto Wajah</p><p class="text-[11px] text-muted-foreground">Verifikasi & Foto</p></div>
+                  <label for="aturBiometrik" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturBiometrik" data-loket="biometrik" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
+                </div>
+                <div class="flex items-center justify-between gap-3 rounded-xl bg-cream/50 px-4 py-4">
+                  <div><p class="text-sm font-bold text-bronze-dark">Bio Visa</p><p class="text-[11px] text-muted-foreground">Saudi Visa Bio</p></div>
+                  <label for="aturBiovisa" class="relative inline-flex cursor-pointer items-center"><input type="checkbox" id="aturBiovisa" data-loket="biovisa" class="peer sr-only" checked><span class="h-6 w-11 rounded-full bg-bronze-soft/40 transition-colors peer-checked:bg-gold"></span><span class="pointer-events-none absolute left-0.5 h-5 w-5 rounded-full bg-white shadow-[0_1px_4px_rgba(61,40,23,0.3)] transition-transform peer-checked:translate-x-5"></span></label>
                 </div>
               </div>
             </div>
@@ -603,7 +607,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, get, set, remove, onValue, runTransaction, push, query, orderByChild, equalTo, limitToFirst, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, get, set, remove, onValue, runTransaction, push, query, orderByChild, limitToFirst, limitToLast, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
@@ -629,7 +633,7 @@ get(refTanggal).then(async (snap) => {
   } else if (snap.val() !== TANGGAL_HARI_INI) {
     try {
       await Promise.all([ 
-        remove(ref(db, 'counter_nomor')), 
+        remove(ref(db, 'counter_nomor/global_v2')), 
         remove(ref(db, 'antrean_menunggu')), 
         remove(ref(db, 'antrean_biometrik')), 
         remove(ref(db, 'status_loket')), 
@@ -637,23 +641,30 @@ get(refTanggal).then(async (snap) => {
         set(ref(db, 'kapasitas_biometrik/saat_ini'), 0),
         set(refTanggal, TANGGAL_HARI_INI)
       ]);
-      await catatAktivitas('SISTEM', 'Reset', 'Sistem mereset antrean otomatis karena berganti hari.');
+      await catatAktivitas('SISTEM', 'Reset', 'Sistem mereset antrean otomatis karena berganti hari.', 'Sistem');
       tampilkanAlert('Hari Baru Dimulai', 'Antrean hari kemarin telah direset secara otomatis. Sistem siap digunakan untuk pelayanan hari ini.');
-    } catch(e) {
-      console.error("Gagal Auto-Reset", e);
-    }
+    } catch(e) { console.error("Gagal Auto-Reset", e); }
   }
 });
 
+// =========================================================================
+// PEMETAAN LOKET & TARGET LAYANAN (GLOBAL QUEUE)
+// =========================================================================
 const KONFIGURASI_PERAN = {
-  loket1: { nama: "Loket 1", kategori: "A", bisaTeruskanBiometrik: true },
-  loket2: { nama: "Loket 2", kategori: "B", bisaTeruskanBiometrik: false },
-  loket3: { nama: "Loket 3", kategori: "A", bisaTeruskanBiometrik: true },
-  loket4: { nama: "Loket 4", kategori: "B", bisaTeruskanBiometrik: false },
-  biometrik: { nama: "Ruang Biometrik" },
+  loketA: { nama: "Loket A", target: ["verifikasi"], bisaTeruskanBiometrik: true },
+  loketB: { nama: "Loket B", target: ["informasi"], bisaTeruskanBiometrik: false },
+  loketC: { nama: "Loket C", target: ["pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
+  loketD: { nama: "Loket D", target: ["pembatalan", "pelimpahan"], bisaTeruskanBiometrik: true },
+  biovisa: { nama: "Ruang Bio Visa", target: ["bio_visa"], bisaTeruskanBiometrik: false },
+  biometrik: { nama: "Ruang Foto Biometrik", target: ["foto_biometrik"] }
 };
+
+const NAMA_KATEGORI = {
+  verifikasi: 'Verifikasi', informasi: 'Informasi', pembatalan: 'Pembatalan',
+  pelimpahan: 'Pelimpahan', foto_biometrik: 'Foto Wajah', bio_visa: 'Bio Visa'
+};
+
 const KAPASITAS_MAKS_BIOMETRIK = 8;
-const NAMA_KATEGORI = { A: 'Verifikasi', B: 'Informasi' };
 
 let peranAktif = null;
 let nomorSedangDilayani = null;
@@ -738,21 +749,14 @@ function tampilkanAlert(judul, pesan){
 }
 el.btnTutupAlert.addEventListener('click', () => { el.overlayAlert.classList.add('hidden'); el.overlayAlert.classList.remove('flex'); });
 
-// =========================================================================
-// PERBAIKAN PENCATATAN AKTIVITAS (LOKAL TIMESTAMP PRESISI)
-// =========================================================================
-async function catatAktivitas(nomor, aksi, catatan){
+async function catatAktivitas(nomor, aksi, catatan, kategori = null){
   try {
     await push(ref(db, 'log_aktivitas'), { 
-      nomor: nomor, 
-      aksi: aksi, 
-      catatan: catatan, 
+      nomor: nomor, aksi: aksi, catatan: catatan, kategori: kategori || 'Umum',
       waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), 
       timestamp: Date.now() 
     });
-  } catch(e) {
-    console.error("Gagal mencatat log", e);
-  }
+  } catch(e) { console.error("Gagal mencatat log", e); }
 }
 
 const IKON_AKSI = { Selesai:'check', Biometrik:'fingerprint', Panggil:'phone-call' };
@@ -760,8 +764,7 @@ onValue(query(ref(db, 'log_aktivitas'), limitToLast(12)), (snap) => {
   const items = []; snap.forEach(child => items.unshift(child.val()));
   el.daftarAktivitas.innerHTML = items.length ? '' : '<li class="px-5 py-4 text-xs text-muted-foreground">Belum ada aktivitas.</li>';
   items.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'flex items-start gap-3 px-5 py-3';
+    const li = document.createElement('li'); li.className = 'flex items-start gap-3 px-5 py-3';
     li.innerHTML = `<span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-cream text-bronze"><i data-lucide="${IKON_AKSI[item.aksi] || 'check'}" class="h-3.5 w-3.5"></i></span><div class="min-w-0 flex-1"><div class="flex items-center justify-between gap-2"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span><span class="font-mono text-[11px] text-muted-foreground">${item.waktu}</span></div><p class="truncate text-xs text-muted-foreground">${item.catatan}</p></div>`;
     el.daftarAktivitas.appendChild(li);
   });
@@ -770,66 +773,61 @@ onValue(query(ref(db, 'log_aktivitas'), limitToLast(12)), (snap) => {
 
 el.pilihPeran.addEventListener('change', async () => {
   peranAktif = el.pilihPeran.value || null;
-  nomorSedangDilayani = null;
-  nomorBiometrikAktif = null;
+  nomorSedangDilayani = null; nomorBiometrikAktif = null;
   aturKunciLoket(false);
 
   el.panelKosong.classList.toggle('hidden', !!peranAktif);
   el.kontenPeran.classList.toggle('hidden', !peranAktif);
   el.kontenPeran.classList.toggle('flex', !!peranAktif);
-  el.panelLoket.classList.add('hidden');
-  el.panelBiometrik.classList.add('hidden');
+  el.panelLoket.classList.add('hidden'); el.panelBiometrik.classList.add('hidden');
 
   if (!peranAktif) {
-    if (unsubscribeAntrean) { unsubscribeAntrean(); unsubscribeAntrean = null; }
+    if (typeof unsubscribeAntrean === 'function') { unsubscribeAntrean(); unsubscribeAntrean = null; }
     return;
   }
 
+  const konfig = KONFIGURASI_PERAN[peranAktif];
+  el.judulKonsol.textContent = `Konsol Petugas ${konfig.nama}`;
+
   if (peranAktif === 'biometrik') {
-    el.judulKonsol.textContent = 'Konsol Ruang Biometrik';
     el.panelBiometrik.classList.remove('hidden');
-    el.judulTabelAntrean.textContent = 'Rombongan Menunggu di Depan Ruang Biometrik';
+    el.judulTabelAntrean.textContent = 'Rombongan Menunggu di Depan Ruang Foto';
     el.biometrikNomorTampil.textContent = '—';
     el.btnPanggilUlangBiometrik.disabled = true;
     dengarkanAntreanBiometrik();
 
     try {
       const snapStatus = await get(ref(db, `status_loket/biometrik`));
-      if (peranAktif === el.pilihPeran.value && snapStatus.exists()) {
-        const dataStatus = snapStatus.val();
-        if (dataStatus.nomor && dataStatus.sedangDilayani !== false) {
-          nomorBiometrikAktif = dataStatus.nomor;
-          el.biometrikNomorTampil.textContent = `${dataStatus.nomor} (Dipulihkan)`;
-          el.btnPanggilUlangBiometrik.disabled = false;
-        }
+      if (peranAktif === el.pilihPeran.value && snapStatus.exists() && snapStatus.val().sedangDilayani) {
+        nomorBiometrikAktif = snapStatus.val().nomor;
+        el.biometrikNomorTampil.textContent = `${nomorBiometrikAktif} (Dipulihkan)`;
+        el.btnPanggilUlangBiometrik.disabled = false;
       }
-    } catch (err) { console.error(err); }
+    } catch (err) {}
   } else {
-    const konfig = KONFIGURASI_PERAN[peranAktif];
-    el.judulKonsol.textContent = `Konsol Petugas ${konfig.nama}`;
+    // Berlaku untuk Loket A, B, C, D, dan Bio Visa
     el.panelLoket.classList.remove('hidden');
     el.nomorSedangDilayaniEl.textContent = '—';
-    el.badgeKategoriLoket.textContent = `${NAMA_KATEGORI[konfig.kategori]} · Kode ${konfig.kategori}`;
+    el.badgeKategoriLoket.textContent = `Melayani: ${konfig.target.map(t => NAMA_KATEGORI[t]).join(' & ')}`;
     el.infoWaktuPanggil.textContent = '';
+    
     el.btnTeruskanBiometrik.classList.toggle('hidden', !konfig.bisaTeruskanBiometrik);
     if (!konfig.bisaTeruskanBiometrik) el.baristAksiLoket.classList.replace('md:grid-cols-3', 'md:grid-cols-2');
     else el.baristAksiLoket.classList.replace('md:grid-cols-2', 'md:grid-cols-3');
-    el.pesanLoket.textContent = 'Setiap tindakan tercatat pada log aktivitas.';
-    el.judulTabelAntrean.textContent = `Antrean Menunggu — ${konfig.nama}`;
-    dengarkanAntreanLoket(konfig.kategori);
+    
+    el.judulTabelAntrean.textContent = `Antrean Menunggu — Target ${konfig.nama}`;
+    dengarkanAntreanLoket(konfig.target);
 
     try {
       const snapStatus = await get(ref(db, `status_loket/${peranAktif}`));
-      if (peranAktif === el.pilihPeran.value && snapStatus.exists()) {
+      if (peranAktif === el.pilihPeran.value && snapStatus.exists() && snapStatus.val().sedangDilayani) {
         const dataStatus = snapStatus.val();
-        if (dataStatus.sedangDilayani) {
-          nomorSedangDilayani = { nomor: dataStatus.nomor, kategori: dataStatus.kategori, jumlahOrang: dataStatus.jumlahOrang || 1 };
-          el.nomorSedangDilayaniEl.textContent = dataStatus.nomor;
-          el.infoWaktuPanggil.textContent = 'Panggilan dipulihkan otomatis';
-          aturKunciLoket(true);
-        }
+        nomorSedangDilayani = { nomor: dataStatus.nomor, kategori: dataStatus.kategori, jumlahOrang: dataStatus.jumlahOrang || 1 };
+        el.nomorSedangDilayaniEl.textContent = dataStatus.nomor;
+        el.infoWaktuPanggil.textContent = 'Panggilan dipulihkan otomatis';
+        aturKunciLoket(true);
       }
-    } catch (err) { console.error(err); }
+    } catch (err) {}
   }
   lucide.createIcons();
 });
@@ -837,10 +835,9 @@ el.pilihPeran.addEventListener('change', async () => {
 onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
   const status = snap.exists() ? snap.val() : {};
   Array.from(el.pilihPeran.options).forEach((opt) => {
-    if (!opt.value || opt.value === 'biometrik') return;
+    if (!opt.value) return; // Hanya mengecualikan pilihan kosong pertama
     const aktif = status[opt.value] !== undefined ? !!status[opt.value] : true;
-    opt.disabled = !aktif;
-    opt.textContent = opt.textContent.replace(/ \(Tutup\)$/, '') + (aktif ? '' : ' (Tutup)');
+    opt.disabled = !aktif; opt.textContent = opt.textContent.replace(/ \(Tutup\)$/, '') + (aktif ? '' : ' (Tutup)');
   });
   if (peranAktif && status[peranAktif] === false) {
     tampilkanAlert('Sesi Diakhiri', `${KONFIGURASI_PERAN[peranAktif]?.nama || 'Loket ini'} dinonaktifkan.`);
@@ -848,43 +845,54 @@ onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
   }
 });
 
-function dengarkanAntreanLoket(kategori){
-  if (unsubscribeAntrean) { unsubscribeAntrean(); unsubscribeAntrean = null; }
-  const antreanQuery = query(ref(db, 'antrean_menunggu'), orderByChild('kategori'), equalTo(kategori));
-  unsubscribeAntrean = onValue(antreanQuery, (snap) => {
-    const items = []; snap.forEach(c => items.push(c.val()));
+function dengarkanAntreanLoket(targetArray){
+  if (typeof unsubscribeAntrean === 'function') { unsubscribeAntrean(); unsubscribeAntrean = null; }
+  unsubscribeAntrean = onValue(ref(db, 'antrean_menunggu'), (snap) => {
+    const items = [];
+    snap.forEach(c => { const val = c.val(); if(targetArray.includes(val.kategori)) items.push({...val, key: c.key}); });
+    items.sort((a,b) => a.timestamp - b.timestamp);
+    
     el.statMenunggu.textContent = items.length;
     el.subJudulTabelAntrean.textContent = `${items.length} nomor dalam daftar tunggu`;
     el.isiTabelAntrean.innerHTML = items.length ? '' : `<tr><td colspan="3" class="px-5 py-6 text-center text-xs text-muted-foreground">Belum ada antrean menunggu.</td></tr>`;
+    
     items.forEach((item, i) => {
-      const tr = document.createElement('tr');
-      tr.className = i % 2 === 1 ? 'bg-cream/60' : 'bg-white';
-      tr.innerHTML = `<td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span>${i===0 ? '<span class="ml-2 text-[10px] font-semibold uppercase tracking-wider text-gold-dark">Berikutnya</span>' : ''}</td><td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang || 1} orang</td><td class="px-5 py-2.5 text-right text-xs text-muted-foreground">Menunggu</td>`;
+      const tr = document.createElement('tr'); tr.className = i % 2 === 1 ? 'bg-cream/60' : 'bg-white';
+      tr.innerHTML = `<td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span>${i===0 ? '<span class="ml-2 text-[10px] font-semibold uppercase tracking-wider text-gold-dark">Berikutnya</span>' : ''}</td><td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang || 1} org &middot; ${NAMA_KATEGORI[item.kategori]}</td><td class="px-5 py-2.5 text-right text-xs text-muted-foreground">Menunggu</td>`;
       el.isiTabelAntrean.appendChild(tr);
     });
   });
 }
 
 function dengarkanAntreanBiometrik(){
-  if (unsubscribeAntrean) { unsubscribeAntrean(); unsubscribeAntrean = null; }
-  unsubscribeAntrean = onValue(ref(db, 'antrean_biometrik'), (snap) => {
-    const items = []; snap.forEach(c => items.push(c.val()));
-    el.subJudulTabelAntrean.textContent = `${items.length} rombongan dalam daftar tunggu`;
-    el.isiTabelAntrean.innerHTML = items.length ? '' : `<tr><td colspan="3" class="px-5 py-6 text-center text-xs text-muted-foreground">Belum ada rombongan menunggu.</td></tr>`;
-    items.forEach((item, i) => {
-      const tr = document.createElement('tr');
-      tr.className = i % 2 === 1 ? 'bg-cream/60' : 'bg-white';
-      tr.innerHTML = `<td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomorAsal}</span></td><td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang} orang</td><td class="px-5 py-2.5 text-right text-xs text-muted-foreground">${item.asalLoket}</td>`;
+  if (typeof unsubscribeAntrean === 'function') { unsubscribeAntrean(); unsubscribeAntrean = null; }
+  let unsub1 = null, unsub2 = null;
+  let dataLemparan = [], dataLangsung = [];
+  
+  const renderGabungan = () => {
+     const items = [...dataLemparan, ...dataLangsung].sort((a,b) => a.timestamp - b.timestamp);
+     el.statMenunggu.textContent = items.length;
+     el.subJudulTabelAntrean.textContent = `${items.length} rombongan dalam daftar tunggu`;
+     el.isiTabelAntrean.innerHTML = items.length ? '' : `<tr><td colspan="3" class="px-5 py-6 text-center text-xs text-muted-foreground">Belum ada rombongan menunggu.</td></tr>`;
+     items.forEach((item, i) => {
+      const tr = document.createElement('tr'); tr.className = i % 2 === 1 ? 'bg-cream/60' : 'bg-white';
+      tr.innerHTML = `<td class="px-5 py-2.5"><span class="font-mono text-sm font-semibold text-bronze-dark">${item.nomor}</span></td><td class="px-5 py-2.5 text-xs text-muted-foreground">${item.jumlahOrang} org</td><td class="px-5 py-2.5 text-right text-xs text-muted-foreground">${item.asalLoket || 'Kiosk'}</td>`;
       el.isiTabelAntrean.appendChild(tr);
     });
+  };
+
+  unsub1 = onValue(ref(db, 'antrean_biometrik'), snap => {
+     dataLemparan = []; snap.forEach(c => dataLemparan.push({...c.val(), nomor: c.val().nomorAsal, key: c.key, isLemparan: true})); renderGabungan();
   });
+  unsub2 = onValue(ref(db, 'antrean_menunggu'), snap => {
+     dataLangsung = []; snap.forEach(c => { if(c.val().kategori === 'foto_biometrik') dataLangsung.push({...c.val(), key: c.key, isLemparan: false}); }); renderGabungan();
+  });
+  unsubscribeAntrean = () => { if(unsub1) unsub1(); if(unsub2) unsub2(); };
 }
 
 function aturKunciLoket(kunci){
   terkunci = kunci;
-  el.btnPanggilSelanjutnya.disabled = kunci;
-  el.btnSelesaiTanpaBiometrik.disabled = !kunci;
-  el.btnTeruskanBiometrik.disabled = !kunci;
+  el.btnPanggilSelanjutnya.disabled = kunci; el.btnSelesaiTanpaBiometrik.disabled = !kunci; el.btnTeruskanBiometrik.disabled = !kunci;
   el.statusKunciBadge.className = `inline-flex items-center gap-2.5 rounded-full border-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider ${kunci ? 'border-gold bg-bronze text-gold' : 'border-cream/30 bg-cream/10 text-cream'}`;
   el.iconKunci.innerHTML = `<i data-lucide="${kunci ? 'lock' : 'unlock'}" class="h-4 w-4"></i>`;
   el.statusKunciTeks.textContent = kunci ? 'Status Terkunci · Force Action' : 'Status Aktif';
@@ -897,15 +905,12 @@ el.btnPanggilSelanjutnya.addEventListener('click', async () => {
   const konfig = KONFIGURASI_PERAN[peranAktif];
   el.btnPanggilSelanjutnya.disabled = true;
   try {
-    const antreanQuery = query(ref(db, 'antrean_menunggu'), orderByChild('kategori'), equalTo(konfig.kategori), limitToFirst(1));
-    const snap = await get(antreanQuery);
-    if (!snap.exists()) {
-      tampilkanAlert('Antrean Kosong', `Tidak ada antrean kategori ${konfig.kategori} yang menunggu.`);
-      el.btnPanggilSelanjutnya.disabled = false;
-      return;
-    }
+    const snap = await get(query(ref(db, 'antrean_menunggu'), orderByChild('timestamp')));
     let tiket = null, keyTiket = null;
-    snap.forEach(child => { tiket = child.val(); keyTiket = child.key; });
+    snap.forEach(child => { if (!keyTiket && konfig.target.includes(child.val().kategori)) { tiket = child.val(); keyTiket = child.key; } });
+    
+    if (!keyTiket) { tampilkanAlert('Antrean Kosong', `Tidak ada antrean yang sesuai target ${konfig.nama}.`); el.btnPanggilSelanjutnya.disabled = false; return; }
+    
     await remove(ref(db, `antrean_menunggu/${keyTiket}`));
     const payloadPanggilan = { nomor: tiket.nomor, loket: konfig.nama, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang || 1, sedangDilayani: true, timestamp: serverTimestamp() };
     await set(ref(db, 'panggilan_aktif'), payloadPanggilan);
@@ -916,41 +921,33 @@ el.btnPanggilSelanjutnya.addEventListener('click', async () => {
     el.infoWaktuPanggil.textContent = `Dipanggil ${new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' })}`;
     aturKunciLoket(true);
     
-    await catatAktivitas(tiket.nomor, 'Panggil', `Dipanggil ke ${konfig.nama}`);
-  } catch (err) {
-    console.error(err);
-    tampilkanAlert('Gagal', 'Tidak dapat memanggil antrean. Cek konfigurasi Firebase.');
-  } finally {
-    el.btnPanggilSelanjutnya.disabled = false;
-  }
+    await catatAktivitas(tiket.nomor, 'Panggil', `Dipanggil ke ${konfig.nama}`, tiket.kategori);
+  } catch (err) { console.error(err); tampilkanAlert('Gagal', 'Koneksi terputus.'); } 
+  finally { el.btnPanggilSelanjutnya.disabled = false; }
 });
 
 el.btnUlangiPengumuman.addEventListener('click', async () => {
   if (!nomorSedangDilayani || !peranAktif) return;
-  const konfig = KONFIGURASI_PERAN[peranAktif];
-  await set(ref(db, 'panggilan_aktif'), { nomor: nomorSedangDilayani.nomor, loket: konfig.nama, kategori: konfig.kategori, timestamp: serverTimestamp() });
+  await set(ref(db, 'panggilan_aktif'), { nomor: nomorSedangDilayani.nomor, loket: KONFIGURASI_PERAN[peranAktif].nama, kategori: nomorSedangDilayani.kategori, timestamp: serverTimestamp() });
 });
 
 el.btnSelesaiTanpaBiometrik.addEventListener('click', async () => {
   el.pesanLoket.textContent = `Layanan untuk ${nomorSedangDilayani?.nomor || '-'} telah selesai.`;
   statSelesai++; el.statSelesai.textContent = statSelesai;
-  await catatAktivitas(nomorSedangDilayani?.nomor || '-', 'Selesai', 'Layanan selesai tanpa biometrik');
+  await catatAktivitas(nomorSedangDilayani?.nomor || '-', 'Selesai', 'Layanan selesai di loket', nomorSedangDilayani?.kategori);
   resetSetelahSelesai();
 });
 
 function resetSetelahSelesai(){
-  if (peranAktif && peranAktif !== 'biometrik') set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false).catch((err) => console.error(err));
-  nomorSedangDilayani = null;
-  el.nomorSedangDilayaniEl.textContent = '—';
-  el.infoWaktuPanggil.textContent = '';
+  if (peranAktif && peranAktif !== 'biometrik') set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false).catch(()=>{});
+  nomorSedangDilayani = null; el.nomorSedangDilayaniEl.textContent = '—'; el.infoWaktuPanggil.textContent = '';
   aturKunciLoket(false);
 }
 
 el.btnTeruskanBiometrik.addEventListener('click', () => {
   if (!nomorSedangDilayani) return;
-  angkaModalBiometrik = nomorSedangDilayani.jumlahOrang || 1;
-  el.angkaKonfirmasiBiometrik.textContent = angkaModalBiometrik;
-  el.modalBiometrikSub.textContent = `Rombongan ${nomorSedangDilayani.nomor} — konfirmasi jumlah orang`;
+  angkaModalBiometrik = nomorSedangDilayani.jumlahOrang || 1; el.angkaKonfirmasiBiometrik.textContent = angkaModalBiometrik;
+  el.modalBiometrikSub.textContent = `Nomor ${nomorSedangDilayani.nomor} — konfirmasi jumlah orang`;
   el.overlayKonfirmasiBiometrik.classList.remove('hidden'); el.overlayKonfirmasiBiometrik.classList.add('flex');
 });
 el.btnKurangBiometrik.addEventListener('click', () => { angkaModalBiometrik = Math.max(1, angkaModalBiometrik - 1); el.angkaKonfirmasiBiometrik.textContent = angkaModalBiometrik; });
@@ -959,33 +956,17 @@ el.btnBatalKonfirmasiBiometrik.addEventListener('click', () => { el.overlayKonfi
 
 el.btnOkKonfirmasiBiometrik.addEventListener('click', async () => {
   if (!nomorSedangDilayani || !peranAktif) return;
-  const konfig = KONFIGURASI_PERAN[peranAktif];
-  el.btnOkKonfirmasiBiometrik.disabled = true;
-  el.btnOkKonfirmasiBiometrik.textContent = 'Memproses...';
-  
+  el.btnOkKonfirmasiBiometrik.disabled = true; el.btnOkKonfirmasiBiometrik.textContent = 'Memproses...';
   try {
-    await push(ref(db, 'antrean_biometrik'), { 
-      nomorAsal: nomorSedangDilayani.nomor, 
-      asalLoket: konfig.nama, 
-      jumlahOrang: angkaModalBiometrik, 
-      timestamp: serverTimestamp() 
-    });
+    await push(ref(db, 'antrean_biometrik'), { nomorAsal: nomorSedangDilayani.nomor, asalLoket: KONFIGURASI_PERAN[peranAktif].nama, jumlahOrang: angkaModalBiometrik, timestamp: serverTimestamp() });
+    el.overlayKonfirmasiBiometrik.classList.add('hidden'); el.overlayKonfirmasiBiometrik.classList.remove('flex');
+    el.pesanLoket.textContent = `Nomor ${nomorSedangDilayani.nomor} diteruskan ke Ruang Biometrik.`;
+    statBiometrik++; el.statBiometrik.textContent = statBiometrik;
     
-    el.overlayKonfirmasiBiometrik.classList.add('hidden'); 
-    el.overlayKonfirmasiBiometrik.classList.remove('flex');
-    el.pesanLoket.textContent = `Rombongan ${nomorSedangDilayani.nomor} (${angkaModalBiometrik} orang) diteruskan ke Ruang Biometrik.`;
-    statBiometrik++; 
-    el.statBiometrik.textContent = statBiometrik;
-    
-    await catatAktivitas(nomorSedangDilayani.nomor, 'Biometrik', `Diteruskan ke Ruang Biometrik (${angkaModalBiometrik} orang)`);
+    await catatAktivitas(nomorSedangDilayani.nomor, 'Biometrik', `Diteruskan ke Ruang Foto (${angkaModalBiometrik} orang)`, nomorSedangDilayani.kategori);
     resetSetelahSelesai();
-  } catch (err) {
-    console.error(err); 
-    tampilkanAlert('Gagal', 'Tidak dapat meneruskan ke Biometrik. Cek koneksi Anda.');
-  } finally {
-    el.btnOkKonfirmasiBiometrik.disabled = false;
-    el.btnOkKonfirmasiBiometrik.textContent = 'OK, Teruskan';
-  }
+  } catch (err) { console.error(err); tampilkanAlert('Gagal', 'Koneksi terputus.'); } 
+  finally { el.btnOkKonfirmasiBiometrik.disabled = false; el.btnOkKonfirmasiBiometrik.textContent = 'OK, Teruskan'; }
 });
 
 onValue(ref(db, 'kapasitas_biometrik/saat_ini'), (snap) => {
@@ -997,32 +978,44 @@ onValue(ref(db, 'kapasitas_biometrik/saat_ini'), (snap) => {
 el.btnPanggilBiometrik.addEventListener('click', async () => {
   el.pesanBiometrik.textContent = ''; el.btnPanggilBiometrik.disabled = true;
   try {
-    const antreanQuery = query(ref(db, 'antrean_biometrik'), limitToFirst(1));
-    const snapAntrean = await get(antreanQuery);
-    if (!snapAntrean.exists()) { el.pesanBiometrik.textContent = 'Tidak ada rombongan yang menunggu.'; return; }
-    let rombongan = null, keyRombongan = null;
-    snapAntrean.forEach(child => { rombongan = child.val(); keyRombongan = child.key; });
+    let rombongan = null, keyRombongan = null, isLemparan = false;
+    
+    const snapBio = await get(query(ref(db, 'antrean_biometrik'), orderByChild('timestamp')));
+    snapBio.forEach(c => { if(!keyRombongan) { rombongan = { nomorAsal: c.val().nomorAsal, jumlahOrang: c.val().jumlahOrang }; keyRombongan = c.key; isLemparan = true; } });
+    
+    if(!keyRombongan) {
+        const snapKiosk = await get(query(ref(db, 'antrean_menunggu'), orderByChild('timestamp')));
+        snapKiosk.forEach(c => { if(!keyRombongan && c.val().kategori === 'foto_biometrik') { rombongan = { nomorAsal: c.val().nomor, jumlahOrang: c.val().jumlahOrang }; keyRombongan = c.key; isLemparan = false; } });
+    }
+
+    if (!keyRombongan) { el.pesanBiometrik.textContent = 'Tidak ada rombongan yang menunggu.'; el.btnPanggilBiometrik.disabled = false; return; }
+    
     const snapKapasitas = await get(ref(db, 'kapasitas_biometrik/saat_ini'));
     const kapasitasSekarang = snapKapasitas.exists() ? snapKapasitas.val() : 0;
     if (kapasitasSekarang + rombongan.jumlahOrang > KAPASITAS_MAKS_BIOMETRIK) {
       tampilkanAlert('⚠️ Kapasitas Ruangan Tidak Mencukupi', `Saat ini: ${kapasitasSekarang} orang\nRombongan berikutnya: ${rombongan.jumlahOrang} orang\nMaksimal ruangan: ${KAPASITAS_MAKS_BIOMETRIK} orang\n\nSilakan tunggu hingga ada jemaah yang keluar ruangan.`);
-      return;
+      el.btnPanggilBiometrik.disabled = false; return;
     }
-    await remove(ref(db, `antrean_biometrik/${keyRombongan}`));
+
+    if(isLemparan) await remove(ref(db, `antrean_biometrik/${keyRombongan}`));
+    else await remove(ref(db, `antrean_menunggu/${keyRombongan}`));
+
     await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => (k || 0) + rombongan.jumlahOrang);
-    const payloadPanggilan = { nomor: rombongan.nomorAsal, loket: 'Ruang Biometrik', kategori: 'BIO', timestamp: serverTimestamp() };
+    const payloadPanggilan = { nomor: rombongan.nomorAsal, loket: 'Ruang Foto Biometrik', kategori: 'foto_biometrik', timestamp: serverTimestamp() };
     await set(ref(db, 'panggilan_aktif'), payloadPanggilan);
     await set(ref(db, 'status_loket/biometrik'), payloadPanggilan);
     nomorBiometrikAktif = rombongan.nomorAsal;
     el.biometrikNomorTampil.textContent = `${rombongan.nomorAsal} (${rombongan.jumlahOrang} org)`;
     el.btnPanggilUlangBiometrik.disabled = false;
-    await catatAktivitas(rombongan.nomorAsal, 'Panggil', `Dipanggil ke Ruang Biometrik (${rombongan.jumlahOrang} orang)`);
-  } catch (err) { console.error(err); el.pesanBiometrik.textContent = 'Gagal memanggil rombongan.'; } finally { el.btnPanggilBiometrik.disabled = false; }
+    
+    await catatAktivitas(rombongan.nomorAsal, 'Panggil', `Dipanggil ke Ruang Foto (${rombongan.jumlahOrang} orang)`, 'foto_biometrik');
+  } catch (err) { console.error(err); el.pesanBiometrik.textContent = 'Gagal memanggil rombongan.'; } 
+  finally { el.btnPanggilBiometrik.disabled = false; }
 });
 
 el.btnPanggilUlangBiometrik.addEventListener('click', async () => {
   if (!nomorBiometrikAktif) return;
-  await set(ref(db, 'panggilan_aktif'), { nomor: nomorBiometrikAktif, loket: 'Ruang Biometrik', kategori: 'BIO', timestamp: serverTimestamp() });
+  await set(ref(db, 'panggilan_aktif'), { nomor: nomorBiometrikAktif, loket: 'Ruang Foto Biometrik', kategori: 'foto_biometrik', timestamp: serverTimestamp() });
 });
 
 el.btnSelesaiBiometrik.addEventListener('click', () => {
@@ -1035,22 +1028,17 @@ el.btnBatalKeluar.addEventListener('click', () => { el.overlayKeluarBiometrik.cl
 
 el.btnOkKeluar.addEventListener('click', async () => {
   const result = await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - angkaModalKeluar));
-  
   if (result.snapshot.val() === 0) {
     await set(ref(db, 'status_loket/biometrik/sedangDilayani'), false);
-    nomorBiometrikAktif = null;
-    el.biometrikNomorTampil.textContent = '—';
-    el.btnPanggilUlangBiometrik.disabled = true;
+    nomorBiometrikAktif = null; el.biometrikNomorTampil.textContent = '—'; el.btnPanggilUlangBiometrik.disabled = true;
   }
-  
   el.overlayKeluarBiometrik.classList.add('hidden'); el.overlayKeluarBiometrik.classList.remove('flex');
 });
 
 el.inputKonfirmasiReset.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.btnKonfirmasiResetAntrean.click(); });
 el.btnResetAntrean.addEventListener('click', () => {
   el.inputKonfirmasiReset.value = ''; el.pesanErrorReset.classList.add('hidden');
-  el.overlayResetAntrean.classList.remove('hidden'); el.overlayResetAntrean.classList.add('flex');
-  el.inputKonfirmasiReset.focus();
+  el.overlayResetAntrean.classList.remove('hidden'); el.overlayResetAntrean.classList.add('flex'); el.inputKonfirmasiReset.focus();
 });
 el.btnBatalResetAntrean.addEventListener('click', () => { el.overlayResetAntrean.classList.add('hidden'); el.overlayResetAntrean.classList.remove('flex'); });
 
@@ -1058,8 +1046,8 @@ el.btnKonfirmasiResetAntrean.addEventListener('click', async () => {
   if (el.inputKonfirmasiReset.value.trim() !== 'RESET') { el.pesanErrorReset.classList.remove('hidden'); return; }
   el.btnKonfirmasiResetAntrean.disabled = true; el.btnKonfirmasiResetAntrean.textContent = 'Memproses...';
   try {
-    await Promise.all([ remove(ref(db, 'counter_nomor')), remove(ref(db, 'antrean_menunggu')), remove(ref(db, 'antrean_biometrik')), remove(ref(db, 'status_loket')), remove(ref(db, 'panggilan_aktif')), set(ref(db, 'kapasitas_biometrik/saat_ini'), 0) ]);
-    await catatAktivitas('SISTEM', 'Reset', `Antrean hari ini direset oleh ${peranAktif ? KONFIGURASI_PERAN[peranAktif].nama : 'petugas'}.`);
+    await Promise.all([ remove(ref(db, 'counter_nomor/global_v2')), remove(ref(db, 'antrean_menunggu')), remove(ref(db, 'antrean_biometrik')), remove(ref(db, 'status_loket')), remove(ref(db, 'panggilan_aktif')), set(ref(db, 'kapasitas_biometrik/saat_ini'), 0) ]);
+    await catatAktivitas('SISTEM', 'Reset', `Antrean direset oleh ${peranAktif ? KONFIGURASI_PERAN[peranAktif].nama : 'petugas'}.`, 'Sistem');
     nomorSedangDilayani = null; nomorBiometrikAktif = null; statSelesai = 0; statBiometrik = 0;
     el.statSelesai.textContent = '0'; el.statBiometrik.textContent = '0';
     if (el.nomorSedangDilayaniEl) el.nomorSedangDilayaniEl.textContent = '—';
@@ -1069,134 +1057,98 @@ el.btnKonfirmasiResetAntrean.addEventListener('click', async () => {
     aturKunciLoket(false);
     el.overlayResetAntrean.classList.add('hidden'); el.overlayResetAntrean.classList.remove('flex');
     tampilkanAlert('Berhasil', 'Antrean hari ini telah direset. Semua loket siap memulai sesi baru.');
-  } catch (err) {
-    console.error(err); el.overlayResetAntrean.classList.add('hidden'); el.overlayResetAntrean.classList.remove('flex');
-    tampilkanAlert('Gagal', 'Tidak dapat mereset antrean. Cek konfigurasi/koneksi Firebase.');
-  } finally {
-    el.btnKonfirmasiResetAntrean.disabled = false; el.btnKonfirmasiResetAntrean.textContent = 'Ya, Reset Sekarang';
-  }
+  } catch (err) { console.error(err); tampilkanAlert('Gagal', 'Koneksi terputus.'); } 
+  finally { el.btnKonfirmasiResetAntrean.disabled = false; el.btnKonfirmasiResetAntrean.textContent = 'Ya, Reset Sekarang'; }
 });
 
 const VIEWS = { dashboard: document.getElementById('viewDashboard'), riwayat: document.getElementById('viewRiwayat'), laporan: document.getElementById('viewLaporan'), atur: document.getElementById('viewAtur') };
 const tombolNav = Array.from(document.querySelectorAll('nav [data-view]'));
-const KELAS_NAV_AKTIF = 'group relative flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl bg-gold text-bronze-dark';
-const KELAS_NAV_PASIF = 'flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl text-cream/55 transition-colors hover:bg-bronze hover:text-cream';
-
 function gantiView(namaView){
   Object.entries(VIEWS).forEach(([nama, node]) => {
     if (!node) return;
-    const aktif = nama === namaView;
-    node.classList.toggle('hidden', !aktif); node.classList.toggle('flex', aktif);
+    const aktif = nama === namaView; node.classList.toggle('hidden', !aktif); node.classList.toggle('flex', aktif);
   });
   tombolNav.forEach(btn => {
     const aktif = btn.dataset.view === namaView;
-    btn.className = aktif ? KELAS_NAV_AKTIF : KELAS_NAV_PASIF;
-    const penanda = btn.querySelector('span[aria-hidden="true"], span.absolute');
-    if (penanda) penanda.classList.toggle('hidden', !aktif);
+    btn.className = aktif ? 'group relative flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl bg-gold text-bronze-dark' : 'flex h-14 w-14 flex-col items-center justify-center gap-1 rounded-xl text-cream/55 transition-colors hover:bg-bronze hover:text-cream';
+    const penanda = btn.querySelector('span.absolute'); if (penanda) penanda.classList.toggle('hidden', !aktif);
   });
   lucide.createIcons();
 }
 tombolNav.forEach(btn => btn.addEventListener('click', () => gantiView(btn.dataset.view)));
-
-document.getElementById('btnKeluarSesi').addEventListener('click', () => {
-  gantiView('dashboard'); el.pilihPeran.value = ''; el.pilihPeran.dispatchEvent(new Event('change'));
-});
+document.getElementById('btnKeluarSesi').addEventListener('click', () => { gantiView('dashboard'); el.pilihPeran.value = ''; el.pilihPeran.dispatchEvent(new Event('change')); });
 
 let logRiwayat = [];
 const LABEL_STATUS = { Panggil: { teks: 'Dipanggil', kelas: 'border-gold/50 bg-gold/15 text-gold-dark' }, Selesai: { teks: 'Selesai', kelas: 'border-emerald-600/30 bg-emerald-50 text-emerald-700' }, Biometrik: { teks: 'Diteruskan', kelas: 'border-bronze/30 bg-cream text-bronze' }, Reset: { teks: 'Sistem', kelas: 'border-red-600/30 bg-red-50 text-red-700' } };
-function jenisLayananDariNomor(nomor){ const kode = String(nomor || '').trim().charAt(0).toUpperCase(); return NAMA_KATEGORI[kode] ? `${NAMA_KATEGORI[kode]} · Kode ${kode}` : '—'; }
-function loketDariCatatan(catatan){ const cocok = String(catatan || '').match(/(Loket\s?\d|Ruang Biometrik)/i); return cocok ? cocok[0] : '—'; }
 
-// PERBAIKAN SINKRONISASI TANGGAL FILTER
+function jenisLayananDariRiwayat(item){ return NAMA_KATEGORI[item.kategori] ? NAMA_KATEGORI[item.kategori] : (item.kategori || '—'); }
+
 function cocokPeriode(item, periode){
   if (periode === 'semua') return true;
-  
   const ts = typeof item.timestamp === 'number' ? item.timestamp : Date.now();
-  const dateItem = new Date(ts);
-  const dateNow = new Date();
-
-  if (periode === 'hari-ini') {
-    return dateItem.getDate() === dateNow.getDate() && 
-           dateItem.getMonth() === dateNow.getMonth() && 
-           dateItem.getFullYear() === dateNow.getFullYear();
-  }
-  if (periode === 'kemarin') {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return dateItem.getDate() === yesterday.getDate() && 
-           dateItem.getMonth() === yesterday.getMonth() && 
-           dateItem.getFullYear() === yesterday.getFullYear();
-  }
+  const dateItem = new Date(ts); const dateNow = new Date();
+  if (periode === 'hari-ini') return dateItem.getDate() === dateNow.getDate() && dateItem.getMonth() === dateNow.getMonth() && dateItem.getFullYear() === dateNow.getFullYear();
+  if (periode === 'kemarin') { const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1); return dateItem.getDate() === yesterday.getDate() && dateItem.getMonth() === yesterday.getMonth() && dateItem.getFullYear() === yesterday.getFullYear(); }
   return true;
 }
 
 const elRiwayat = { periode: document.getElementById('filterPeriode'), status: document.getElementById('filterStatus'), cari: document.getElementById('cariNomorRiwayat'), reset: document.getElementById('btnResetFilterRiwayat'), unduh: document.getElementById('btnUnduhRiwayat'), isi: document.getElementById('isiTabelRiwayat'), info: document.getElementById('infoJumlahRiwayat') };
 
-function riwayatTersaring(){
-  const periode = elRiwayat.periode.value, status = elRiwayat.status.value, kunci = elRiwayat.cari.value.trim().toUpperCase();
-  return logRiwayat.filter(item => {
-    if (!cocokPeriode(item, periode)) return false;
-    if (status !== 'semua' && (LABEL_STATUS[item.aksi]?.teks || item.aksi) !== status) return false;
-    if (kunci && !String(item.nomor || '').toUpperCase().includes(kunci)) return false;
+function renderRiwayat(){
+  const data = logRiwayat.filter(item => {
+    if (!cocokPeriode(item, elRiwayat.periode.value)) return false;
+    if (elRiwayat.status.value !== 'semua' && (LABEL_STATUS[item.aksi]?.teks || item.aksi) !== elRiwayat.status.value) return false;
+    if (elRiwayat.cari.value && !String(item.nomor || '').toUpperCase().includes(elRiwayat.cari.value.trim().toUpperCase())) return false;
     return true;
   });
-}
-
-function renderRiwayat(){
-  const data = riwayatTersaring();
   elRiwayat.info.textContent = `${data.length} catatan pemanggilan ditampilkan`;
   if (!data.length){ elRiwayat.isi.innerHTML = `<tr><td colspan="5" class="px-6 py-14 text-center text-xs text-muted-foreground">Tidak ada catatan yang cocok dengan filter.</td></tr>`; return; }
   elRiwayat.isi.innerHTML = data.map((item, i) => {
     const badge = LABEL_STATUS[item.aksi] || { teks: item.aksi || '—', kelas: 'border-border bg-cream text-bronze' };
-    return `<tr class="${i % 2 === 1 ? 'bg-cream/35' : 'bg-white'} transition-colors hover:bg-cream/70"><td class="px-6 py-3.5 font-mono text-sm text-bronze-dark">${item.waktu || '--:--'}</td><td class="px-6 py-3.5"><span class="font-mono text-sm font-bold text-bronze-dark">${item.nomor || '—'}</span></td><td class="px-6 py-3.5 text-xs font-medium text-muted-foreground">${jenisLayananDariNomor(item.nomor)}</td><td class="px-6 py-3.5 text-xs font-semibold text-bronze">${loketDariCatatan(item.catatan)}</td><td class="px-6 py-3.5 text-right"><span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.kelas}">${badge.teks}</span></td></tr>`;
+    return `<tr class="${i % 2 === 1 ? 'bg-cream/35' : 'bg-white'} transition-colors hover:bg-cream/70"><td class="px-6 py-3.5 font-mono text-sm text-bronze-dark">${item.waktu || '--:--'}</td><td class="px-6 py-3.5"><span class="font-mono text-sm font-bold text-bronze-dark">${item.nomor || '—'}</span></td><td class="px-6 py-3.5 text-xs font-medium text-muted-foreground">${jenisLayananDariRiwayat(item)}</td><td class="px-6 py-3.5 text-xs font-semibold text-bronze">${(item.catatan || '').split(' ke ')[1] || '—'}</td><td class="px-6 py-3.5 text-right"><span class="inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${badge.kelas}">${badge.teks}</span></td></tr>`;
   }).join('');
 }
 
-[elRiwayat.periode, elRiwayat.status].forEach(node => node.addEventListener('change', renderRiwayat));
-elRiwayat.cari.addEventListener('input', renderRiwayat);
+[elRiwayat.periode, elRiwayat.status].forEach(node => node.addEventListener('change', renderRiwayat)); elRiwayat.cari.addEventListener('input', renderRiwayat);
 elRiwayat.reset.addEventListener('click', () => { elRiwayat.periode.value = 'hari-ini'; elRiwayat.status.value = 'semua'; elRiwayat.cari.value = ''; renderRiwayat(); });
 elRiwayat.unduh.addEventListener('click', () => {
-  const baris = [['Waktu Panggil','Nomor Antrean','Jenis Layanan','Loket','Status']].concat(riwayatTersaring().map(item => [ item.waktu || '', item.nomor || '', jenisLayananDariNomor(item.nomor), loketDariCatatan(item.catatan), LABEL_STATUS[item.aksi]?.teks || item.aksi || '' ]));
+  const baris = [['Waktu Panggil','Nomor Antrean','Jenis Layanan','Loket','Status']].concat(riwayatTersaring().map(item => [ item.waktu || '', item.nomor || '', jenisLayananDariRiwayat(item), (item.catatan || '').split(' ke ')[1] || '—', LABEL_STATUS[item.aksi]?.teks || item.aksi || '' ]));
   const csv = baris.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' }));
   const a = document.createElement('a'); a.href = url; a.download = `riwayat-antrean-${new Date().toISOString().slice(0,10)}.csv`;
   a.click(); URL.revokeObjectURL(url);
 });
 
-const elLaporan = { periode: document.getElementById('filterPeriodeLaporan'), totalPengunjung: document.getElementById('lapTotalPengunjung'), rataTunggu: document.getElementById('lapRataTunggu'), loketTersibuk: document.getElementById('lapLoketTersibuk'), loketSub: document.getElementById('lapLoketTersibukSub'), totalBiometrik: document.getElementById('lapTotalBiometrik'), persenA: document.getElementById('lapPersenA'), persenB: document.getElementById('lapPersenB'), barA: document.getElementById('lapBarA'), barB: document.getElementById('lapBarB'), jumlahA: document.getElementById('lapJumlahA'), jumlahB: document.getElementById('lapJumlahB'), jamTersibuk: document.getElementById('lapJamTersibuk') };
+const elLaporan = { periode: document.getElementById('filterPeriodeLaporan'), totalPengunjung: document.getElementById('lapTotalPengunjung'), rataTunggu: document.getElementById('lapRataTunggu'), loketTersibuk: document.getElementById('lapLoketTersibuk'), loketSub: document.getElementById('lapLoketTersibukSub'), totalBiometrik: document.getElementById('lapTotalBiometrik'), wadahKomposisi: document.getElementById('wadahKomposisiLayanan'), jamTersibuk: document.getElementById('lapJamTersibuk') };
 
 function renderLaporan(){
-  const periode = elLaporan.periode.value;
-  const data = logRiwayat.filter(item => cocokPeriode(item, periode));
+  const data = logRiwayat.filter(item => cocokPeriode(item, elLaporan.periode.value));
   const panggilan = data.filter(item => item.aksi === 'Panggil');
   elLaporan.totalPengunjung.textContent = panggilan.length;
   elLaporan.totalBiometrik.textContent = data.filter(item => item.aksi === 'Biometrik').length;
 
   const stempel = panggilan.map(i => i.timestamp).filter(t => typeof t === 'number').sort((a,b) => a - b);
-  let rata = 0;
-  if (stempel.length > 1){ const total = stempel[stempel.length - 1] - stempel[0]; rata = Math.round(total / (stempel.length - 1) / 60000); }
-  elLaporan.rataTunggu.textContent = rata;
+  elLaporan.rataTunggu.textContent = (stempel.length > 1) ? Math.round((stempel[stempel.length - 1] - stempel[0]) / (stempel.length - 1) / 60000) : 0;
 
-  const perLoket = {};
-  panggilan.forEach(i => { const loket = loketDariCatatan(i.catatan); if (loket !== '—') perLoket[loket] = (perLoket[loket] || 0) + 1; });
+  const perLoket = {}; panggilan.forEach(i => { const loket = (i.catatan || '').split(' ke ')[1]; if (loket) perLoket[loket] = (perLoket[loket] || 0) + 1; });
   const urutLoket = Object.entries(perLoket).sort((a,b) => b[1] - a[1]);
-  elLaporan.loketTersibuk.textContent = urutLoket.length ? urutLoket[0][0] : '—';
-  elLaporan.loketSub.textContent = urutLoket.length ? `${urutLoket[0][1]} nomor dilayani` : 'belum ada data';
+  elLaporan.loketTersibuk.textContent = urutLoket.length ? urutLoket[0][0] : '—'; elLaporan.loketSub.textContent = urutLoket.length ? `${urutLoket[0][1]} nomor dilayani` : 'belum ada data';
 
-  const jumlahA = panggilan.filter(i => String(i.nomor || '').toUpperCase().startsWith('A')).length;
-  const jumlahB = panggilan.filter(i => String(i.nomor || '').toUpperCase().startsWith('B')).length;
-  const totalAB = jumlahA + jumlahB;
-  const persenA = totalAB ? Math.round((jumlahA / totalAB) * 100) : 0;
-  const persenB = totalAB ? 100 - persenA : 0;
-  elLaporan.persenA.textContent = persenA; elLaporan.persenB.textContent = persenB;
-  elLaporan.barA.style.width = `${persenA}%`; elLaporan.barB.style.width = `${persenB}%`;
-  elLaporan.jumlahA.textContent = `${jumlahA} nomor`; elLaporan.jumlahB.textContent = `${jumlahB} nomor`;
+  if (elLaporan.wadahKomposisi) {
+    elLaporan.wadahKomposisi.innerHTML = '';
+    const rekapKat = {}; panggilan.forEach(p => { const k = p.kategori || 'Umum'; rekapKat[k] = (rekapKat[k] || 0) + 1; });
+    Object.entries(NAMA_KATEGORI).forEach(([key, name]) => {
+        const jumlah = rekapKat[key] || 0; const persen = panggilan.length ? Math.round((jumlah / panggilan.length) * 100) : 0;
+        if (jumlah > 0 || panggilan.length === 0) {
+          elLaporan.wadahKomposisi.innerHTML += `<div><div class="flex items-baseline justify-between"><p class="text-xs font-semibold text-bronze-dark">${name}</p><p class="font-mono text-xs font-bold text-bronze-dark">${persen}%</p></div><div class="mt-2 h-2.5 overflow-hidden rounded-full bg-cream"><div class="h-full rounded-full bg-gold transition-all" style="width:${persen}%"></div></div><p class="mt-1.5 text-[11px] text-muted-foreground">${jumlah} nomor</p></div>`;
+        }
+    });
+  }
 
-  const perJam = {};
-  panggilan.forEach(i => { const jam = String(i.waktu || '').slice(0, 2); if (/^\d\d$/.test(jam)) perJam[jam] = (perJam[jam] || 0) + 1; });
+  const perJam = {}; panggilan.forEach(i => { const jam = String(i.waktu || '').slice(0, 2); if (/^\d\d$/.test(jam)) perJam[jam] = (perJam[jam] || 0) + 1; });
   const urutJam = Object.entries(perJam).sort((a,b) => b[1] - a[1]);
   elLaporan.jamTersibuk.textContent = urutJam.length ? `${urutJam[0][0]}.00 — ${urutJam[0][0]}.59` : '—';
-  perbaruiChartKunjungan(perJam);
+  if(typeof perbaruiChartKunjungan === 'function') perbaruiChartKunjungan(perJam);
 }
 elLaporan.periode.addEventListener('change', renderLaporan);
 
@@ -1209,162 +1161,86 @@ gantiView('dashboard');
 
 const LABEL_JAM_CHART = Array.from({ length: 14 }, (_, i) => String(i + 7).padStart(2, '0'));
 let chartKunjungan = null;
-
 function perbaruiChartKunjungan(perJam) {
-  const canvas = document.getElementById('chartKunjungan');
-  if (!canvas || typeof Chart === 'undefined') return;
+  const canvas = document.getElementById('chartKunjungan'); if (!canvas || typeof Chart === 'undefined') return;
   const dataChart = LABEL_JAM_CHART.map(jam => perJam[jam] || 0);
-  if (!chartKunjungan) {
-    chartKunjungan = new Chart(canvas, { type: 'bar', data: { labels: LABEL_JAM_CHART.map(j => `${j}.00`), datasets: [{ label: 'Jumlah Panggilan', data: dataChart, backgroundColor: '#d4af37', borderRadius: 6, maxBarThickness: 36 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#e7dcc8' } }, x: { grid: { display: false } } } } });
-  } else { chartKunjungan.data.datasets[0].data = dataChart; chartKunjungan.update(); }
+  if (!chartKunjungan) { chartKunjungan = new Chart(canvas, { type: 'bar', data: { labels: LABEL_JAM_CHART.map(j => `${j}.00`), datasets: [{ label: 'Jumlah Panggilan', data: dataChart, backgroundColor: '#d4af37', borderRadius: 6, maxBarThickness: 36 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#e7dcc8' } }, x: { grid: { display: false } } } } }); } else { chartKunjungan.data.datasets[0].data = dataChart; chartKunjungan.update(); }
 }
 
 const elAudio = { volume: document.getElementById('aturVolume'), nilaiVolume: document.getElementById('nilaiVolume'), kecepatan: document.getElementById('aturKecepatanTTS'), nilaiKecepatan: document.getElementById('nilaiKecepatanTTS'), tesSuara: document.getElementById('btnTesSuara') };
 
 if (elAudio.volume) {
-  const volumeTersimpan = localStorage.getItem('simantri_volume'), kecepatanTersimpan = localStorage.getItem('simantri_kecepatan_tts');
-  elAudio.volume.value = volumeTersimpan !== null ? volumeTersimpan : 80;
-  elAudio.kecepatan.value = kecepatanTersimpan !== null ? kecepatanTersimpan : 1;
-  elAudio.nilaiVolume.textContent = elAudio.volume.value;
+  elAudio.volume.value = localStorage.getItem('simantri_volume') || 80; 
+  elAudio.kecepatan.value = localStorage.getItem('simantri_kecepatan_tts') || 1;
+  
+  elAudio.nilaiVolume.textContent = elAudio.volume.value; 
   elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1);
-
+  
   elAudio.volume.addEventListener('input', () => { elAudio.nilaiVolume.textContent = elAudio.volume.value; localStorage.setItem('simantri_volume', elAudio.volume.value); });
   elAudio.kecepatan.addEventListener('input', () => { elAudio.nilaiKecepatan.textContent = parseFloat(elAudio.kecepatan.value).toFixed(1); localStorage.setItem('simantri_kecepatan_tts', elAudio.kecepatan.value); });
-
-  elAudio.tesSuara.addEventListener('click', () => {
-    const teksPanggilan = 'Tes panggilan. Nomor antrean. A. Kosong. Kosong. Satu. Silakan menuju. Loket 1.';
+  
+  elAudio.tesSuara.addEventListener('click', () => { 
     if (typeof responsiveVoice !== 'undefined') {
-      responsiveVoice.speak(teksPanggilan, "Indonesian Female", {
-        pitch: 1.05,
-        rate: Number(elAudio.kecepatan.value),
-        volume: Number(elAudio.volume.value) / 100
-      });
-    } else {
-      tampilkanAlert('Error Audio', 'Sistem suara gagal dimuat. Pastikan koneksi internet stabil atau matikan AdBlock.');
+      responsiveVoice.speak('Tes panggilan. Nomor antrean. Kosong. Kosong. Satu. Silakan menuju. Loket A.', "Indonesian Female", { pitch: 1.05, rate: Number(elAudio.kecepatan.value), volume: Number(elAudio.volume.value) / 100 }); 
     }
   });
 }
 
 let playlistVideo = [];
-
-const elPlaylist = {
-  wadah: document.getElementById('wadahPlaylist'),
-  kosong: document.getElementById('playlistKosong'),
-  daftar: document.getElementById('daftarPlaylist'),
-  input: document.getElementById('inputNamaVideo'),
-  btnTambah: document.getElementById('btnTambahVideo'),
-  ticker: document.getElementById('aturTeksBerjalan'),
-  counter: document.getElementById('jumlahKarakterTicker'),
-  btnSimpanTicker: document.getElementById('btnSimpanTicker')
-};
+const elPlaylist = { wadah: document.getElementById('wadahPlaylist'), kosong: document.getElementById('playlistKosong'), daftar: document.getElementById('daftarPlaylist'), input: document.getElementById('inputNamaVideo'), btnTambah: document.getElementById('btnTambahVideo'), ticker: document.getElementById('aturTeksBerjalan'), counter: document.getElementById('jumlahKarakterTicker'), btnSimpanTicker: document.getElementById('btnSimpanTicker') };
 
 function renderPlaylist() {
-  if (playlistVideo.length === 0) {
-    elPlaylist.kosong.style.display = 'block';
-    elPlaylist.daftar.innerHTML = '';
-  } else {
+  if (playlistVideo.length === 0) { elPlaylist.kosong.style.display = 'block'; elPlaylist.daftar.innerHTML = ''; } else {
     elPlaylist.kosong.style.display = 'none';
-    elPlaylist.daftar.innerHTML = playlistVideo.map((vid, idx) => `
-      <li class="flex items-center justify-between rounded-lg bg-white px-3 py-2.5 shadow-sm border border-border">
-        <div class="flex items-center gap-3 overflow-hidden">
-          <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bronze/10 text-[10px] font-bold text-bronze-dark">${idx + 1}</span>
-          <i data-lucide="file-video" class="h-4 w-4 shrink-0 text-gold-dark"></i>
-          <span class="truncate text-sm font-semibold text-bronze-dark">${vid}</span>
-        </div>
-        <button type="button" onclick="window.hapusVideo(${idx})" class="shrink-0 rounded-md p-1.5 text-red-500 hover:bg-red-50 transition-colors">
-          <i data-lucide="trash-2" class="h-4 w-4"></i>
-        </button>
-      </li>
-    `).join('');
-    lucide.createIcons();
+    elPlaylist.daftar.innerHTML = playlistVideo.map((vid, idx) => `<li class="flex items-center justify-between rounded-lg bg-white px-3 py-2.5 shadow-sm border border-border"><div class="flex items-center gap-3 overflow-hidden"><span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bronze/10 text-[10px] font-bold text-bronze-dark">${idx + 1}</span><i data-lucide="file-video" class="h-4 w-4 shrink-0 text-gold-dark"></i><span class="truncate text-sm font-semibold text-bronze-dark">${vid}</span></div><button type="button" onclick="window.hapusVideo(${idx})" class="shrink-0 rounded-md p-1.5 text-red-500 hover:bg-red-50 transition-colors"><i data-lucide="trash-2" class="h-4 w-4"></i></button></li>`).join(''); lucide.createIcons();
   }
 }
+window.hapusVideo = async function(idx) { playlistVideo.splice(idx, 1); renderPlaylist(); await set(ref(db, 'pengaturan/playlist_video'), playlistVideo); };
+elPlaylist.btnTambah.addEventListener('click', async () => { const nf = elPlaylist.input.value.trim(); if (!nf) return; if (!nf.toLowerCase().endsWith('.mp4') && !nf.toLowerCase().endsWith('.webm')) { tampilkanAlert('Format Tidak Didukung', 'Harus berakhiran .mp4 / .webm'); return; } playlistVideo.push(nf); elPlaylist.input.value = ''; renderPlaylist(); await set(ref(db, 'pengaturan/playlist_video'), playlistVideo); });
+elPlaylist.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); elPlaylist.btnTambah.click(); } });
+onValue(ref(db, 'pengaturan/playlist_video'), (snap) => { playlistVideo = snap.exists() ? snap.val() : []; renderPlaylist(); });
 
-window.hapusVideo = async function(idx) {
-  playlistVideo.splice(idx, 1);
-  renderPlaylist();
-  try {
-    await set(ref(db, 'pengaturan/playlist_video'), playlistVideo);
-  } catch (e) {
-    console.error(e);
-    tampilkanAlert('Gagal', 'Tidak dapat menghapus video. Cek koneksi internet Anda.');
-  }
+function perbaruiTampilanTicker() { elPlaylist.counter.textContent = elPlaylist.ticker.value.length; }
+elPlaylist.ticker.addEventListener('input', perbaruiTampilanTicker);
+get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => { if(s.exists()) elPlaylist.ticker.value = s.val(); perbaruiTampilanTicker(); });
+elPlaylist.btnSimpanTicker.addEventListener('click', async () => { await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elPlaylist.ticker.value); tampilkanAlert('Berhasil', 'Teks berjalan diperbarui.'); });
+
+// =========================================================================
+// PERBAIKAN: EVENT LISTENER UNTUK 6 SAKLAR LOKET
+// =========================================================================
+const elLoket = { 
+  checkboxes: Array.from(document.querySelectorAll('input[type="checkbox"][data-loket]')), 
+  jumlahAktif: document.getElementById('jumlahLoketAktif') 
 };
 
-elPlaylist.btnTambah.addEventListener('click', async () => {
-  const namaFile = elPlaylist.input.value.trim();
-  if (!namaFile) return;
-  
-  if (!namaFile.toLowerCase().endsWith('.mp4') && !namaFile.toLowerCase().endsWith('.webm')) {
-    tampilkanAlert('Format Tidak Didukung', 'Mohon pastikan nama file yang Anda ketik diakhiri dengan ekstensi video (misalnya: .mp4 atau .webm)');
-    return;
+function perbaruiJumlahLoketAktif() { 
+  if (elLoket.jumlahAktif) {
+    elLoket.jumlahAktif.textContent = elLoket.checkboxes.filter(cb => cb.checked).length; 
   }
-  
-  playlistVideo.push(namaFile);
-  elPlaylist.input.value = '';
-  renderPlaylist();
-  
-  try {
-    await set(ref(db, 'pengaturan/playlist_video'), playlistVideo);
-  } catch (e) {
-    console.error(e);
-    tampilkanAlert('Gagal', 'Tidak dapat menambahkan video ke playlist. Cek koneksi internet Anda.');
-  }
-});
-
-elPlaylist.input.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    elPlaylist.btnTambah.click();
-  }
-});
-
-onValue(ref(db, 'pengaturan/playlist_video'), (snap) => {
-  if (snap.exists()) {
-    playlistVideo = snap.val() || [];
-  } else {
-    playlistVideo = [];
-  }
-  renderPlaylist();
-});
-
-function perbaruiTampilanTicker() { 
-  const teks = elPlaylist.ticker.value; 
-  elPlaylist.counter.textContent = teks.length; 
 }
-elPlaylist.ticker.addEventListener('input', perbaruiTampilanTicker);
 
-get(ref(db, 'pengaturan/ticker/teks_berjalan')).then(s => {
-  if(s.exists()) elPlaylist.ticker.value = s.val();
-  perbaruiTampilanTicker();
-});
-
-elPlaylist.btnSimpanTicker.addEventListener('click', async () => {
-  try { 
-    await set(ref(db, 'pengaturan/ticker/teks_berjalan'), elPlaylist.ticker.value);
-    tampilkanAlert('Berhasil', 'Teks berjalan (Ticker) pada layar TV telah diperbarui.'); 
-  } catch (err) { 
-    console.error(err); 
-    tampilkanAlert('Gagal', 'Tidak dapat memperbarui teks berjalan. Cek koneksi Firebase.'); 
-  }
-});
-
-const elLoket = { checkboxes: Array.from(document.querySelectorAll('[id^="aturLoket"]')), jumlahAktif: document.getElementById('jumlahLoketAktif') };
-function perbaruiJumlahLoketAktif() { const aktif = elLoket.checkboxes.filter((cb) => cb.checked).length; if (elLoket.jumlahAktif) elLoket.jumlahAktif.textContent = aktif; }
-
-if (elLoket.checkboxes.length) {
-  onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => {
-    const status = snap.exists() ? snap.val() : {};
-    elLoket.checkboxes.forEach((cb) => { const nomor = cb.dataset.loket; cb.checked = status[nomor] !== undefined ? !!status[nomor] : true; });
-    perbaruiJumlahLoketAktif();
+if (elLoket.checkboxes.length > 0) {
+  onValue(ref(db, 'pengaturan/loket_aktif'), (snap) => { 
+    const status = snap.exists() ? snap.val() : {}; 
+    elLoket.checkboxes.forEach(cb => { 
+      cb.checked = status[cb.dataset.loket] !== undefined ? !!status[cb.dataset.loket] : true; 
+    }); 
+    perbaruiJumlahLoketAktif(); 
   });
-  elLoket.checkboxes.forEach((cb) => {
-    cb.addEventListener('change', async () => {
-      try { await set(ref(db, `pengaturan/loket_aktif/${cb.dataset.loket}`), cb.checked); perbaruiJumlahLoketAktif(); }
-      catch (err) { console.error(err); cb.checked = !cb.checked; tampilkanAlert('Gagal', 'Tidak dapat menyimpan status loket. Cek koneksi Firebase.'); }
-    });
+
+  elLoket.checkboxes.forEach(cb => { 
+    cb.addEventListener('change', async () => { 
+      try {
+        await set(ref(db, `pengaturan/loket_aktif/${cb.dataset.loket}`), cb.checked); 
+        perbaruiJumlahLoketAktif(); 
+      } catch(e) {
+        console.error("Gagal mengupdate status loket", e);
+      }
+    }); 
   });
 }
+// =========================================================================
+
 </script>
 </body>
 </html>
