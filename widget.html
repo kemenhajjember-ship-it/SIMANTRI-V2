@@ -122,10 +122,10 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const KONFIGURASI = {
-  loketA: { nama: "Loket A", target: ["verifikasi"], bisaTeruskan: true },
-  loketB: { nama: "Loket B", target: ["informasi"], bisaTeruskan: false },
-  loketC: { nama: "Loket C", target: ["pembatalan", "pelimpahan"], bisaTeruskan: true },
-  loketD: { nama: "Loket D", target: ["pembatalan", "pelimpahan"], bisaTeruskan: true },
+  loketA: { nama: "Loket A", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskan: true },
+  loketB: { nama: "Loket B", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskan: true },
+  loketC: { nama: "Loket C", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskan: true },
+  loketD: { nama: "Loket D", target: ["verifikasi", "informasi", "pembatalan", "pelimpahan"], bisaTeruskan: true },
   biovisa: { nama: "Ruang Bio Visa", target: ["bio_visa"], bisaTeruskan: false },
   biometrik: { nama: "Ruang Foto", target: ["foto_biometrik"] }
 };
