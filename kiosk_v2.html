@@ -331,11 +331,14 @@ onValue(refLoketAktif, (snap) => {
   const status = snap.exists() ? snap.val() : {};
   const isAktif = (id) => status[id] !== undefined ? !!status[id] : true;
 
+  // Deteksi jika minimal ada 1 loket (A/B/C/D) yang buka
+  const adaLoketUmumAktif = isAktif('loketA') || isAktif('loketB') || isAktif('loketC') || isAktif('loketD');
+  
   const statusLayanan = {
-    'verifikasi': isAktif('loketA'),
-    'informasi': isAktif('loketB'),
-    'pembatalan': isAktif('loketC') || isAktif('loketD'), 
-    'pelimpahan': isAktif('loketC') || isAktif('loketD'), 
+    'verifikasi': adaLoketUmumAktif,
+    'informasi': adaLoketUmumAktif,
+    'pembatalan': adaLoketUmumAktif,
+    'pelimpahan': adaLoketUmumAktif,
     'foto_biometrik': isAktif('biometrik'),
     'bio_visa': isAktif('biovisa')
   };
