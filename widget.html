@@ -2,220 +2,319 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIMANTRI Widget</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Widget SIMANTRI V2</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: { bronze: '#3d2817', 'bronze-dark': '#2b1b10', gold: '#d4af37', cream: '#f5eee0' }
+      }
+    }
+  };
+</script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  body { background-color: transparent; font-family: system-ui, sans-serif; user-select: none; margin: 0; padding: 0; overflow: hidden; }
-  .btn-hover:active { transform: scale(0.95); }
-  .disabled { opacity: 0.5; pointer-events: none; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #faf7f2; overflow: hidden; user-select: none; }
+  .btn-klik:active { transform: scale(0.95); transition: transform 0.1s; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
 </style>
 </head>
-<body class="bg-[#faf7f2] h-screen flex flex-col border border-[#e7dcc8] relative">
+<body class="flex h-screen flex-col text-bronze-dark">
 
-  <!-- LAYAR SETUP LOKET -->
-  <div id="layarSetup" class="flex-1 flex flex-col items-center justify-center p-4 text-center hidden">
-    <div class="h-10 w-10 bg-[#d4af37] rounded-full flex items-center justify-center mb-3">
-      <i data-lucide="user-cog" class="text-[#2b1b10] h-5 w-5"></i>
+  <!-- Header Widget -->
+  <header class="flex shrink-0 items-center justify-between bg-bronze-dark px-4 py-3 text-cream shadow-md">
+    <div class="flex items-center gap-2">
+      <img src="logo.png" alt="Logo" class="h-6 w-6 rounded-full border border-gold/50 object-cover">
+      <h1 class="text-xs font-bold tracking-widest text-gold">SIMANTRI V2</h1>
     </div>
-    <h2 class="font-bold text-[#2b1b10] mb-1">Pilih Loket Anda</h2>
-    <p class="text-xs text-gray-500 mb-4">Pengaturan ini hanya 1x saja.</p>
-    <select id="pilihLoket" class="w-full border-2 border-[#d4af37] rounded-lg p-2 text-sm font-bold text-[#2b1b10] mb-4 outline-none">
-      <option value="">-- Pilih --</option>
-      <option value="loket1">Loket 1 (A)</option>
-      <option value="loket2">Loket 2 (B)</option>
-      <option value="loket3">Loket 3 (A)</option>
-      <option value="loket4">Loket 4 (B)</option>
+    <select id="pilihPeran" class="max-w-[140px] rounded border border-gold/40 bg-bronze px-2 py-1 text-[10px] font-semibold text-cream focus:outline-none">
+      <option value="">— Login —</option>
+      <option value="loketA">Loket A</option>
+      <option value="loketB">Loket B</option>
+      <option value="loketC">Loket C</option>
+      <option value="loketD">Loket D</option>
+      <option value="biometrik">Foto Wajah</option>
+      <option value="biovisa">Bio Visa</option>
     </select>
-    <button id="btnSimpan" class="w-full bg-[#2b1b10] text-[#d4af37] font-bold py-2 rounded-lg btn-hover">SIMPAN</button>
+  </header>
+
+  <!-- Area Belum Login -->
+  <div id="panelKosong" class="flex flex-1 flex-col items-center justify-center p-6 text-center">
+    <i data-lucide="lock-keyhole" class="mb-3 h-10 w-10 text-gold/50"></i>
+    <p class="text-xs font-medium text-bronze-dark/60">Pilih akses login di atas untuk mulai memanggil antrean.</p>
   </div>
 
-  <!-- LAYAR UTAMA -->
-  <div id="layarUtama" class="flex-1 flex flex-col hidden h-full">
-    <!-- Header -->
-    <div class="bg-[#2b1b10] text-[#d4af37] p-3 flex justify-between items-center shrink-0">
-      <div>
-        <h1 id="namaLoket" class="font-bold text-sm leading-tight">LOKET --</h1>
-        <p id="infoKategori" class="text-[10px] text-gray-300">Kode --</p>
-      </div>
-      <button id="btnGanti" title="Ganti Loket" class="text-gray-400 hover:text-white"><i data-lucide="settings" class="h-4 w-4"></i></button>
+  <!-- Area Konsol -->
+  <main id="kontenPeran" class="hidden flex-1 flex-col p-4 overflow-y-auto">
+    
+    <div class="mb-4 text-center">
+      <h2 id="namaLoketTampil" class="text-sm font-extrabold uppercase tracking-widest">LOKET</h2>
+      <p id="targetLayananTampil" class="text-[10px] font-medium text-bronze-dark/60">Melayani: -</p>
     </div>
 
-    <!-- Info Antrean -->
-    <div class="flex-1 flex flex-col items-center justify-center p-4">
-      <div class="bg-white border-2 border-[#d4af37] rounded-xl w-full text-center py-6 shadow-sm relative">
-        <span id="badgeTunggu" class="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-100 text-red-800 text-[10px] font-bold px-3 py-1 rounded-full border border-red-200 shadow-sm hidden">
-          <span id="jmlTunggu">0</span> Menunggu
-        </span>
-        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Nomor Saat Ini</p>
-        <h2 id="nomorTampil" class="text-5xl font-black text-[#2b1b10]">—</h2>
-      </div>
+    <!-- Layar Nomor -->
+    <div class="relative flex shrink-0 flex-col items-center justify-center rounded-2xl border-2 border-gold/30 bg-white py-6 shadow-inner">
+      <p class="text-[9px] font-bold uppercase tracking-widest text-gold">Sedang Dilayani</p>
+      <p id="nomorTampil" class="my-1 font-mono text-5xl font-black tracking-tighter text-bronze-dark">—</p>
+      <span id="badgeStatus" class="rounded-full bg-green-100 px-3 py-0.5 text-[9px] font-bold text-green-700">AKTIF</span>
+    </div>
+
+    <!-- Sisa Antrean -->
+    <div class="my-3 flex items-center justify-between rounded-lg bg-bronze/5 px-3 py-2">
+      <span class="text-[10px] font-bold uppercase text-bronze-dark/70">Menunggu:</span>
+      <span id="statMenunggu" class="font-mono text-sm font-black text-gold">0</span>
     </div>
 
     <!-- Tombol Aksi -->
-    <div class="grid grid-cols-2 gap-2 p-3 bg-white border-t border-[#e7dcc8] shrink-0">
-      <button id="btnPanggil" class="col-span-2 bg-[#d4af37] text-[#2b1b10] font-bold py-3 rounded-lg flex items-center justify-center gap-2 btn-hover shadow-sm disabled">
-        <i data-lucide="volume-2" class="h-5 w-5"></i> <span id="teksPanggil">PANGGIL ANTREAN</span>
+    <div id="areaTombolLoket" class="mt-auto grid gap-2">
+      <button id="btnPanggil" class="btn-klik flex h-12 items-center justify-center gap-2 rounded-xl bg-gold text-xs font-bold uppercase tracking-wider text-bronze-dark shadow-md disabled:opacity-50">
+        <i data-lucide="phone-call" class="h-4 w-4"></i> Panggil Berikutnya
       </button>
-      <button id="btnSelesai" class="bg-[#2b1b10] text-white text-xs font-bold py-3 rounded-lg flex flex-col items-center justify-center gap-1 btn-hover disabled">
-        <i data-lucide="check" class="h-4 w-4"></i> Selesai
-      </button>
-      <button id="btnBio" class="bg-gray-100 border border-gray-300 text-[#2b1b10] text-xs font-bold py-3 rounded-lg flex flex-col items-center justify-center gap-1 btn-hover disabled">
-        <i data-lucide="fingerprint" class="h-4 w-4"></i> Teruskan
+      
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btnUlangi" class="btn-klik flex h-10 items-center justify-center gap-1.5 rounded-lg border border-border bg-white text-[10px] font-bold text-bronze disabled:opacity-50">
+          <i data-lucide="volume-2" class="h-3.5 w-3.5"></i> Ulangi
+        </button>
+        <button id="btnSelesai" disabled class="btn-klik flex h-10 items-center justify-center gap-1.5 rounded-lg border border-border bg-white text-[10px] font-bold text-bronze disabled:opacity-50">
+          <i data-lucide="check" class="h-3.5 w-3.5"></i> Selesai
+        </button>
+      </div>
+      
+      <button id="btnTeruskan" disabled class="btn-klik flex h-10 items-center justify-center gap-1.5 rounded-lg bg-bronze-dark text-[10px] font-bold text-gold hidden disabled:opacity-50">
+        <i data-lucide="fingerprint" class="h-3.5 w-3.5"></i> Teruskan ke Ruang Foto
       </button>
     </div>
-  </div>
+    
+  </main>
 
-  <!-- MODAL NOTIFIKASI BIOMETRIK (CUSTOM) -->
-  <div id="modalBio" class="absolute inset-0 z-50 bg-[#1b1008]/80 backdrop-blur-sm hidden flex-col items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full p-5 text-center border-2 border-[#d4af37]">
-      <div class="mx-auto h-12 w-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-3">
-        <i data-lucide="arrow-right-circle" class="h-6 w-6 text-orange-600"></i>
+  <!-- Mini Overlay Biometrik -->
+  <div id="modalBio" class="absolute inset-0 z-50 hidden flex-col items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+    <div class="w-full rounded-xl bg-white p-5 text-center shadow-2xl">
+      <p class="text-sm font-bold text-bronze-dark">Jumlah orang dalam rombongan ini?</p>
+      <div class="my-4 flex items-center justify-center gap-4">
+        <button id="btnMinBio" class="h-10 w-10 rounded-full border border-bronze bg-cream text-lg font-bold transition-transform active:scale-90">−</button>
+        <span id="angkaBio" class="font-mono text-2xl font-black">1</span>
+        <button id="btnPlusBio" class="h-10 w-10 rounded-full border border-bronze bg-cream text-lg font-bold transition-transform active:scale-90">+</button>
       </div>
-      <h3 class="text-lg font-extrabold text-[#2b1b10] leading-tight mb-2">Teruskan Jemaah?</h3>
-      <p class="text-[11px] text-gray-500 mb-5 leading-relaxed">
-        Pindahkan Nomor <span id="modalBioNomor" class="font-bold text-[#b8860b] text-sm tracking-widest">--</span><br>ke Ruang Biometrik.
-      </p>
       <div class="flex gap-2">
-        <button id="btnBatalBio" class="flex-1 border-2 border-gray-200 text-gray-600 font-bold py-2.5 rounded-lg text-[11px] btn-hover uppercase tracking-wider">Batal</button>
-        <button id="btnOkBio" class="flex-1 bg-[#d4af37] text-[#2b1b10] font-bold py-2.5 rounded-lg text-[11px] btn-hover shadow-sm uppercase tracking-wider">Ya, Pindah</button>
+        <button id="btnBatalBio" class="flex-1 rounded-lg border border-border bg-cream py-2 text-xs font-bold transition-transform active:scale-95">Batal</button>
+        <button id="btnKirimBio" class="flex-1 rounded-lg bg-gold py-2 text-xs font-bold text-bronze-dark transition-transform active:scale-95 shadow-md">Kirim</button>
       </div>
     </div>
   </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, get, set, remove, onValue, push, query, orderByChild, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
 lucide.createIcons();
-const db = firebase.initializeApp({
+
+const firebaseConfig = {
   apiKey: "AIzaSyB7tHB3eRYd-0TGqLlxPsEanymb7qkmDYw",
   authDomain: "simantri-jember.firebaseapp.com",
   databaseURL: "https://simantri-jember-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "simantri-jember"
-}).database();
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-const KONFIG = {
-  loket1: { nama: "Loket 1", kode: "A", bio: true },
-  loket2: { nama: "Loket 2", kode: "B", bio: false },
-  loket3: { nama: "Loket 3", kode: "A", bio: true },
-  loket4: { nama: "Loket 4", kode: "B", bio: false }
+const KONFIGURASI = {
+  loketA: { nama: "Loket A", target: ["verifikasi"], bisaTeruskan: true },
+  loketB: { nama: "Loket B", target: ["informasi"], bisaTeruskan: false },
+  loketC: { nama: "Loket C", target: ["pembatalan", "pelimpahan"], bisaTeruskan: true },
+  loketD: { nama: "Loket D", target: ["pembatalan", "pelimpahan"], bisaTeruskan: true },
+  biovisa: { nama: "Ruang Bio Visa", target: ["bio_visa"], bisaTeruskan: false },
+  biometrik: { nama: "Ruang Foto", target: ["foto_biometrik"] }
 };
 
-const el = { 
-  setup: document.getElementById('layarSetup'), 
-  utama: document.getElementById('layarUtama'), 
-  pilih: document.getElementById('pilihLoket'), 
-  btnSimpan: document.getElementById('btnSimpan'), 
-  nama: document.getElementById('namaLoket'), 
-  info: document.getElementById('infoKategori'), 
-  btnGanti: document.getElementById('btnGanti'), 
-  badge: document.getElementById('badgeTunggu'), 
-  jmlTunggu: document.getElementById('jmlTunggu'), 
-  nomor: document.getElementById('nomorTampil'), 
-  btnPanggil: document.getElementById('btnPanggil'), 
-  teksPanggil: document.getElementById('teksPanggil'), 
-  btnSelesai: document.getElementById('btnSelesai'), 
-  btnBio: document.getElementById('btnBio'),
-  modalBio: document.getElementById('modalBio'),
-  modalBioNomor: document.getElementById('modalBioNomor'),
-  btnBatalBio: document.getElementById('btnBatalBio'),
-  btnOkBio: document.getElementById('btnOkBio')
+const NAMA_KATEGORI = { verifikasi: 'Verifikasi', informasi: 'Informasi', pembatalan: 'Pembatalan', pelimpahan: 'Pelimpahan', foto_biometrik: 'Foto Wajah', bio_visa: 'Bio Visa' };
+
+const el = {
+  peran: document.getElementById('pilihPeran'), kosong: document.getElementById('panelKosong'), konten: document.getElementById('kontenPeran'),
+  nama: document.getElementById('namaLoketTampil'), target: document.getElementById('targetLayananTampil'), nomor: document.getElementById('nomorTampil'),
+  badge: document.getElementById('badgeStatus'), stat: document.getElementById('statMenunggu'),
+  btnPanggil: document.getElementById('btnPanggil'), btnUlangi: document.getElementById('btnUlangi'),
+  btnSelesai: document.getElementById('btnSelesai'), btnTeruskan: document.getElementById('btnTeruskan'),
+  modal: document.getElementById('modalBio'), bioMin: document.getElementById('btnMinBio'), bioPlus: document.getElementById('btnPlusBio'),
+  bioAngka: document.getElementById('angkaBio'), bioBatal: document.getElementById('btnBatalBio'), bioKirim: document.getElementById('btnKirimBio')
 };
 
-let loketAktif = localStorage.getItem('sm_loket');
-let nomorAktif = null;
-let statusTerkunci = false;
+let peranAktif = null;
+let dataDilayani = null;
+let unsubAntrean = null;
+let angkaTeruskan = 1;
 
-function init() {
-  if (!loketAktif) { el.setup.classList.remove('hidden'); el.utama.classList.add('hidden'); } 
-  else { el.setup.classList.add('hidden'); el.utama.classList.remove('hidden'); jalankanWidget(); }
-}
-el.btnSimpan.onclick = () => { if(el.pilih.value) { localStorage.setItem('sm_loket', el.pilih.value); loketAktif = el.pilih.value; init(); } };
-el.btnGanti.onclick = () => { localStorage.removeItem('sm_loket'); loketAktif = null; init(); };
-
-function aturTombol(kunci, adaAntrean) {
-  statusTerkunci = kunci;
-  if(kunci) {
-    el.btnPanggil.classList.remove('disabled', 'bg-[#d4af37]', 'text-[#2b1b10]'); el.btnPanggil.classList.add('bg-gray-200', 'text-gray-600');
-    el.teksPanggil.textContent = "PANGGIL ULANG";
-    el.btnSelesai.classList.remove('disabled'); 
-    if(KONFIG[loketAktif].bio) el.btnBio.classList.remove('disabled');
-  } else {
-    el.btnSelesai.classList.add('disabled'); el.btnBio.classList.add('disabled');
-    el.btnPanggil.classList.remove('bg-gray-200', 'text-gray-600'); el.btnPanggil.classList.add('bg-[#d4af37]', 'text-[#2b1b10]');
-    el.teksPanggil.textContent = "PANGGIL ANTREAN";
-    el.nomor.textContent = "—";
-    if(adaAntrean) el.btnPanggil.classList.remove('disabled'); else el.btnPanggil.classList.add('disabled');
-  }
+async function catatLog(nomor, aksi, catatan){
+  push(ref(db, 'log_aktivitas'), { nomor, aksi, catatan, waktu: new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }), timestamp: Date.now() });
 }
 
-function jalankanWidget() {
-  const kfg = KONFIG[loketAktif];
-  el.nama.textContent = kfg.nama.toUpperCase(); el.info.textContent = `Melayani Kode ${kfg.kode}`;
-  if(!kfg.bio) el.btnBio.style.display = 'none'; else el.btnBio.style.display = 'flex';
-
-  db.ref(`status_loket/${loketAktif}`).on('value', snap => {
-    if (snap.exists() && snap.val().sedangDilayani) {
-      nomorAktif = snap.val().nomor; el.nomor.textContent = nomorAktif; aturTombol(true, false);
-    } else { nomorAktif = null; aturTombol(false, Number(el.jmlTunggu.textContent) > 0); }
-  });
-
-  db.ref('antrean_menunggu').orderByChild('kategori').equalTo(kfg.kode).on('value', snap => {
-    let jml = 0; snap.forEach(()=>{ jml++; });
-    el.jmlTunggu.textContent = jml;
-    if(jml > 0) { el.badge.classList.remove('hidden'); if(!statusTerkunci) aturTombol(false, true); } 
-    else { el.badge.classList.add('hidden'); if(!statusTerkunci) aturTombol(false, false); }
-  });
+function aturKunci(terkunci) {
+  el.btnPanggil.disabled = terkunci;
+  el.btnSelesai.disabled = !terkunci;
+  el.btnTeruskan.disabled = !terkunci;
+  if(terkunci) { el.badge.textContent = "TERKUNCI"; el.badge.className = "rounded-full bg-red-100 px-3 py-0.5 text-[9px] font-bold text-red-700"; }
+  else { el.badge.textContent = "AKTIF"; el.badge.className = "rounded-full bg-green-100 px-3 py-0.5 text-[9px] font-bold text-green-700"; }
 }
 
-el.btnPanggil.onclick = async () => {
-  const kfg = KONFIG[loketAktif];
-  if(statusTerkunci && nomorAktif) {
-    await db.ref('panggilan_aktif').set({ nomor: nomorAktif, loket: kfg.nama, kategori: kfg.kode, timestamp: firebase.database.ServerValue.TIMESTAMP });
-    return;
-  }
-  el.btnPanggil.classList.add('disabled');
-  const snap = await db.ref('antrean_menunggu').orderByChild('kategori').equalTo(kfg.kode).limitToFirst(1).once('value');
-  if (!snap.exists()) return;
-  let tiket, key; snap.forEach(c => { tiket=c.val(); key=c.key; });
-  await db.ref(`antrean_menunggu/${key}`).remove();
-  const py = { nomor: tiket.nomor, loket: kfg.nama, kategori: tiket.kategori, jumlahOrang: tiket.jumlahOrang||1, sedangDilayani: true, timestamp: firebase.database.ServerValue.TIMESTAMP };
-  await db.ref('panggilan_aktif').set(py); await db.ref(`status_loket/${loketAktif}`).set(py);
-  db.ref('log_aktivitas').push({ nomor: tiket.nomor, aksi: 'Panggil', catatan: `Dipanggil ke ${kfg.nama}`, waktu: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), timestamp: Date.now() });
-};
+async function muatStatusLoket() {
+    if (!peranAktif) return;
+    try {
+      const snap = await get(ref(db, `status_loket/${peranAktif}`));
+      if (snap.exists() && snap.val().sedangDilayani) {
+        dataDilayani = snap.val(); 
+        el.nomor.textContent = dataDilayani.nomor; 
+        aturKunci(true);
+      } else {
+        dataDilayani = null;
+        el.nomor.textContent = '—';
+        aturKunci(false);
+      }
+    } catch(e){
+        console.error("Gagal memuat status:", e);
+    }
+}
 
-el.btnSelesai.onclick = async () => {
-  if(!nomorAktif) return; el.btnSelesai.classList.add('disabled');
-  await db.ref(`status_loket/${loketAktif}/sedangDilayani`).set(false);
-  db.ref('log_aktivitas').push({ nomor: nomorAktif, aksi: 'Selesai', catatan: 'Layanan selesai di loket', waktu: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), timestamp: Date.now() });
-};
-
-// --- LOGIKA MODAL BIOMETRIK CUSTOM ---
-el.btnBio.onclick = () => {
-  if(!nomorAktif) return; 
-  el.modalBioNomor.textContent = nomorAktif;
-  el.modalBio.classList.remove('hidden');
-  el.modalBio.classList.add('flex');
-};
-
-el.btnBatalBio.onclick = () => {
-  el.modalBio.classList.add('hidden');
-  el.modalBio.classList.remove('flex');
-};
-
-el.btnOkBio.onclick = async () => {
-  el.modalBio.classList.add('hidden');
-  el.modalBio.classList.remove('flex');
-  el.btnBio.classList.add('disabled');
+el.peran.addEventListener('change', async () => {
+  peranAktif = el.peran.value || null; dataDilayani = null; aturKunci(false);
   
-  await db.ref('antrean_biometrik').push({ nomorAsal: nomorAktif, asalLoket: KONFIG[loketAktif].nama, jumlahOrang: 1, timestamp: firebase.database.ServerValue.TIMESTAMP });
-  await db.ref(`status_loket/${loketAktif}/sedangDilayani`).set(false);
-  db.ref('log_aktivitas').push({ nomor: nomorAktif, aksi: 'Biometrik', catatan: `Diteruskan ke Biometrik (1 orang)`, waktu: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}), timestamp: Date.now() });
-};
-// ------------------------------------
+  if (peranAktif) localStorage.setItem('simantri_peran_widget', peranAktif);
+  else localStorage.removeItem('simantri_peran_widget');
 
-init();
+  el.kosong.classList.toggle('hidden', !!peranAktif);
+  el.konten.classList.toggle('hidden', !peranAktif); el.konten.classList.toggle('flex', !!peranAktif);
+  
+  if (unsubAntrean) {
+     if (typeof unsubAntrean === 'function') unsubAntrean();
+     else if (Array.isArray(unsubAntrean)) unsubAntrean.forEach(fn => fn());
+     unsubAntrean = null;
+  }
+  
+  if (peranAktif) {
+    const k = KONFIGURASI[peranAktif];
+    el.nama.textContent = k.nama;
+    el.btnTeruskan.classList.toggle('hidden', !k.bisaTeruskan);
+    el.nomor.textContent = 'Memuat...'; 
+
+    await muatStatusLoket();
+    
+    if (peranAktif === 'biometrik') {
+      el.target.textContent = "Menerima Foto Baru & Lemparan";
+      let countLemparan = 0, countLangsung = 0;
+      const renderCount = () => { el.stat.textContent = countLemparan + countLangsung; };
+      
+      const unsub1 = onValue(ref(db, 'antrean_biometrik'), snap => { 
+        countLemparan = snap.exists() ? Object.keys(snap.val()).length : 0; 
+        renderCount(); 
+      });
+      const unsub2 = onValue(ref(db, 'antrean_menunggu'), snap => { 
+        countLangsung = 0;
+        if(snap.exists()) snap.forEach(c => { if(c.val().kategori === 'foto_biometrik') countLangsung++; });
+        renderCount(); 
+      });
+      unsubAntrean = [unsub1, unsub2];
+    } else {
+      el.target.textContent = `Melayani: ${k.target.map(t=>NAMA_KATEGORI[t]).join(', ')}`;
+      unsubAntrean = onValue(ref(db, 'antrean_menunggu'), snap => {
+        let count = 0; snap.forEach(c => { if(k.target.includes(c.val().kategori)) count++; });
+        el.stat.textContent = count;
+      });
+    }
+  }
+});
+
+el.btnPanggil.addEventListener('click', async () => {
+  if(!peranAktif) return; el.btnPanggil.disabled = true;
+  const k = KONFIGURASI[peranAktif];
+  try {
+    let targetNomor = null, key = null, pathDelete = 'antrean_menunggu';
+    
+    if (peranAktif === 'biometrik') {
+      const snap = await get(query(ref(db, 'antrean_biometrik'), orderByChild('timestamp')));
+      snap.forEach(c => { if(!key) { targetNomor = { nomor: c.val().nomorAsal, jumlahOrang: c.val().jumlahOrang, kategori: 'foto_biometrik' }; key = c.key; pathDelete = 'antrean_biometrik'; } });
+      if(!key) {
+        const snap2 = await get(query(ref(db, 'antrean_menunggu'), orderByChild('timestamp')));
+        snap2.forEach(c => { if(!key && c.val().kategori === 'foto_biometrik') { targetNomor = c.val(); key = c.key; pathDelete = 'antrean_menunggu'; } });
+      }
+
+      if (targetNomor) {
+         const snapKap = await get(ref(db, 'kapasitas_biometrik/saat_ini'));
+         const kapSkg = snapKap.exists() ? snapKap.val() : 0;
+         if (kapSkg + (targetNomor.jumlahOrang || 1) > 8) {
+            alert(`Kapasitas Penuh!\nSaat ini ada ${kapSkg} orang di dalam.\nRombongan berikutnya berjumlah ${targetNomor.jumlahOrang} orang.\nMaksimal Ruangan: 8 Orang.\n\nSilakan selesaikan jemaah yang ada terlebih dahulu.`);
+            el.btnPanggil.disabled = false; return;
+         }
+      }
+    } else {
+      const snap = await get(query(ref(db, 'antrean_menunggu'), orderByChild('timestamp')));
+      snap.forEach(c => { if(!key && k.target.includes(c.val().kategori)) { targetNomor = c.val(); key = c.key; } });
+    }
+
+    if(!key) { alert('Antrean kosong!'); el.btnPanggil.disabled = false; return; }
+
+    await remove(ref(db, `${pathDelete}/${key}`));
+    
+    if (peranAktif === 'biometrik') {
+        await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (kap) => (kap || 0) + (targetNomor.jumlahOrang || 1));
+    }
+
+    const payload = { nomor: targetNomor.nomor, loket: k.nama, kategori: targetNomor.kategori || 'foto_biometrik', jumlahOrang: targetNomor.jumlahOrang || 1, sedangDilayani: true, timestamp: serverTimestamp() };
+    await set(ref(db, 'panggilan_aktif'), payload); await set(ref(db, `status_loket/${peranAktif}`), payload);
+    dataDilayani = payload; el.nomor.textContent = payload.nomor; aturKunci(true);
+    catatLog(payload.nomor, 'Panggil', `Dipanggil via Widget ke ${k.nama}`);
+  } catch(e) { alert('Gagal memanggil! Periksa Koneksi.'); console.error(e); } finally { el.btnPanggil.disabled = false; }
+});
+
+el.btnUlangi.addEventListener('click', () => {
+  if (dataDilayani) set(ref(db, 'panggilan_aktif'), { nomor: dataDilayani.nomor, loket: KONFIGURASI[peranAktif].nama, kategori: dataDilayani.kategori, timestamp: serverTimestamp() });
+});
+
+el.btnSelesai.addEventListener('click', async () => {
+  if(!dataDilayani) return;
+  el.btnSelesai.disabled = true; 
+  
+  try {
+      if (peranAktif === 'biometrik') {
+         const jmlKeluar = dataDilayani.jumlahOrang || 1;
+         await runTransaction(ref(db, 'kapasitas_biometrik/saat_ini'), (k) => Math.max(0, (k || 0) - jmlKeluar));
+      }
+
+      catatLog(dataDilayani.nomor, 'Selesai', 'Selesai dilayani via Widget');
+      await set(ref(db, `status_loket/${peranAktif}/sedangDilayani`), false);
+      dataDilayani = null; el.nomor.textContent = '—'; aturKunci(false);
+  } catch(e) {
+      console.error(e);
+  } finally {
+      el.btnSelesai.disabled = !terkunci; 
+  }
+});
+
+el.btnTeruskan.addEventListener('click', () => {
+  if(!dataDilayani) return; angkaTeruskan = dataDilayani.jumlahOrang || 1; el.bioAngka.textContent = angkaTeruskan;
+  el.modal.classList.remove('hidden'); el.modal.classList.add('flex');
+});
+el.bioMin.addEventListener('click', () => { angkaTeruskan = Math.max(1, angkaTeruskan - 1); el.bioAngka.textContent = angkaTeruskan; });
+el.bioPlus.addEventListener('click', () => { angkaTeruskan = Math.min(8, angkaTeruskan + 1); el.bioAngka.textContent = angkaTeruskan; });
+el.bioBatal.addEventListener('click', () => { el.modal.classList.add('hidden'); el.modal.classList.remove('flex'); });
+el.bioKirim.addEventListener('click', async () => {
+  el.bioKirim.disabled = true;
+  try {
+    await push(ref(db, 'antrean_biometrik'), { nomorAsal: dataDilayani.nomor, asalLoket: KONFIGURASI[peranAktif].nama, jumlahOrang: angkaTeruskan, timestamp: serverTimestamp() });
+    catatLog(dataDilayani.nomor, 'Biometrik', `Diteruskan ke Foto via Widget (${angkaTeruskan} org)`);
+    el.modal.classList.add('hidden'); el.modal.classList.remove('flex');
+    el.btnSelesai.click(); 
+  } catch(e) { alert('Gagal meneruskan!'); } finally { el.bioKirim.disabled = false; }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const peranTersimpan = localStorage.getItem('simantri_peran_widget');
+  if (peranTersimpan && KONFIGURASI[peranTersimpan]) {
+    el.peran.value = peranTersimpan;
+    el.peran.dispatchEvent(new Event('change'));
+  }
+});
 </script>
 </body>
 </html>
