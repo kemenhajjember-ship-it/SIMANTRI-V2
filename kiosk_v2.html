@@ -276,7 +276,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, set, runTransaction, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, push, set, runTransaction, onValue, serverTimestamp, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 // Init UI
 try { lucide.createIcons(); } catch (e) {}
@@ -319,6 +319,28 @@ const app = initializeApp({
   projectId: "simantri-jember"
 });
 const db = getDatabase(app);
+
+// =========================================================================
+// AUTO-RESET ANTREAN DI AWAL HARI (KIOSK)
+// =========================================================================
+const TANGGAL_HARI_INI = new Date().toLocaleDateString('id-ID');
+const refTanggal = ref(db, 'pengaturan/tanggal_terakhir');
+
+get(refTanggal).then(async (snap) => {
+  if (!snap.exists()) {
+    set(refTanggal, TANGGAL_HARI_INI);
+  } else if (snap.val() !== TANGGAL_HARI_INI) {
+    try {
+      await remove(ref(db, 'counter_nomor'));
+      await remove(ref(db, 'antrean_menunggu'));
+      await remove(ref(db, 'antrean_biometrik'));
+      await remove(ref(db, 'status_loket'));
+      await remove(ref(db, 'panggilan_aktif'));
+      await set(ref(db, 'kapasitas_biometrik/saat_ini'), 0);
+      await set(refTanggal, TANGGAL_HARI_INI);
+    } catch(e) { console.error("Gagal Auto-Reset Kiosk", e); }
+  }
+});
 
 // Indikator Koneksi & Auto Ping
 const elStatus = document.getElementById('statusFirebaseFooter');
