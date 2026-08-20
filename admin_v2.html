@@ -633,7 +633,7 @@ get(refTanggal).then(async (snap) => {
   } else if (snap.val() !== TANGGAL_HARI_INI) {
     try {
       await Promise.all([ 
-        remove(ref(db, 'counter_nomor/global_v2')), 
+        remove(ref(db, 'counter_nomor')), 
         remove(ref(db, 'antrean_menunggu')), 
         remove(ref(db, 'antrean_biometrik')), 
         remove(ref(db, 'status_loket')), 
@@ -1046,7 +1046,7 @@ el.btnKonfirmasiResetAntrean.addEventListener('click', async () => {
   if (el.inputKonfirmasiReset.value.trim() !== 'RESET') { el.pesanErrorReset.classList.remove('hidden'); return; }
   el.btnKonfirmasiResetAntrean.disabled = true; el.btnKonfirmasiResetAntrean.textContent = 'Memproses...';
   try {
-    await Promise.all([ remove(ref(db, 'counter_nomor/global_v2')), remove(ref(db, 'antrean_menunggu')), remove(ref(db, 'antrean_biometrik')), remove(ref(db, 'status_loket')), remove(ref(db, 'panggilan_aktif')), set(ref(db, 'kapasitas_biometrik/saat_ini'), 0) ]);
+    await Promise.all([ remove(ref(db, 'counter_nomor')), remove(ref(db, 'antrean_menunggu')), remove(ref(db, 'antrean_biometrik')), remove(ref(db, 'status_loket')), remove(ref(db, 'panggilan_aktif')), set(ref(db, 'kapasitas_biometrik/saat_ini'), 0) ]);
     await catatAktivitas('SISTEM', 'Reset', `Antrean direset oleh ${peranAktif ? KONFIGURASI_PERAN[peranAktif].nama : 'petugas'}.`, 'Sistem');
     nomorSedangDilayani = null; nomorBiometrikAktif = null; statSelesai = 0; statBiometrik = 0;
     el.statSelesai.textContent = '0'; el.statBiometrik.textContent = '0';
